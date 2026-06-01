@@ -53,7 +53,7 @@ function Canvas({
           fitView
         >
           <Background />
-          <Controls />
+          <Controls position="top-right" />
           <MiniMap />
         </ReactFlow>
       </div>

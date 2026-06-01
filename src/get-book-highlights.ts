@@ -8,13 +8,21 @@ export type BookHighlight = {
   notes: Highlight["notes"];
 };
 
-/** ページ詳細の取得結果。ハイライトと「メンタルマップ」(H2 セクション) のテキスト行。 */
+/** メンタルマップの 1 問分。質問（H3 見出し）とその配下の答え群。 */
+export type MentalMapItem = {
+  question: string;
+  answers: string[];
+};
+
+/** ページ詳細の取得結果。ハイライトと「メンタルマップ」(H2 セクション) の構造化データ。 */
 export type BookDetail = {
   highlights: BookHighlight[];
-  mentalMap: string[];
+  mentalMap: MentalMapItem[];
 };
 
 const MENTAL_MAP_HEADING = "メンタルマップ";
+
+const SECTION_BOUNDARY_LABELS = new Set(["Summary", "Highlights & Notes"]);
 
 function richTextToPlain(richText: Record<"plain_text", string>[]) {
   return richText.map((rt) => rt.plain_text).join("");
@@ -71,45 +79,78 @@ async function listAllChildren(blockId: PageId) {
 
 /**
  * Notion ページから読書ハイライト（quote + 子 bullet メモ）と
- * 「メンタルマップ」H2 セクションのテキストを復元する。
- * H2「メンタルマップ」以降の兄弟ブロックを、次の H1/H2 が現れるまで本文として収集する。
+ * 「メンタルマップ」H2 セクションを復元する。
+ * メンタルマップは H3 見出し（「1. …」等の質問）ごとに、配下の本文を答えとしてまとめる。
+ * 収集は次の H1/H2、または Summary / Highlights & Notes（H3）、quote で終了する。
  */
 export async function getBookHighlights(pageId: PageId): Promise<BookDetail> {
   const topBlocks = await listAllChildren(pageId);
   const highlights: BookHighlight[] = [];
-  const mentalMap: string[] = [];
+  const mentalMap: MentalMapItem[] = [];
   let inMentalMap = false;
+  let currentItem: MentalMapItem | null = null;
+
+  /** メンタルマップ収集中の本文を、現在の質問の答えとして追加する（質問が無ければ作る）。 */
+  function pushAnswer(text: string) {
+    if (!currentItem) {
+      currentItem = { question: "", answers: [] };
+      mentalMap.push(currentItem);
+    }
+    currentItem.answers.push(text);
+  }
 
   for (const block of topBlocks) {
     if (!("type" in block)) {
       continue;
     }
 
-    // H1/H2 はセクション境界。「メンタルマップ」見出しのときだけ収集を開始する。
+    // H1/H2 はセクション境界。「メンタルマップ」H2 のときだけ収集を開始する。
     if (block.type === "heading_1" || block.type === "heading_2") {
       const headingText =
         block.type === "heading_2" ? richTextToPlain(block.heading_2.rich_text).trim() : "";
       inMentalMap = headingText === MENTAL_MAP_HEADING;
+      currentItem = null;
+      continue;
+    }
+
+    // H3：メンタルマップ内では質問見出し（新しい項目）。Summary/Highlights & Notes だけ境界。
+    if (block.type === "heading_3") {
+      const h3 = richTextToPlain(block.heading_3.rich_text).trim();
+      if (inMentalMap && !SECTION_BOUNDARY_LABELS.has(h3)) {
+        currentItem = { question: h3, answers: [] };
+        mentalMap.push(currentItem);
+      } else {
+        inMentalMap = false;
+        currentItem = null;
+      }
       continue;
     }
 
     if (inMentalMap) {
       const text = blockText(block);
-      if (text) {
-        mentalMap.push(text);
-      }
+      const trimmed = text?.trim() ?? "";
 
-      if (block.has_children) {
-        const children = await listAllChildren(block.id);
+      // quote（ハイライト開始）や平テキストの既知ラベルに当たったら収集を終了し、通常処理へ落とす。
+      if (block.type === "quote" || SECTION_BOUNDARY_LABELS.has(trimmed)) {
+        inMentalMap = false;
+        currentItem = null;
+      } else {
+        if (text) {
+          pushAnswer(text);
+        }
 
-        for (const child of children) {
-          const childText = blockText(child);
-          if (childText) {
-            mentalMap.push(childText);
+        if (block.has_children) {
+          const children = await listAllChildren(block.id);
+
+          for (const child of children) {
+            const childText = blockText(child);
+            if (childText) {
+              pushAnswer(childText);
+            }
           }
         }
+        continue;
       }
-      continue;
     }
 
     if (block.type !== "quote") continue;

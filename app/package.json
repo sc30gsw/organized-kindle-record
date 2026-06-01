@@ -18,6 +18,8 @@
   },
   "dependencies": {
     "@formkit/tempo": "^1.1.0",
+    "@libsql/client": "^0.17.3",
+    "@libsql/kysely-libsql": "^0.4.1",
     "@mantine/core": "9.2.2",
     "@mantine/dropzone": "9.2.2",
     "@mantine/hooks": "9.2.2",
@@ -33,7 +35,9 @@
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.18",
     "@tanstack/valibot-adapter": "^1.143.11",
+    "better-auth": "^1.6.13",
     "better-result": "^2.9.2",
+    "dotenv": "^17.4.2",
     "nitro": "^3.0.260522-beta",
     "p-limit": "^7.3.0",
     "react": "^19.2.3",

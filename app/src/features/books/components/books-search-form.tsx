@@ -9,7 +9,7 @@ import {
   STATUS_OPTIONS,
 } from '@/features/books/schemas/search-schema';
 
-const routeApi = getRouteApi('/');
+const routeApi = getRouteApi('/_authenticated/');
 
 /** 検索フォーム。値は URL search params が真実。text は debounce、status は即時。 */
 export function BooksSearchForm() {

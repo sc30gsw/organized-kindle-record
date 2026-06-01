@@ -15,7 +15,7 @@ function BooksError({ error }: Record<'error', Error>) {
   );
 }
 
-export const Route = createFileRoute('/')({
+export const Route = createFileRoute('/_authenticated/')({
   validateSearch: valibotValidator(searchSchema),
   search: {
     middlewares: [stripSearchParams(defaultSearchParams)],

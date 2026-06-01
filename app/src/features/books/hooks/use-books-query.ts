@@ -3,7 +3,7 @@ import { eq } from '@tanstack/db';
 import { getRouteApi } from '@tanstack/react-router';
 import { booksCollection } from '@/features/books/collections';
 
-const routeApi = getRouteApi('/');
+const routeApi = getRouteApi('/_authenticated/');
 
 /**
  * 読了ステータスは DB の where で、テキスト(title/author の OR)は JS で絞り込む。

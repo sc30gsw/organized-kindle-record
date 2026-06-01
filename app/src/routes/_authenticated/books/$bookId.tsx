@@ -1,8 +1,9 @@
 import { Suspense } from "react";
-import { ClientOnly, createFileRoute } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute, Link } from "@tanstack/react-router";
 import { eq } from "@tanstack/db";
 import { useLiveSuspenseQuery } from "@tanstack/react-db";
-import { Alert, Container, Loader } from "@mantine/core";
+import { Alert, Button, Center, Container, Group, Loader } from "@mantine/core";
+import { IconArrowLeft } from "@tabler/icons-react";
 import { booksCollection } from "@/features/books/collections";
 import { bookHighlightsQueryOptions } from "@/features/books/api/book-highlights-query";
 import { HighlightPanel } from "@/features/books/components/highlight-panel";
@@ -23,6 +24,14 @@ export const Route = createFileRoute("/_authenticated/books/$bookId")({
   errorComponent: BookDetailError,
 });
 
+function PageLoader() {
+  return (
+    <Center h="100%">
+      <Loader />
+    </Center>
+  );
+}
+
 function BookDetailError({ error }: Record<"error", Error>) {
   return (
     <Container size="xl" py="md">
@@ -35,12 +44,24 @@ function BookDetailError({ error }: Record<"error", Error>) {
 
 function BookDetailPage() {
   return (
-    <div className="h-[calc(100vh-16px)] p-2">
-      <ClientOnly fallback={<Loader />}>
-        <Suspense fallback={<Loader />}>
-          <BookDetail />
-        </Suspense>
-      </ClientOnly>
+    <div className="flex h-[calc(100vh-16px)] flex-col p-2">
+      <Group mb="xs">
+        <Button
+          leftSection={<IconArrowLeft size={16} />}
+          renderRoot={(props) => <Link to="/" {...props} />}
+          size="xs"
+          variant="subtle"
+        >
+          一覧に戻る
+        </Button>
+      </Group>
+      <div className="min-h-0 flex-1">
+        <ClientOnly fallback={<PageLoader />}>
+          <Suspense fallback={<PageLoader />}>
+            <BookDetail />
+          </Suspense>
+        </ClientOnly>
+      </div>
     </div>
   );
 }
@@ -72,7 +93,7 @@ function BookDetail() {
   return (
     <SplitView
       left={
-        <Suspense fallback={<Loader />}>
+        <Suspense fallback={<PageLoader />}>
           <HighlightPanel book={book} onQuoteToNode={mm.addNode} />
         </Suspense>
       }

@@ -10,7 +10,8 @@ type HighlightPanelProps = {
 };
 
 export function HighlightPanel({ book, onQuoteToNode }: HighlightPanelProps) {
-  const { data: highlights } = useSuspenseQuery(bookHighlightsQueryOptions(book.id));
+  const { data } = useSuspenseQuery(bookHighlightsQueryOptions(book.id));
+  const { highlights, mentalMap } = data;
 
   return (
     <Stack p="md" gap="md" style={{ height: "100%", overflow: "auto" }}>
@@ -30,6 +31,17 @@ export function HighlightPanel({ book, onQuoteToNode }: HighlightPanelProps) {
           </Anchor>
         </Stack>
       </Group>
+
+      {mentalMap.length > 0 ? (
+        <Stack gap={4} p="sm" bg="gray.0" style={{ borderRadius: 8 }}>
+          <Title order={5}>メンタルマップ</Title>
+          {mentalMap.map((line, i) => (
+            <Text key={i} size="sm">
+              {line}
+            </Text>
+          ))}
+        </Stack>
+      ) : null}
 
       <Stack gap="sm">
         {highlights.map((h, i) => (

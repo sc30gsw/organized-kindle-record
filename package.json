@@ -1,7 +1,11 @@
 {
   "name": "kindle-to-notion",
   "version": "1.0.0",
+  "private": true,
   "type": "module",
+  "workspaces": [
+    "app"
+  ],
   "scripts": {
     "parse": "tsx src/import-all.ts --dry-run",
     "create-db": "tsx src/create-database.ts",

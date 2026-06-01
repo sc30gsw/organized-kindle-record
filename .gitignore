@@ -1,0 +1,21 @@
+node_modules/
+
+glasp-kindle-highlights/
+.fallow/cache.bin
+
+.env
+dist/
+done.log
+failed.json
+parsed.json
+db-id.txt
+done.log
+
+# build outputs / caches (app/ included via no-slash patterns)
+.output/
+.vite/
+.nitro/
+.DS_Store
+
+# TanStack Router generated route tree
+routeTree.gen.ts

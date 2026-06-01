@@ -1,0 +1,33 @@
+{
+  "name": "kindle-to-notion",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "parse": "tsx src/import-all.ts --dry-run",
+    "create-db": "tsx src/create-database.ts",
+    "pilot": "tsx src/import-all.ts --pilot",
+    "import": "tsx src/import-all.ts",
+    "update": "tsx src/update-highlights.ts",
+    "update:dry": "tsx src/update-highlights.ts --dry-run",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "fmt": "oxfmt src/",
+    "fmt:check": "oxfmt --check src/",
+    "fix": "oxfmt src/ && oxlint --fix .",
+    "check": "aube run lint && aube run fmt:check"
+  },
+  "dependencies": {
+    "@formkit/tempo": "^1.1.0",
+    "@notionhq/client": "5.22.0",
+    "dotenv": "^17.4.2",
+    "es-toolkit": "^1.47.0",
+    "p-limit": "^7.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "oxfmt": "^0.52.0",
+    "oxlint": "^1.66.0",
+    "tsx": "^4.19.2",
+    "typescript": "^6.0.3"
+  }
+}

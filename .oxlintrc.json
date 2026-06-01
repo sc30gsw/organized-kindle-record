@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "ignorePatterns": [
+    "dist/**",
+    "node_modules/**",
+    "parsed.json",
+    "Glasp Kindle Highlights/**"
+  ],
+  "categories": {
+    "correctness": "warn",
+    "suspicious": "warn",
+    "pedantic": "off"
+  },
+  "rules": {
+    "no-console": "off"
+  }
+}

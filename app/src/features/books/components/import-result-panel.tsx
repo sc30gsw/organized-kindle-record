@@ -1,5 +1,5 @@
+import { ImportFileResult } from '@/features/books/server/import-books-fn';
 import { Alert, List, Stack, Text } from '@mantine/core';
-import type { ImportFileResult } from '@/features/books/types';
 
 const LABEL = {
   created: '作成',
@@ -9,8 +9,10 @@ const LABEL = {
   failed: '失敗',
 } as const satisfies Record<ImportFileResult['kind'], string>;
 
-export function ImportResultPanel({ results }: { results: ImportFileResult[] }) {
-  if (results.length === 0) return null;
+export function ImportResultPanel({ results }: Record<'results', ImportFileResult[]>) {
+  if (results.length === 0) {
+    return null;
+  }
 
   const created = results.filter((r) => r.kind === 'created').length;
   const updated = results.filter((r) => r.kind === 'updated').length;

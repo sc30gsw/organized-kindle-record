@@ -9,7 +9,6 @@ export const Route = createFileRoute('/')({
   search: {
     middlewares: [stripSearchParams(defaultSearchParams)],
   },
-  // SSR の初回ペイントに表データを載せるため collection を preload
   loader: async () => {
     await booksCollection.preload();
   },

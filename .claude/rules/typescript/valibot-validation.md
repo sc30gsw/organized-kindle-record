@@ -1,5 +1,5 @@
 ---
-description: Valibot schemas — placement under features/*/schemas/, InferOutput, TanStack Form adapter
+description: Valibot schemas — placement under features/*/schemas/, InferOutput, TanStack Form native Standard Schema
 globs: ["src/features/**/schemas/*.ts", "src/features/**/components/*-form.tsx"]
 alwaysApply: true
 ---
@@ -39,20 +39,20 @@ When the generated `types.gen.ts` already defines a matching type, use `Pick` to
 export type CreateProductInput = Pick<Product, "description" | "name" | "price">;
 ```
 
-## TanStack Form + `@tanstack/valibot-adapter`
+## TanStack Form (v1 — native Standard Schema, no adapter)
 
-Connect Valibot schemas to TanStack Form using the adapter:
+TanStack Form v1 natively supports the Standard Schema spec (Valibot 1.0+, Zod, ArkType). Pass the Valibot schema **directly** to `validators` — there is no `validatorAdapter`, and `@tanstack/valibot-adapter` / `valibotValidator()` must NOT be reintroduced for forms (pre-v1 pattern):
+
+> **Forms only.** TanStack **Router** `validateSearch` is the opposite: it REQUIRES `valibotValidator()` from `@tanstack/valibot-adapter` (for input/output type separation and default coercion of search params). Do not "simplify" route `validateSearch` to a bare schema — keep the adapter there.
 
 ```typescript
 import { useForm } from '@tanstack/react-form'
-import { valibotValidator } from '@tanstack/valibot-adapter'
 import { CreateProductSchema } from '~/features/products/schemas/create-product-schema'
 
 export function ProductForm({ onSuccess }: Record<'onSuccess', () => void>) {
   const form = useForm({
     defaultValues: { description: '', name: '', price: 0 },
     onSubmit: async ({ value }) => { ... },
-    validatorAdapter: valibotValidator(),
     validators: {
       onChange: CreateProductSchema,
     },

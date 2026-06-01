@@ -2,31 +2,32 @@ import { createServerFn } from '@tanstack/react-start';
 import { Result } from 'better-result';
 import * as v from 'valibot';
 import { BookSyncError } from '@/features/books/errors';
+import { findOrCreateDatabase } from '~/create-database';
+import { parseMdContent } from '~/parse-md';
+import { getPrimaryDataSourceId } from '~/lib/notion-data-source';
+import { getAsinPageMap, syncBook } from '~/lib/notion-sync';
 
 const importInput = v.object({
   files: v.array(v.object({ name: v.string(), content: v.string() })),
 });
 
+type ImportInput = v.InferInput<typeof importInput>;
+
 /** アップロード 1 ファイルぶんの結果（例外は投げず判別共用体で返す）。 */
 export type ImportFileResult =
-  | { file: string; kind: 'created'; added: number }
-  | { file: string; kind: 'updated'; added: number }
-  | { file: string; kind: 'unchanged' }
-  | { file: string; kind: 'skipped'; reason: string }
-  | { file: string; kind: 'failed'; error: string };
+  | { file: ImportInput['files'][number]['name']; kind: 'created'; added: number }
+  | { file: ImportInput['files'][number]['name']; kind: 'updated'; added: number }
+  | { file: ImportInput['files'][number]['name']; kind: 'unchanged' }
+  | { file: ImportInput['files'][number]['name']; kind: 'skipped'; reason: string }
+  | { file: ImportInput['files'][number]['name']; kind: 'failed'; error: string };
 
 /**
  * md ファイル群を parse して Notion に create-or-append（サーバー専用）。
  * Notion レート制限を尊重して 1 冊ずつ逐次処理する。
  */
 export const importBooksFn = createServerFn({ method: 'POST' })
-  .inputValidator((input: unknown) => v.parse(importInput, input))
-  .handler(async ({ data }): Promise<{ results: ImportFileResult[] }> => {
-    const { parseMdContent } = await import('~/parse-md');
-    const { findOrCreateDatabase } = await import('~/create-database');
-    const { getPrimaryDataSourceId } = await import('~/lib/notion-data-source');
-    const { getAsinPageMap, syncBook } = await import('~/lib/notion-sync');
-
+  .inputValidator(importInput)
+  .handler(async ({ data }) => {
     const databaseId = await findOrCreateDatabase();
     const dataSourceId = await getPrimaryDataSourceId(databaseId);
     const asinPageMap = await getAsinPageMap(databaseId);
@@ -54,13 +55,18 @@ export const importBooksFn = createServerFn({ method: 'POST' })
       }
 
       const r = synced.value;
-      if (r.kind === 'created' || r.kind === 'updated') {
-        results.push({ file: f.name, kind: r.kind, added: r.added });
-      } else if (r.kind === 'unchanged') {
-        results.push({ file: f.name, kind: 'unchanged' });
-      } else {
-        results.push({ file: f.name, kind: 'skipped', reason: r.reason });
+
+      switch (r.kind) {
+        case 'created':
+        case 'updated':
+          results.push({ file: f.name, kind: r.kind, added: r.added });
+          break;
+
+        case 'unchanged':
+          results.push({ file: f.name, kind: 'unchanged' });
+          break;
       }
     }
+
     return { results };
   });

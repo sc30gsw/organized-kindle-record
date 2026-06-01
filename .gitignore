@@ -16,6 +16,3 @@ done.log
 .vite/
 .nitro/
 .DS_Store
-
-# TanStack Router generated route tree
-routeTree.gen.ts

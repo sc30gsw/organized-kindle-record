@@ -10,10 +10,10 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { format } from '@formkit/tempo';
-import { StatusBadge } from '@/features/books/components/status-badge';
-import type { BookRow } from '@/features/books/types';
+import { STATUS_COLOR, StatusBadge } from '@/features/books/components/status-badge';
+import { BookRowValues } from '@/features/books/schemas/book-schema';
 
-const col = createColumnHelper<BookRow>();
+const col = createColumnHelper<BookRowValues>();
 
 const columns = [
   col.accessor('coverUrl', {
@@ -43,7 +43,7 @@ const columns = [
   }),
   col.accessor('status', {
     header: 'ステータス',
-    cell: (c) => <StatusBadge status={c.getValue()} />,
+    cell: (c) => <StatusBadge status={c.getValue() as keyof typeof STATUS_COLOR} />,
   }),
   col.accessor('amazonUrl', {
     header: 'Amazon',
@@ -62,7 +62,7 @@ const columns = [
   }),
 ];
 
-export function BooksTable({ data }: { data: BookRow[] }) {
+export function BooksTable({ data }: Record<'data', BookRowValues[]>) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'lastUpdated', desc: true }]);
   const table = useReactTable({
     data,

@@ -8,6 +8,7 @@ import { useBooksQuery } from '@/features/books/hooks/use-books-query';
 
 function BooksTableContainer() {
   const rows = useBooksQuery();
+
   return <BooksTable data={rows} />;
 }
 

@@ -41,6 +41,8 @@ aube run check        # lint + fmt:check
 
 Dependencies are managed with **aube** (`aube-lock.yaml`). Use `aube install` instead of `npm install`.
 
+> **Dual-lockfile caveat**: locally this repo uses aube (`aube-lock.yaml`), but `app/` is built on Vercel with **pnpm** (`pnpm-lock.yaml`, frozen-lockfile). Whenever you change dependencies via `aube add` / `aube remove`, you MUST also run `pnpm install --lockfile-only` to sync `pnpm-lock.yaml`, and commit both lockfiles. Committing only one makes the Vercel build fail with `ERR_PNPM_OUTDATED_LOCKFILE`. Dependency-affecting overrides (e.g. `pnpm-workspace.yaml`'s `overrides`) must likewise be re-synced into both lockfiles.
+
 **Safe import order is `parse` → `pilot` → `import`.** Skipping `pilot` risks creating hundreds of malformed pages under live Notion rate limits. Use the `/safe-import` skill to enforce this sequence. After failures, use `/notion-recover`.
 
 ## Notion API gotchas

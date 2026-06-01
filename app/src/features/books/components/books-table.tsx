@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { createLink } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Anchor, Image, Table, Text } from "@mantine/core";
 import {
   createColumnHelper,
@@ -13,9 +13,6 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { format } from "@formkit/tempo";
 import { STATUS_COLOR, StatusBadge } from "@/features/books/components/status-badge";
 import { BookRowValues } from "@/features/books/schemas/book-schema";
-
-/** Mantine Anchor を TanStack Router の型付きリンクにする（to/params の型推論を維持）。 */
-const TitleLink = createLink(Anchor);
 
 const col = createColumnHelper<BookRowValues>();
 
@@ -37,15 +34,20 @@ const columns = [
     header: "タイトル",
     size: 360,
     cell: (c) => (
-      <TitleLink
+      <Link
         to="/books/$bookId"
         params={{ bookId: c.row.original.id }}
-        truncate="end"
         title={c.getValue()}
-        display="block"
+        style={{
+          display: "block",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          color: "var(--mantine-color-anchor)",
+        }}
       >
         {c.getValue()}
-      </TitleLink>
+      </Link>
     ),
   }),
   col.accessor("authors", {

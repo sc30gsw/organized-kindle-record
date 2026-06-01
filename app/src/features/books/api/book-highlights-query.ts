@@ -7,7 +7,7 @@ export function bookHighlightsQueryOptions(
   bookId: RouteById<
     RegisteredRouter["routeTree"],
     "/_authenticated/books/$bookId"
-  >["types"]["params"],
+  >["types"]["params"]["bookId"],
 ) {
   return queryOptions({
     queryKey: ["book-highlights", bookId],

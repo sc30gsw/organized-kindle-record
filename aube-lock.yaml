@@ -19,6 +19,7 @@ time:
   '@mantine/notifications@9.2.2': 2026-05-27T14:48:08.815Z
   '@notionhq/client@5.22.0': 2026-05-19T16:58:51.113Z
   '@rolldown/plugin-babel@0.2.3': 2026-04-13T15:32:36.736Z
+  '@tabler/icons-react@3.44.0': 2026-05-08T23:19:17.951Z
   '@tanstack/db@0.6.7': 2026-05-23T14:07:59.492Z
   '@tanstack/query-core@5.100.14': 2026-05-23T17:16:08.874Z
   '@tanstack/query-db-collection@1.0.38': 2026-05-23T14:08:04.480Z
@@ -140,6 +141,9 @@ importers:
       '@notionhq/client':
         specifier: 5.22.0
         version: 5.22.0
+      '@tabler/icons-react':
+        specifier: ^3.44.0
+        version: 3.44.0(react@19.2.6)
       '@tanstack/db':
         specifier: ^0.6.7
         version: 0.6.7(typescript@6.0.3)
@@ -1393,6 +1397,14 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
+
+  '@tabler/icons-react@3.44.0':
+    resolution: {integrity: sha512-8+rvzBbVm/1Z3sG3x7GUNAaxIKxwgz8xaMhRs23nrCnMTKRFAhEC+82zAIFeAA0seXdrAGX5HFCkaLpGK2rVHg==}
+    peerDependencies:
+      react: '>= 16'
+
+  '@tabler/icons@3.44.0':
+    resolution: {integrity: sha512-Wn0AOZG9sg0L+bjfMqq4eNhC6pQjIrk94LvvWYNYkY8KH8wC3YILRzQlrnVJc4FUeMxH/AK97QsYCX35H3LndA==}
 
   '@tanstack/db-ivm@0.1.18':
     resolution: {integrity: sha512-+pZJiRKdoKRM5Epq9T7otD9ZJl82pRFauo7LKuJGrarjVKQ7r+QQlPe3kGdN9LEKSnuNGIWjX9OOY4M8kH4eLw==}
@@ -4260,6 +4272,13 @@ snapshots:
   '@rolldown/pluginutils@1.0.1': {}
 
   '@standard-schema/spec@1.1.0': {}
+
+  '@tabler/icons-react@3.44.0(react@19.2.6)':
+    dependencies:
+      '@tabler/icons': 3.44.0
+      react: 19.2.6
+
+  '@tabler/icons@3.44.0': {}
 
   '@tanstack/db-ivm@0.1.18(typescript@6.0.3)':
     dependencies:

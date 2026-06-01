@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Handle, Position, useReactFlow, type NodeProps } from "@xyflow/react";
-import { Box, Text, Textarea } from "@mantine/core";
+import { ActionIcon, Box, Group, Text, Textarea } from "@mantine/core";
+import { IconPencil } from "@tabler/icons-react";
 
 export function TitleNode({ id, data }: NodeProps) {
   const { updateNodeData } = useReactFlow();
@@ -16,6 +17,19 @@ export function TitleNode({ id, data }: NodeProps) {
       onDoubleClick={() => setEditing(true)}
     >
       <Handle type="target" position={Position.Top} />
+      {!editing && (
+        <Group className="nodrag" gap={4} justify="flex-end" mb={4}>
+          <ActionIcon
+            aria-label="編集"
+            color="white"
+            onClick={() => setEditing(true)}
+            size="xs"
+            variant="subtle"
+          >
+            <IconPencil size={14} />
+          </ActionIcon>
+        </Group>
+      )}
       {editing ? (
         <Textarea
           className="nodrag"

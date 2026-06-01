@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Handle, Position, useReactFlow, type NodeProps } from "@xyflow/react";
-import { Box, Text, Textarea } from "@mantine/core";
+import { ActionIcon, Box, Group, Text, Textarea } from "@mantine/core";
+import { IconPencil, IconTrash } from "@tabler/icons-react";
 
 export function TextNode({ id, data }: NodeProps) {
-  const { updateNodeData } = useReactFlow();
+  const { updateNodeData, deleteElements } = useReactFlow();
   const [editing, setEditing] = useState(false);
   const label = typeof data["label"] === "string" ? data["label"] : "";
 
@@ -15,6 +16,28 @@ export function TextNode({ id, data }: NodeProps) {
       onDoubleClick={() => setEditing(true)}
     >
       <Handle type="target" position={Position.Top} />
+      {!editing && (
+        <Group className="nodrag" gap={4} justify="flex-end" mb={4}>
+          <ActionIcon
+            aria-label="編集"
+            color="gray"
+            onClick={() => setEditing(true)}
+            size="xs"
+            variant="subtle"
+          >
+            <IconPencil size={14} />
+          </ActionIcon>
+          <ActionIcon
+            aria-label="削除"
+            color="red"
+            onClick={() => deleteElements({ nodes: [{ id }] })}
+            size="xs"
+            variant="subtle"
+          >
+            <IconTrash size={14} />
+          </ActionIcon>
+        </Group>
+      )}
       {editing ? (
         <Textarea
           className="nodrag"

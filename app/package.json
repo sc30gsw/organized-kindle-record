@@ -5,6 +5,8 @@
   "scripts": {
     "build": "vp build",
     "check": "vp check",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
     "dev": "vp dev",
     "doctor": "react-doctor . --verbose --yes --no-lint",
     "fallow": "fallow",
@@ -25,6 +27,7 @@
     "@mantine/hooks": "9.2.2",
     "@mantine/notifications": "9.2.2",
     "@notionhq/client": "5.22.0",
+    "@tabler/icons-react": "^3.44.0",
     "@tanstack/db": "^0.6.7",
     "@tanstack/query-db-collection": "^1.0.11",
     "@tanstack/react-db": "^0.1.59",

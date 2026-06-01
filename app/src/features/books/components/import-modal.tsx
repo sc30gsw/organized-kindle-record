@@ -1,41 +1,53 @@
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { Result } from 'better-result';
 import { Button, Group, Modal, Stack, Text } from '@mantine/core';
 import { Dropzone } from '@mantine/dropzone';
 import { notifications } from '@mantine/notifications';
 import { booksCollection } from '@/features/books/collections';
 import { importBooksFn } from '@/features/books/server/import-books-fn';
 import { ImportResultPanel } from '@/features/books/components/import-result-panel';
+import { ImportRequestError } from '@/features/books/errors';
 import type { ImportFileResult } from '@/features/books/types';
 
 export function ImportModal({ opened, onClose }: { opened: boolean; onClose: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const [results, setResults] = useState<ImportFileResult[]>([]);
 
   const handleDrop = async (files: File[]) => {
     setLoading(true);
     setResults([]);
-    try {
-      const payload = await Promise.all(
-        files.map(async (f) => ({ name: f.name, content: await f.text() })),
-      );
-      const res = await importBooksFn({ data: { files: payload } });
-      setResults(res.results);
-      await booksCollection.utils.refetch();
-      const failed = res.results.filter((r) => r.kind === 'failed').length;
-      notifications.show({
-        title: '取込完了',
-        message: `${res.results.length} 件処理（失敗 ${failed}）`,
-        color: failed > 0 ? 'orange' : 'green',
-      });
-    } catch (e) {
-      notifications.show({
-        title: '取込エラー',
-        message: e instanceof Error ? e.message : String(e),
-        color: 'red',
-      });
-    } finally {
-      setLoading(false);
+
+    const outcome = await Result.tryPromise({
+      try: async () => {
+        const payload = await Promise.all(
+          files.map(async (f) => ({ name: f.name, content: await f.text() })),
+        );
+        const res = await importBooksFn({ data: { files: payload } });
+        await booksCollection.utils.refetch();
+        return res.results;
+      },
+      catch: (cause) =>
+        new ImportRequestError({
+          cause,
+          message: cause instanceof Error ? cause.message : String(cause),
+        }),
+    });
+
+    setLoading(false);
+
+    if (Result.isError(outcome)) {
+      notifications.show({ title: '取込エラー', message: outcome.error.message, color: 'red' });
+      return;
     }
+
+    setResults(outcome.value);
+    const failed = outcome.value.filter((r) => r.kind === 'failed').length;
+    notifications.show({
+      title: '取込完了',
+      message: `${outcome.value.length} 件処理（失敗 ${failed}）`,
+      color: failed > 0 ? 'orange' : 'green',
+    });
   };
 
   return (

@@ -1,5 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
+import { Result } from 'better-result';
 import * as v from 'valibot';
+import { BookSyncError } from '@/features/books/errors';
 
 const importInput = v.object({
   files: v.array(v.object({ name: v.string(), content: v.string() })),
@@ -31,18 +33,33 @@ export const importBooksFn = createServerFn({ method: 'POST' })
 
     const results: ImportFileResult[] = [];
     for (const f of data.files) {
-      try {
-        const book = parseMdContent(f.content, f.name);
-        const r = await syncBook(book, { dataSourceId, asinPageMap });
-        if (r.kind === 'created' || r.kind === 'updated') {
-          results.push({ file: f.name, kind: r.kind, added: r.added });
-        } else if (r.kind === 'unchanged') {
-          results.push({ file: f.name, kind: 'unchanged' });
-        } else {
-          results.push({ file: f.name, kind: 'skipped', reason: r.reason });
-        }
-      } catch (e) {
-        results.push({ file: f.name, kind: 'failed', error: e instanceof Error ? e.message : String(e) });
+      // 投げる Notion SDK / parse を境界で Result に包む
+      const synced = await Result.tryPromise({
+        try: () => {
+          const book = parseMdContent(f.content, f.name);
+          return syncBook(book, { dataSourceId, asinPageMap });
+        },
+        catch: (cause) =>
+          new BookSyncError({
+            cause,
+            file: f.name,
+            message: cause instanceof Error ? cause.message : String(cause),
+          }),
+      });
+
+      // Result はシリアライズ境界を越えないよう plain object に変換
+      if (Result.isError(synced)) {
+        results.push({ file: f.name, kind: 'failed', error: synced.error.message });
+        continue;
+      }
+
+      const r = synced.value;
+      if (r.kind === 'created' || r.kind === 'updated') {
+        results.push({ file: f.name, kind: r.kind, added: r.added });
+      } else if (r.kind === 'unchanged') {
+        results.push({ file: f.name, kind: 'unchanged' });
+      } else {
+        results.push({ file: f.name, kind: 'skipped', reason: r.reason });
       }
     }
     return { results };

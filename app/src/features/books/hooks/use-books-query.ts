@@ -17,15 +17,20 @@ export function useBooksQuery() {
   const { data } = useLiveSuspenseQuery(
     (query) => {
       let result = query.from({ book: booksCollection });
+
       if (status) {
         result = result.where(({ book }) => eq(book.status, status));
       }
+
       return result;
     },
     [status],
   );
 
-  if (!needle) return data;
+  if (!needle) {
+    return data;
+  }
+
   return data.filter(
     (b) =>
       b.title.toLowerCase().includes(needle) ||

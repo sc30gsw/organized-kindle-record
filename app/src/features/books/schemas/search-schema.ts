@@ -2,12 +2,12 @@ import * as v from 'valibot';
 import { READING_STATUS_OPTIONS } from '~/types/constants';
 
 /** 読了ステータスの選択肢（core の SSoT を再利用）。 */
-const statusNames = READING_STATUS_OPTIONS.map((o) => o.name) as [string, ...string[]];
+const statusNames = READING_STATUS_OPTIONS.map((o) => o.name);
 
 export const defaultSearchParams = {
   q: '',
   status: undefined,
-};
+} as const satisfies { q: string; status: (typeof statusNames)[number] | undefined };
 
 /** 検索フォーム兼 URL search params の単一スキーマ。 */
 export const searchSchema = v.object({

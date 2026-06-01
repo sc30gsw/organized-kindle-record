@@ -28,6 +28,7 @@ time:
   '@types/react-dom@19.2.3': 2025-11-12T04:37:39.524Z
   '@types/react@19.2.15': 2026-05-19T17:49:36.846Z
   '@vitejs/plugin-react@5.2.0': 2026-03-12T14:27:45.817Z
+  better-result@2.9.2: 2026-05-04T12:47:32.138Z
   dotenv@17.4.2: 2026-04-12T16:41:11.574Z
   es-toolkit@1.47.0: 2026-05-25T08:00:38.148Z
   jiti@2.7.0: 2026-05-05T21:02:47.918Z
@@ -100,6 +101,9 @@ importers:
       '@tanstack/valibot-adapter':
         specifier: ^1.143.11
         version: 1.167.0(@tanstack/react-router@1.170.10(react@19.2.6)(react-dom@19.2.6(react@19.2.6)))(valibot@1.4.1(typescript@5.9.3))
+      better-result:
+        specifier: ^2.9.2
+        version: 2.9.2
       dotenv:
         specifier: ^17.4.2
         version: 17.4.2
@@ -976,6 +980,9 @@ packages:
     resolution: {integrity: sha512-bA6+tcSLpz2tIEdDXZPpPTIuxBcC4+w6SieaYyfigIa4h8GlFxbA17v22Vx3JUtuZQj9SgOsnbK+aTBzyDyEuw==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+
+  better-result@2.9.2:
+    resolution: {integrity: sha512-WIFoBPCdnTOdk9inkE1ZRvCZ4P0CpSkAiLlchC65N7n9DcjZ3NhqkBOlafzpOVnO8ixyi37kicmSJ3ENhPZl7Q==}
 
   browserslist@4.28.2:
     resolution: {integrity: sha512-48xSriZYYg+8qXna9kwqjIVzuQxi+KYWp2+5nCYnYKPTr0LvD89Jqk2Or5ogxz0NUMfIjhh2lIUX/LyX9B4oIg==}
@@ -2331,6 +2338,8 @@ snapshots:
       '@babel/types': 7.29.7
 
   baseline-browser-mapping@2.10.33: {}
+
+  better-result@2.9.2: {}
 
   browserslist@4.28.2:
     dependencies:

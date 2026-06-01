@@ -28,6 +28,7 @@
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.18",
     "@tanstack/valibot-adapter": "^1.143.11",
+    "better-result": "^2.9.2",
     "dotenv": "^17.4.2",
     "es-toolkit": "^1.47.0",
     "nitro": "^3.0.1-alpha.1",

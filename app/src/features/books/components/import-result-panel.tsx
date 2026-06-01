@@ -1,13 +1,13 @@
 import { Alert, List, Stack, Text } from '@mantine/core';
 import type { ImportFileResult } from '@/features/books/types';
 
-const LABEL: Record<ImportFileResult['kind'], string> = {
+const LABEL = {
   created: '作成',
   updated: '更新',
   unchanged: '変更なし',
   skipped: 'スキップ',
   failed: '失敗',
-};
+} as const satisfies Record<ImportFileResult['kind'], string>;
 
 export function ImportResultPanel({ results }: { results: ImportFileResult[] }) {
   if (results.length === 0) return null;

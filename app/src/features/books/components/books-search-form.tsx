@@ -2,7 +2,7 @@ import { useForm } from '@tanstack/react-form';
 import { Group, Select, TextInput } from '@mantine/core';
 import { useDebouncedCallback } from '@mantine/hooks';
 import { getRouteApi } from '@tanstack/react-router';
-import { STATUS_OPTIONS } from '@/features/books/schemas/search-schema';
+import { searchSchema, STATUS_OPTIONS } from '@/features/books/schemas/search-schema';
 
 const routeApi = getRouteApi('/');
 
@@ -18,6 +18,9 @@ export function BooksSearchForm() {
 
   const form = useForm({
     defaultValues: { q: search.q ?? '', status: search.status ?? '' },
+    validators: {
+      onChange: searchSchema,
+    },
     onSubmit: ({ value }) => pushSearch({ q: value.q, status: value.status || undefined }),
   });
 

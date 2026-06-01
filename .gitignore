@@ -13,6 +13,7 @@ done.log
 
 # build outputs / caches (app/ included via no-slash patterns)
 .output/
+.vercel/
 .vite/
 .nitro/
 .DS_Store

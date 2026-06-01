@@ -18,6 +18,7 @@ const col = createColumnHelper<BookRowValues>();
 const columns = [
   col.accessor('coverUrl', {
     header: '表紙',
+    size: 56,
     enableSorting: false,
     cell: (c) =>
       c.getValue() ? (
@@ -30,34 +31,57 @@ const columns = [
   }),
   col.accessor('title', {
     header: 'タイトル',
+    size: 360,
     cell: (c) => (
-      <Anchor href={c.row.original.pageUrl} target="_blank" rel="noreferrer">
+      <Anchor
+        href={c.row.original.pageUrl}
+        target="_blank"
+        rel="noreferrer"
+        truncate="end"
+        title={c.getValue()}
+        display="block"
+      >
         {c.getValue()}
       </Anchor>
     ),
   }),
   col.accessor('authors', {
     header: '著者',
+    size: 160,
     enableSorting: false,
-    cell: (c) => c.getValue().join(', '),
+    cell: (c) => (
+      <Text truncate="end" title={c.getValue().join(', ')}>
+        {c.getValue().join(', ')}
+      </Text>
+    ),
   }),
   col.accessor('status', {
     header: 'ステータス',
+    size: 120,
     cell: (c) => <StatusBadge status={c.getValue() as keyof typeof STATUS_COLOR} />,
   }),
   col.accessor('amazonUrl', {
     header: 'Amazon',
+    size: 220,
     enableSorting: false,
     cell: (c) =>
       c.getValue() ? (
-        <Anchor href={c.getValue()!} target="_blank" rel="noreferrer">
-          リンク
+        <Anchor
+          href={c.getValue()!}
+          target="_blank"
+          rel="noreferrer"
+          truncate="end"
+          title={c.getValue()!}
+          display="block"
+        >
+          {c.getValue()}
         </Anchor>
       ) : null,
   }),
-  col.accessor('highlightCount', { header: 'ハイライト' }),
+  col.accessor('highlightCount', { header: 'ハイライト', size: 96 }),
   col.accessor('lastUpdated', {
     header: '最終更新',
+    size: 116,
     cell: (c) => (c.getValue() ? format(c.getValue()!, 'YYYY/MM/DD') : '—'),
   }),
 ];
@@ -84,7 +108,7 @@ export function BooksTable({ data }: Record<'data', BookRowValues[]>) {
 
   return (
     <div ref={parentRef} style={{ height: '70vh', overflow: 'auto' }}>
-      <Table stickyHeader>
+      <Table stickyHeader highlightOnHover layout="fixed">
         <Table.Thead>
           {table.getHeaderGroups().map((hg) => (
             <Table.Tr key={hg.id}>
@@ -92,7 +116,12 @@ export function BooksTable({ data }: Record<'data', BookRowValues[]>) {
                 <Table.Th
                   key={h.id}
                   onClick={h.column.getCanSort() ? h.column.getToggleSortingHandler() : undefined}
-                  style={{ cursor: h.column.getCanSort() ? 'pointer' : undefined }}
+                  style={{
+                    cursor: h.column.getCanSort() ? 'pointer' : undefined,
+                    width: h.getSize(),
+                    backgroundColor: 'var(--mantine-color-blue-0)',
+                    color: 'var(--mantine-color-blue-9)',
+                  }}
                 >
                   {flexRender(h.column.columnDef.header, h.getContext())}
                   {({ asc: ' ▲', desc: ' ▼' } as Record<string, string>)[
@@ -106,6 +135,7 @@ export function BooksTable({ data }: Record<'data', BookRowValues[]>) {
         <Table.Tbody style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
           {virtualizer.getVirtualItems().map((vi) => {
             const row = rows[vi.index]!;
+            const zebra = vi.index % 2 === 1;
             return (
               <Table.Tr
                 key={row.id}
@@ -117,10 +147,11 @@ export function BooksTable({ data }: Record<'data', BookRowValues[]>) {
                   width: '100%',
                   display: 'table',
                   tableLayout: 'fixed',
+                  backgroundColor: zebra ? 'var(--mantine-color-gray-0)' : undefined,
                 }}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <Table.Td key={cell.id}>
+                  <Table.Td key={cell.id} style={{ width: cell.column.getSize() }}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Table.Td>
                 ))}

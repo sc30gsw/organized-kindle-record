@@ -1,8 +1,9 @@
-import { notion, TARGET_PAGE_ID, DB_TITLE, withRetry } from '~/notion-client';
+import { assertNotionEnv, notion, TARGET_PAGE_ID, DB_TITLE, withRetry } from '~/notion-client';
 import { createKindleDatabase, KINDLE_DB_PROPERTIES } from '~/lib/notion-data-source';
 
 export async function findOrCreateDatabase() {
-  // 親ページの子ブロック一覧から既存 DB を探す（search より確実）
+  assertNotionEnv();
+
   const children = await withRetry(() =>
     notion.blocks.children.list({ block_id: TARGET_PAGE_ID, page_size: 50 }),
   );

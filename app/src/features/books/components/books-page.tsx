@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { ClientOnly } from '@tanstack/react-router';
 import { Button, Container, Group, Loader, Stack, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { BooksSearchForm } from '@/features/books/components/books-search-form';
@@ -23,9 +24,11 @@ export function BooksPage() {
           <Button onClick={open}>取込</Button>
         </Group>
         <BooksSearchForm />
-        <Suspense fallback={<Loader />}>
-          <BooksTableContainer />
-        </Suspense>
+        <ClientOnly fallback={<Loader />}>
+          <Suspense fallback={<Loader />}>
+            <BooksTableContainer />
+          </Suspense>
+        </ClientOnly>
         <ImportModal opened={opened} onClose={close} />
       </Stack>
     </Container>

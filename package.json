@@ -3,12 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "workspaces": [
-    "app"
-  ],
-  "overrides": {
-    "vite": "npm:@voidzero-dev/vite-plus-core@latest"
-  },
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "parse": "tsx src/import-all.ts --dry-run",
     "create-db": "tsx src/create-database.ts",

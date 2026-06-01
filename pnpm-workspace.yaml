@@ -1,2 +1,9 @@
 packages:
   - app
+
+# kysely@0.29.x はバレル（dist/index.js）が DEFAULT_MIGRATION_TABLE /
+# DEFAULT_MIGRATION_LOCK_TABLE を実行時 export しない（型だけ宣言）ため、
+# @better-auth/kysely-adapter のインポートが本番バンドル（rolldown）で MISSING_EXPORT になる。
+# adapter が許容する下限の 0.28.17 に固定して回避する。
+overrides:
+  kysely: 0.28.17

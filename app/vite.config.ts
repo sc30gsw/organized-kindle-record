@@ -1,21 +1,21 @@
-import babel from '@rolldown/plugin-babel';
-import { reactCompilerPreset } from '@vitejs/plugin-react';
-import viteReact from '@vitejs/plugin-react';
-import { tanstackStart } from '@tanstack/react-start/plugin/vite';
-import { nitro } from 'nitro/vite';
-import { defineConfig } from 'vite-plus';
+import babel from "@rolldown/plugin-babel";
+import { reactCompilerPreset } from "@vitejs/plugin-react";
+import viteReact from "@vitejs/plugin-react";
+import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { nitro } from "nitro/vite";
+import { defineConfig } from "vite-plus";
 
 export default defineConfig({
   fmt: {
-    ignorePatterns: ['**/routeTree.gen.ts'],
+    ignorePatterns: ["**/routeTree.gen.ts"],
   },
   lint: {
-    ignorePatterns: ['**/routeTree.gen.ts'],
+    ignorePatterns: ["**/routeTree.gen.ts"],
     overrides: [
       {
-        files: ['src/routes/**', 'src/router.tsx', '*.config.ts'],
+        files: ["src/routes/**", "src/router.tsx", "*.config.ts"],
         rules: {
-          'no-default-export': 'off',
+          "no-default-export": "off",
         },
       },
     ],

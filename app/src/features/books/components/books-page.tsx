@@ -1,11 +1,11 @@
-import { Suspense } from 'react';
-import { ClientOnly } from '@tanstack/react-router';
-import { Button, Container, Group, Loader, Stack, Title } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import { BooksSearchForm } from '@/features/books/components/books-search-form';
-import { ImportModal } from '@/features/books/components/import-modal';
-import { BooksTable } from '@/features/books/components/books-table';
-import { useBooksQuery } from '@/features/books/hooks/use-books-query';
+import { Suspense } from "react";
+import { ClientOnly } from "@tanstack/react-router";
+import { Button, Container, Group, Loader, Stack, Title } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { BooksSearchForm } from "@/features/books/components/books-search-form";
+import { ImportModal } from "@/features/books/components/import-modal";
+import { BooksTable } from "@/features/books/components/books-table";
+import { useBooksQuery } from "@/features/books/hooks/use-books-query";
 
 function BooksTableContainer() {
   const rows = useBooksQuery();

@@ -40,8 +40,8 @@ node_modules/.bin/tsc --noEmit   # typecheck — currently green
 - **Search**: `@tanstack/react-form` → URL search params (`@tanstack/valibot-adapter`),
   one shared valibot schema. Text debounced 300ms, status instant.
 - **Upload**: Mantine `Dropzone` in a modal → `importBooksFn` server fn → `parseMdContent`
-  + `syncBook` (`~/lib/notion-sync`): new book = `importBook`, existing = append new
-  highlights only (status/cover/author preserved). Then `booksCollection.utils.refetch()`.
+  - `syncBook` (`~/lib/notion-sync`): new book = `importBook`, existing = append new
+    highlights only (status/cover/author preserved). Then `booksCollection.utils.refetch()`.
 - **Table**: `@tanstack/react-table` + `@tanstack/react-virtual` (virtual scroll), Mantine UI.
 
 > Server-fn files must NOT use the `.server.ts` suffix — that triggers TanStack's client

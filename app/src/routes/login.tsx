@@ -1,8 +1,8 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Button, Card, Center, Stack, Text, Title } from '@mantine/core';
-import { authClient } from '@/lib/auth-client';
+import { createFileRoute } from "@tanstack/react-router";
+import { Button, Card, Center, Stack, Text, Title } from "@mantine/core";
+import { authClient } from "@/lib/auth-client";
 
-export const Route = createFileRoute('/login')({
+export const Route = createFileRoute("/login")({
   component: LoginPage,
 });
 
@@ -17,7 +17,7 @@ function LoginPage() {
           </Text>
           <Button
             fullWidth
-            onClick={() => authClient.signIn.social({ provider: 'notion', callbackURL: '/' })}
+            onClick={() => authClient.signIn.social({ provider: "notion", callbackURL: "/" })}
           >
             Notion でログイン
           </Button>

@@ -1,4 +1,4 @@
-import { QueryClient } from '@tanstack/react-query';
+import { QueryClient } from "@tanstack/react-query";
 
 /** TanStack DB collection の土台。staleTime でナビ毎の Notion 再叩きを抑える。 */
 export const queryClient = new QueryClient({

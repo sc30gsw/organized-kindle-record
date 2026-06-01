@@ -1,4 +1,4 @@
-import * as v from 'valibot';
+import * as v from "valibot";
 
 /** TanStack DB collection の行スキーマ。core の BookRow と一致させる。 */
 export const bookRowSchema = v.object({

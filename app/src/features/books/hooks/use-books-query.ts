@@ -1,9 +1,9 @@
-import { useLiveSuspenseQuery } from '@tanstack/react-db';
-import { eq } from '@tanstack/db';
-import { getRouteApi } from '@tanstack/react-router';
-import { booksCollection } from '@/features/books/collections';
+import { useLiveSuspenseQuery } from "@tanstack/react-db";
+import { eq } from "@tanstack/db";
+import { getRouteApi } from "@tanstack/react-router";
+import { booksCollection } from "@/features/books/collections";
 
-const routeApi = getRouteApi('/_authenticated/');
+const routeApi = getRouteApi("/_authenticated/");
 
 /**
  * 読了ステータスは DB の where で、テキスト(title/author の OR)は JS で絞り込む。
@@ -11,7 +11,7 @@ const routeApi = getRouteApi('/_authenticated/');
  */
 export function useBooksQuery() {
   const search = routeApi.useSearch();
-  const needle = (search.q ?? '').trim().toLowerCase();
+  const needle = (search.q ?? "").trim().toLowerCase();
   const status = search.status;
 
   const { data } = useLiveSuspenseQuery(

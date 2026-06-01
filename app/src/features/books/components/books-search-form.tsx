@@ -1,15 +1,15 @@
-import { useForm } from '@tanstack/react-form';
-import { Group, Select, TextInput } from '@mantine/core';
-import { useDebouncedCallback } from '@mantine/hooks';
-import { getRouteApi } from '@tanstack/react-router';
+import { useForm } from "@tanstack/react-form";
+import { Group, Select, TextInput } from "@mantine/core";
+import { useDebouncedCallback } from "@mantine/hooks";
+import { getRouteApi } from "@tanstack/react-router";
 import {
   BooksSearch,
   BooksSearchInput,
   searchSchema,
   STATUS_OPTIONS,
-} from '@/features/books/schemas/search-schema';
+} from "@/features/books/schemas/search-schema";
 
-const routeApi = getRouteApi('/_authenticated/');
+const routeApi = getRouteApi("/_authenticated/");
 
 /** 検索フォーム。値は URL search params が真実。text は debounce、status は即時。 */
 export function BooksSearchForm() {
@@ -17,7 +17,7 @@ export function BooksSearchForm() {
   const search = routeApi.useSearch();
 
   const debouncedQ = useDebouncedCallback(
-    (q: BooksSearchInput['q']) => navigate({ search: (prev) => ({ ...prev, q }) }),
+    (q: BooksSearchInput["q"]) => navigate({ search: (prev) => ({ ...prev, q }) }),
     300,
   );
 
@@ -44,7 +44,7 @@ export function BooksSearchForm() {
           {(field) => (
             <TextInput
               placeholder="タイトル・著者で検索"
-              value={field.state.value ?? ''}
+              value={field.state.value ?? ""}
               onChange={(e) => {
                 field.handleChange(e.currentTarget.value);
                 debouncedQ(e.currentTarget.value);
@@ -61,7 +61,7 @@ export function BooksSearchForm() {
               data={[...STATUS_OPTIONS]}
               value={field.state.value ?? null}
               onChange={(v) => {
-                const status = (v ?? undefined) as BooksSearch['status'];
+                const status = (v ?? undefined) as BooksSearch["status"];
 
                 field.handleChange(status);
                 navigate({ search: (prev) => ({ ...prev, status }) });

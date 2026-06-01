@@ -1,18 +1,18 @@
-import { useState, useTransition } from 'react';
-import { Result } from 'better-result';
-import { Button, Group, Modal, Stack, Text } from '@mantine/core';
-import { Dropzone } from '@mantine/dropzone';
-import { notifications } from '@mantine/notifications';
-import { booksCollection } from '@/features/books/collections';
-import { importBooksFn } from '@/features/books/server/import-books-fn';
-import { ImportResultPanel } from '@/features/books/components/import-result-panel';
-import { ImportRequestError } from '@/features/books/errors';
-import type { ImportFileResult } from '@/features/books/server/import-books-fn';
-import type { UseDisclosureReturnValue } from '@mantine/hooks';
+import { useState, useTransition } from "react";
+import { Result } from "better-result";
+import { Button, Group, Modal, Stack, Text } from "@mantine/core";
+import { Dropzone } from "@mantine/dropzone";
+import { notifications } from "@mantine/notifications";
+import { booksCollection } from "@/features/books/collections";
+import { importBooksFn } from "@/features/books/server/import-books-fn";
+import { ImportResultPanel } from "@/features/books/components/import-result-panel";
+import { ImportRequestError } from "@/features/books/errors";
+import type { ImportFileResult } from "@/features/books/server/import-books-fn";
+import type { UseDisclosureReturnValue } from "@mantine/hooks";
 
 type ImportModalProps = {
   opened: UseDisclosureReturnValue[0];
-  onClose: UseDisclosureReturnValue[1]['close'];
+  onClose: UseDisclosureReturnValue[1]["close"];
 };
 
 export function ImportModal({ opened, onClose }: ImportModalProps) {
@@ -40,16 +40,16 @@ export function ImportModal({ opened, onClose }: ImportModalProps) {
       });
 
       if (Result.isError(outcome)) {
-        notifications.show({ title: '取込エラー', message: outcome.error.message, color: 'red' });
+        notifications.show({ title: "取込エラー", message: outcome.error.message, color: "red" });
         return;
       }
 
       setResults(outcome.value);
-      const failed = outcome.value.filter((r) => r.kind === 'failed').length;
+      const failed = outcome.value.filter((r) => r.kind === "failed").length;
       notifications.show({
-        title: '取込完了',
+        title: "取込完了",
         message: `${outcome.value.length} 件処理（失敗 ${failed}）`,
-        color: failed > 0 ? 'orange' : 'green',
+        color: failed > 0 ? "orange" : "green",
       });
     });
   };
@@ -60,10 +60,10 @@ export function ImportModal({ opened, onClose }: ImportModalProps) {
         <Dropzone
           onDrop={handleDrop}
           loading={isPending}
-          accept={{ 'text/markdown': ['.md', '.markdown'], 'text/plain': ['.md', '.markdown'] }}
+          accept={{ "text/markdown": [".md", ".markdown"], "text/plain": [".md", ".markdown"] }}
           multiple
         >
-          <Group justify="center" mih={140} style={{ pointerEvents: 'none' }}>
+          <Group justify="center" mih={140} style={{ pointerEvents: "none" }}>
             <Text>ここに .md をドロップ、またはクリックで選択</Text>
           </Group>
         </Dropzone>

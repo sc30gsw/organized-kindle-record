@@ -6,7 +6,7 @@ import { defineConfig } from "drizzle-kit";
 dotenv.config({ path: resolve(dirname(fileURLToPath(import.meta.url)), "../.env") });
 
 export default defineConfig({
-  schema: "./src/lib/db/schema.ts",
+  schema: ["./src/lib/db/schema.ts", "./src/lib/db/auth-schema.ts"],
   out: "./drizzle",
   dialect: "turso",
   dbCredentials: {

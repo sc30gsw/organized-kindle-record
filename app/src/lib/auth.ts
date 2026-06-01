@@ -1,10 +1,12 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { LibsqlDialect } from "@libsql/kysely-libsql";
 import { betterAuth, User } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { tanstackStartCookies } from "better-auth/tanstack-start";
 import dotenv from "dotenv";
+import { db } from "@/lib/db";
+import { account, session, user, verification } from "@/lib/db/auth-schema";
 
 dotenv.config({ path: resolve(dirname(fileURLToPath(import.meta.url)), "../../../.env") });
 
@@ -13,18 +15,12 @@ const allowedEmail = (process.env["ALLOWED_NOTION_EMAIL"] ?? "").trim().toLowerC
 export function isAllowedEmail(email: User["email"]) {
   return allowedEmail.length > 0 && (email ?? "").trim().toLowerCase() === allowedEmail;
 }
-const databaseUrl = process.env["TURSO_DATABASE_URL"];
-const databaseAuthToken = process.env["TURSO_AUTH_TOKEN"];
-
-if (!databaseUrl || !databaseAuthToken) {
-  throw new Error("TURSO_DATABASE_URL or TURSO_AUTH_TOKEN is not set");
-}
 
 export const auth = betterAuth({
-  database: {
-    dialect: new LibsqlDialect({ url: databaseUrl, authToken: databaseAuthToken }),
-    type: "sqlite",
-  },
+  database: drizzleAdapter(db, {
+    provider: "sqlite",
+    schema: { account, session, user, verification },
+  }),
   socialProviders: {
     notion: {
       clientId: process.env["NOTION_CLIENT_ID"] ?? "",

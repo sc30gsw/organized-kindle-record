@@ -65,9 +65,14 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
     setEdges((eds) => addEdge(args[0], eds));
   }
 
-  function addNode(label: string, type: "text" | "title" = "text") {
+  function addNode(label = "", type: "text" | "title" = "text") {
     const id = `n_${Date.now()}_${Math.round(Math.random() * 1e6)}`;
-    setNodes((nds) => [...nds, { id, type, position: { x: 80, y: 80 }, data: { label } }]);
+    setNodes((nds) => {
+      // 直前のノードから少しずらして配置（重なって見えなくなるのを防ぐ）
+      const last = nds.at(-1)?.position ?? { x: 0, y: 0 };
+      const position = { x: last.x + 48, y: last.y + 64 };
+      return [...nds, { id, type, position, data: { label } }];
+    });
   }
 
   function setRfInstance(rf: ReactFlowInstance<Node, Edge>) {

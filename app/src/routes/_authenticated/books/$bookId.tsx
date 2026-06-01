@@ -84,7 +84,7 @@ function BookDetail() {
           onEdgesChange={mm.onEdgesChange}
           onConnect={mm.onConnect}
           onInit={mm.setRfInstance}
-          onAddNode={() => mm.addNode("新しいノード")}
+          onAddNode={() => mm.addNode()}
         />
       }
     />

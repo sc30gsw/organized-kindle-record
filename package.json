@@ -6,6 +6,9 @@
   "workspaces": [
     "app"
   ],
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@latest"
+  },
   "scripts": {
     "parse": "tsx src/import-all.ts --dry-run",
     "create-db": "tsx src/create-database.ts",

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useReactFlow } from "@xyflow/react";
 import {
   ActionIcon,
@@ -46,6 +47,8 @@ type NodeActionsProps = {
 export function NodeActions({ color, id, onEdit }: NodeActionsProps) {
   const { updateNodeData, deleteElements } = useReactFlow();
   const theme = useMantineTheme();
+  // ⌘+Enter で閉じられるよう controlled にする（外クリック閉じは onChange 経由で維持）
+  const [pickerOpened, setPickerOpened] = useState(false);
   const swatches = ["#ffffff", ...SWATCH_KEYS.map((key) => theme.colors[key][6])];
 
   return (
@@ -61,13 +64,35 @@ export function NodeActions({ color, id, onEdit }: NodeActionsProps) {
         <IconPencil size={14} />
       </ActionIcon>
 
-      <Popover position="bottom" shadow="sm" withArrow>
+      <Popover
+        onChange={setPickerOpened}
+        opened={pickerOpened}
+        position="bottom"
+        shadow="sm"
+        withArrow
+      >
         <Popover.Target>
-          <ActionIcon aria-label="配色" className="nodrag" color="gray" size="xs" variant="subtle">
+          <ActionIcon
+            aria-label="配色"
+            className="nodrag"
+            color="gray"
+            onClick={() => setPickerOpened((opened) => !opened)}
+            size="xs"
+            variant="subtle"
+          >
             <IconPalette size={14} />
           </ActionIcon>
         </Popover.Target>
-        <Popover.Dropdown className="nodrag" p="xs">
+        <Popover.Dropdown
+          className="nodrag"
+          onKeyDown={(e) => {
+            // ⌘+Enter で配色ポップオーバーを閉じる（色自体は選択時に即反映済み）
+            if (e.key === "Enter" && e.metaKey) {
+              setPickerOpened(false);
+            }
+          }}
+          p="xs"
+        >
           <ColorPicker
             defaultValue={color}
             format="hex"

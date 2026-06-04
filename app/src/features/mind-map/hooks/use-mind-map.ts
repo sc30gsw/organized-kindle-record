@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import {
   addEdge,
+  reconnectEdge,
   useEdgesState,
   useNodesState,
+  type Connection,
   type Edge,
   type Node,
   type OnConnect,
@@ -81,6 +83,11 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
     setEdges((eds) => addEdge(args[0], eds));
   }
 
+  // 既存エッジの端をドラッグして別ノードへ繋ぎ替える
+  function onReconnect(oldEdge: Edge, newConnection: Connection) {
+    setEdges((eds) => reconnectEdge(oldEdge, newConnection, eds));
+  }
+
   function addNode(label = "", type: "text" | "title" = "text") {
     const id = `n_${Date.now()}_${Math.round(Math.random() * 1e6)}`;
 
@@ -115,5 +122,14 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
     rfRef.current = rf;
   }
 
-  return { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, setRfInstance };
+  return {
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    onReconnect,
+    addNode,
+    setRfInstance,
+  };
 }

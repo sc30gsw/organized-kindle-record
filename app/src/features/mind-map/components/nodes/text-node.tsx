@@ -1,7 +1,8 @@
 import { useRef, useState } from "react";
-import { Handle, Position, useReactFlow, type NodeProps } from "@xyflow/react";
+import { useReactFlow, type NodeProps } from "@xyflow/react";
 import { Box, Text, Textarea } from "@mantine/core";
 import { NodeActions, nodeColorStyle } from "@/features/mind-map/components/nodes/node-actions";
+import { NodeHandles } from "@/features/mind-map/components/nodes/node-handles";
 
 export function TextNode({ id, data }: NodeProps) {
   const { updateNodeData } = useReactFlow();
@@ -20,6 +21,12 @@ export function TextNode({ id, data }: NodeProps) {
     setEditing(true);
   }
 
+  // 保存して編集終了（⌘+Enter / ノード外クリック共通）
+  function commit(value: string) {
+    updateNodeData(id, { label: value, autoEdit: false });
+    setEditing(false);
+  }
+
   return (
     <Box
       ref={boxRef}
@@ -35,7 +42,7 @@ export function TextNode({ id, data }: NodeProps) {
       }}
       onDoubleClick={startEditing}
     >
-      <Handle type="target" position={Position.Top} />
+      <NodeHandles />
       {!editing && <NodeActions color={color} id={id} onEdit={startEditing} />}
       {editing ? (
         <Textarea
@@ -45,17 +52,19 @@ export function TextNode({ id, data }: NodeProps) {
           autoFocus
           defaultValue={label}
           placeholder="テキストを入力"
-          onBlur={(e) => {
-            updateNodeData(id, { label: e.currentTarget.value, autoEdit: false });
-            setEditing(false);
+          onKeyDown={(e) => {
+            // ⌘+Enter で確定。Enter 単押しは改行のまま
+            if (e.key === "Enter" && e.metaKey) {
+              commit(e.currentTarget.value);
+            }
           }}
+          onBlur={(e) => commit(e.currentTarget.value)}
         />
       ) : (
         <Text size="sm" c={label ? undefined : "dimmed"}>
           {label || "テキストを入力"}
         </Text>
       )}
-      <Handle type="source" position={Position.Bottom} />
     </Box>
   );
 }

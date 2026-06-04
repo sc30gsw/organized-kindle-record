@@ -115,6 +115,7 @@ function BookDetail() {
           onNodesChange={mm.onNodesChange}
           onEdgesChange={mm.onEdgesChange}
           onConnect={mm.onConnect}
+          onReconnect={mm.onReconnect}
           onInit={mm.setRfInstance}
           onAddNode={() => mm.addNode()}
           onWheelModeChange={(mode) =>

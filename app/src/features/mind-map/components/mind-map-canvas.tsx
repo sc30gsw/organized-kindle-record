@@ -1,10 +1,12 @@
 import {
   Background,
+  ConnectionMode,
   Controls,
   MiniMap,
   NodeTypes,
   ReactFlow,
   ReactFlowProvider,
+  type Connection,
   type Edge,
   type Node,
   type OnConnect,
@@ -26,6 +28,7 @@ type MindMapCanvasProps = {
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
+  onReconnect: (oldEdge: Edge, newConnection: Connection) => void;
   onInit: (rf: ReactFlowInstance<Node, Edge>) => void;
   onAddNode: () => void;
   onWheelModeChange: (mode: WheelMode) => void;
@@ -38,6 +41,7 @@ function Canvas({
   onNodesChange,
   onEdgesChange,
   onConnect,
+  onReconnect,
   onInit,
   onAddNode,
   onWheelModeChange,
@@ -57,8 +61,10 @@ function Canvas({
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
+          onReconnect={onReconnect}
           onInit={onInit}
           nodeTypes={nodeTypes}
+          connectionMode={ConnectionMode.Loose}
           panOnScroll={wheelMode === "pan"}
           zoomOnScroll={wheelMode === "zoom"}
           fitView

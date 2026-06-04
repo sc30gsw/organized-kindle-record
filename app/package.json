@@ -28,6 +28,7 @@
     "@mantine/notifications": "9.2.2",
     "@notionhq/client": "5.22.0",
     "@tabler/icons-react": "^3.44.0",
+    "@tailwindcss/vite": "^4.3.0",
     "@tanstack/db": "^0.6.7",
     "@tanstack/query-db-collection": "^1.0.11",
     "@tanstack/react-db": "^0.1.59",
@@ -48,6 +49,7 @@
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-resizable-panels": "^4.11.2",
+    "tailwindcss": "^4.3.0",
     "valibot": "^1.2.0"
   },
   "devDependencies": {

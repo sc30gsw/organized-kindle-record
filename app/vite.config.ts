@@ -1,4 +1,5 @@
 import babel from "@rolldown/plugin-babel";
+import tailwindcss from "@tailwindcss/vite";
 import { reactCompilerPreset } from "@vitejs/plugin-react";
 import viteReact from "@vitejs/plugin-react";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -21,6 +22,7 @@ export default defineConfig({
     ],
   },
   plugins: [
+    tailwindcss(),
     tanstackStart(),
     nitro(),
     // react's vite plugin must come after start's vite plugin (register once — duplicate breaks hydration)

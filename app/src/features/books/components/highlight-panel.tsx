@@ -18,11 +18,7 @@ export function HighlightPanel({ book, onQuoteToNode }: HighlightPanelProps) {
   const [mmOpened, mmHandlers] = useDisclosure(false);
 
   return (
-    <Stack
-      p="md"
-      gap="md"
-      style={{ height: "100%", overflow: "auto", overscrollBehavior: "contain" }}
-    >
+    <Stack p="md" gap="md" className="h-full overflow-auto overscroll-contain">
       <Group align="flex-start" wrap="nowrap">
         {book.coverUrl ? <Image src={book.coverUrl} alt="" w={64} h={90} fit="contain" /> : null}
         <Stack gap={4}>

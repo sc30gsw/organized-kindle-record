@@ -50,7 +50,7 @@ function Canvas({
         onWheelModeChange={onWheelModeChange}
         wheelMode={wheelMode}
       />
-      <div style={{ flex: 1, minHeight: 0, overscrollBehavior: "contain" }}>
+      <div className="min-h-0 flex-1 overscroll-contain">
         <ReactFlow
           nodes={nodes}
           edges={edges}

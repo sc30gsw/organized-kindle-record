@@ -32,17 +32,28 @@ src/
 
 `src/components/`, `src/hooks/`, `src/stores/`, `src/utils/` are created on demand when something is genuinely shared across features.
 
-## `~` alias (relative paths forbidden)
+## Import aliases (relative paths forbidden)
 
 > Also enforced by PostToolUse hook in `.claude/settings.json`
 
+Two aliases are configured in `tsconfig.json`:
+
+| Alias | Resolves to | Use for |
+|---|---|---|
+| `@/*` | `app/src/*` | **web app 内部インポート（通常これを使う）** |
+| `~/*` | root `src/*` | root の CLI/Notion インポーターコードへのインポート専用 |
+
 ```typescript
-// CORRECT
-import { useProducts } from "~/features/products/hooks/use-products";
-import type { Product } from "~/features/products/types/product";
+// CORRECT: web app internal imports → @/
+import { useBooksQuery } from "@/features/books/hooks/use-books-query";
+import type { BookRowValues } from "@/features/books/schemas/book-schema";
+
+// CORRECT: root src (CLI importer) → ~/
+import { listBooks } from "~/list-books";
+import { parseMdContent } from "~/parse-md";
 
 // WRONG: relative paths — forbidden even within the same directory
-import { useProducts } from "../hooks/use-products";
+import { useBooksQuery } from "../hooks/use-books-query";
 import { helper } from "./helper";
 ```
 
@@ -50,11 +61,11 @@ import { helper } from "./helper";
 
 ```typescript
 // WRONG: feature importing directly from another feature
-// src/features/orders/components/order-form.tsx
-import { UserSelect } from "~/features/users/components/user-select";
+// src/features/books/components/book-form.tsx
+import { MindMapCanvas } from "@/features/mind-map/components/mind-map-canvas";
 
 // CORRECT: extract to src/components/
-import { UserSelect } from "~/components/user-select";
+import { MindMapCanvas } from "@/components/mind-map-canvas";
 ```
 
 ## Routes exception

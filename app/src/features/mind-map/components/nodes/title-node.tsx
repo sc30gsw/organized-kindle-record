@@ -44,7 +44,9 @@ export function TitleNode({ id, data }: NodeProps) {
           onBlur={(e) => commit(e.currentTarget.value)}
         />
       ) : (
-        <Text fw={700}>{label || "タイトル"}</Text>
+        <Text fw={700} style={{ whiteSpace: "pre-wrap" }}>
+          {label || "タイトル"}
+        </Text>
       )}
     </Box>
   );

@@ -61,7 +61,7 @@ export function TextNode({ id, data }: NodeProps) {
           onBlur={(e) => commit(e.currentTarget.value)}
         />
       ) : (
-        <Text size="sm" c={label ? undefined : "dimmed"}>
+        <Text size="sm" c={label ? undefined : "dimmed"} style={{ whiteSpace: "pre-wrap" }}>
           {label || "テキストを入力"}
         </Text>
       )}

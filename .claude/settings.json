@@ -13,6 +13,7 @@
     ]
   },
   "enabledPlugins": {
-    "ecc@ecc": true
+    "ecc@ecc": true,
+    "ecc-vsdd@ecc-vsdd": true
   }
 }

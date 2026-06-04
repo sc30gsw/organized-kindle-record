@@ -16,6 +16,7 @@ import { Stack } from "@mantine/core";
 import { TitleNode } from "@/features/mind-map/components/nodes/title-node";
 import { TextNode } from "@/features/mind-map/components/nodes/text-node";
 import { MindMapToolbar } from "@/features/mind-map/components/mind-map-toolbar";
+import type { WheelMode } from "@/features/mind-map/schemas/wheel-mode-schema";
 
 const nodeTypes = { title: TitleNode, text: TextNode } as const satisfies NodeTypes;
 
@@ -27,6 +28,8 @@ type MindMapCanvasProps = {
   onConnect: OnConnect;
   onInit: (rf: ReactFlowInstance<Node, Edge>) => void;
   onAddNode: () => void;
+  onWheelModeChange: (mode: WheelMode) => void;
+  wheelMode: WheelMode;
 };
 
 function Canvas({
@@ -37,11 +40,17 @@ function Canvas({
   onConnect,
   onInit,
   onAddNode,
+  onWheelModeChange,
+  wheelMode,
 }: MindMapCanvasProps) {
   return (
     <Stack gap={0} h="100%">
-      <MindMapToolbar onAddNode={onAddNode} />
-      <div style={{ flex: 1, minHeight: 0 }}>
+      <MindMapToolbar
+        onAddNode={onAddNode}
+        onWheelModeChange={onWheelModeChange}
+        wheelMode={wheelMode}
+      />
+      <div style={{ flex: 1, minHeight: 0, overscrollBehavior: "contain" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -50,6 +59,8 @@ function Canvas({
           onConnect={onConnect}
           onInit={onInit}
           nodeTypes={nodeTypes}
+          panOnScroll={wheelMode === "pan"}
+          zoomOnScroll={wheelMode === "zoom"}
           fitView
         >
           <Background />

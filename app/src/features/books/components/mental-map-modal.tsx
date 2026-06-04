@@ -33,11 +33,7 @@ export function MentalMapModal({ items, onClose, onQuoteToNode, opened }: Mental
               {item.answers.map((answer, j) => (
                 <Group key={j} align="flex-start" gap="xs" justify="space-between" wrap="nowrap">
                   <Text size="sm">・{answer}</Text>
-                  <Button
-                    onClick={() => onQuoteToNode(answer)}
-                    size="compact-xs"
-                    variant="subtle"
-                  >
+                  <Button onClick={() => onQuoteToNode(answer)} size="compact-xs" variant="subtle">
                     ノード化
                   </Button>
                 </Group>

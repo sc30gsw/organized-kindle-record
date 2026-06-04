@@ -5,7 +5,8 @@ import { NodeActions, nodeColorStyle } from "@/features/mind-map/components/node
 
 export function TextNode({ id, data }: NodeProps) {
   const { updateNodeData } = useReactFlow();
-  const [editing, setEditing] = useState(false);
+  // autoEdit: 作成直後の空ノードは dblclick なしで即編集モードに入る
+  const [editing, setEditing] = useState(Boolean(data["autoEdit"]));
   const label = typeof data["label"] === "string" ? data["label"] : "";
   const color = typeof data["color"] === "string" ? data["color"] : "#ffffff";
   const { textColor, border } = nodeColorStyle(color);
@@ -29,7 +30,7 @@ export function TextNode({ id, data }: NodeProps) {
           defaultValue={label}
           placeholder="テキストを入力"
           onBlur={(e) => {
-            updateNodeData(id, { label: e.currentTarget.value });
+            updateNodeData(id, { label: e.currentTarget.value, autoEdit: false });
             setEditing(false);
           }}
         />

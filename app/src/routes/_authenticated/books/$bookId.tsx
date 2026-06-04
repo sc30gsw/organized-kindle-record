@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import { ClientOnly, createFileRoute, Link } from "@tanstack/react-router";
+import { ClientOnly, createFileRoute, Link, stripSearchParams } from "@tanstack/react-router";
+import { valibotValidator } from "@tanstack/valibot-adapter";
 import { eq } from "@tanstack/db";
 import { useLiveSuspenseQuery } from "@tanstack/react-db";
 import { Alert, Button, Center, Container, Group, Loader } from "@mantine/core";
@@ -10,11 +11,19 @@ import { HighlightPanel } from "@/features/books/components/highlight-panel";
 import { mindMapCollection } from "@/features/mind-map/collections";
 import { MindMapCanvas } from "@/features/mind-map/components/mind-map-canvas";
 import { useMindMap } from "@/features/mind-map/hooks/use-mind-map";
+import {
+  bookDetailSearchSchema,
+  defaultBookDetailSearchParams,
+} from "@/features/mind-map/schemas/wheel-mode-schema";
 import { SplitView } from "@/components/split-view";
 import { queryClient } from "@/lib/query-client";
 import type { MindMapGraph } from "@/lib/db/schema";
 
 export const Route = createFileRoute("/_authenticated/books/$bookId")({
+  validateSearch: valibotValidator(bookDetailSearchSchema),
+  search: {
+    middlewares: [stripSearchParams(defaultBookDetailSearchParams)],
+  },
   loader: async ({ params }) => {
     await booksCollection.preload();
     await mindMapCollection.preload();
@@ -68,6 +77,8 @@ function BookDetailPage() {
 
 function BookDetail() {
   const { bookId } = Route.useParams();
+  const { wheel } = Route.useSearch();
+  const navigate = Route.useNavigate();
 
   const { data: books } = useLiveSuspenseQuery(
     (q) => q.from({ book: booksCollection }).where(({ book }) => eq(book.id, bookId)),
@@ -106,6 +117,10 @@ function BookDetail() {
           onConnect={mm.onConnect}
           onInit={mm.setRfInstance}
           onAddNode={() => mm.addNode()}
+          onWheelModeChange={(mode) =>
+            navigate({ search: (prev) => ({ ...prev, wheel: mode }), replace: true })
+          }
+          wheelMode={wheel}
         />
       }
     />

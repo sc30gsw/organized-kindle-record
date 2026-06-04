@@ -24,8 +24,20 @@ export function BooksPage() {
           <Button onClick={open}>取込</Button>
         </Group>
         <BooksSearchForm />
-        <ClientOnly fallback={<Center style={{ inset: 0, position: "fixed" }}><Loader /></Center>}>
-          <Suspense fallback={<Center style={{ inset: 0, position: "fixed" }}><Loader /></Center>}>
+        <ClientOnly
+          fallback={
+            <Center style={{ inset: 0, position: "fixed" }}>
+              <Loader />
+            </Center>
+          }
+        >
+          <Suspense
+            fallback={
+              <Center style={{ inset: 0, position: "fixed" }}>
+                <Loader />
+              </Center>
+            }
+          >
             <BooksTableContainer />
           </Suspense>
         </ClientOnly>

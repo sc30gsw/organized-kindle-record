@@ -13,6 +13,20 @@ const MIN_EXPORT_PX = 320;
 /** 出力画像の最大辺長（px）。ブラウザの canvas 上限（約16,000px）を超えると描画が壊れるため安全圏に抑える */
 const MAX_EXPORT_PX = 8192;
 
+/**
+ * エクスポート中だけエッジ線を太くする CSS を注入して run を実行する。
+ * 巨大マップは zoom < 1 で縮小描画され、1px のエッジ線がヘアライン化して PNG 上で消えるため、
+ * 画像上でおおよそ 2px になるよう逆補正する（画面表示には影響しない）。
+ */
+function withBoostedEdgeStroke<T>(zoom: number, run: () => Promise<T>): Promise<T> {
+  const styleEl = document.createElement("style");
+  styleEl.textContent = `.react-flow__edge-path { stroke-width: ${Math.max(1, 2 / zoom)}px !important; }`;
+  document.head.append(styleEl);
+  return run().finally(() => {
+    styleEl.remove();
+  });
+}
+
 /** マインドマップ全体を PNG 化してダウンロード / クリップボードコピーするフック。ReactFlowProvider 内で使うこと。 */
 export function useExportImage() {
   const { getNodes } = useReactFlow();
@@ -45,24 +59,25 @@ export function useExportImage() {
     );
 
     return Result.tryPromise({
-      try: async () => {
-        const blob = await toBlob(viewportEl, {
-          backgroundColor: "#ffffff",
-          // devicePixelRatio による暗黙の再拡大を止める（width/height で明示制御済み）
-          pixelRatio: 1,
-          width,
-          height,
-          style: {
-            width: `${width}px`,
-            height: `${height}px`,
-            transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
-          },
-        });
-        if (!blob) {
-          throw new Error("blob generation returned null");
-        }
-        return blob;
-      },
+      try: () =>
+        withBoostedEdgeStroke(viewport.zoom, async () => {
+          const blob = await toBlob(viewportEl, {
+            backgroundColor: "#ffffff",
+            // devicePixelRatio による暗黙の再拡大を止める（width/height で明示制御済み）
+            pixelRatio: 1,
+            width,
+            height,
+            style: {
+              width: `${width}px`,
+              height: `${height}px`,
+              transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+            },
+          });
+          if (!blob) {
+            throw new Error("blob generation returned null");
+          }
+          return blob;
+        }),
       catch: (cause) => new Error("画像の生成に失敗しました", { cause }),
     });
   }

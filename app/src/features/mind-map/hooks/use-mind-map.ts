@@ -26,10 +26,12 @@ function titleNode(label: string): Node {
 }
 
 /**
- * source→target を親→子とみなし、折りたたみノード（data.collapsed）の下流ノード id を返す。
+ * source→target を親→子とみなした折りたたみの導出状態。
+ * - hiddenNodeIds: 折りたたみノード（data.collapsed）の下流で隠すノード id
+ * - hiddenDescendantCounts: 折りたたみノード id → そこから辿れる隠れ子孫数（Miro 風「+N」チップ用）
  * 循環は訪問済みガードで打ち切り。根（入次数0）から辿れない循環島は誤って隠さず可視のまま残す。
  */
-function computeHiddenNodeIds(nodes: Node[], edges: Edge[]): Set<string> {
+function computeCollapseState(nodes: Node[], edges: Edge[]) {
   const childrenOf = new Map<string, string[]>();
   const hasIncoming = new Set<string>();
   for (const edge of edges) {
@@ -40,9 +42,9 @@ function computeHiddenNodeIds(nodes: Node[], edges: Edge[]): Set<string> {
   const collapsedIds = new Set(nodes.filter((n) => n.data["collapsed"] === true).map((n) => n.id));
   const rootIds = nodes.filter((n) => !hasIncoming.has(n.id)).map((n) => n.id);
 
-  function collectReachable(stopAtCollapsed: boolean): Set<string> {
+  function collectReachable(startIds: string[], stopAtCollapsed: boolean): Set<string> {
     const seen = new Set<string>();
-    const stack = [...rootIds];
+    const stack = [...startIds];
     let current = stack.pop();
     while (current !== undefined) {
       if (!seen.has(current)) {
@@ -57,10 +59,20 @@ function computeHiddenNodeIds(nodes: Node[], edges: Edge[]): Set<string> {
     return seen;
   }
 
-  const visible = collectReachable(true);
-  const reachable = collectReachable(false);
+  const visible = collectReachable(rootIds, true);
+  const reachable = collectReachable(rootIds, false);
+  const hiddenNodeIds = new Set([...reachable].filter((id) => !visible.has(id)));
 
-  return new Set([...reachable].filter((id) => !visible.has(id)));
+  // 各折りたたみノードの下流のうち、実際に隠れているノード数
+  const hiddenDescendantCounts = new Map(
+    [...collapsedIds].map((id) => {
+      const downstream = collectReachable(childrenOf.get(id) ?? [], false);
+      const count = [...downstream].filter((d) => hiddenNodeIds.has(d)).length;
+      return [id, count] as const;
+    }),
+  );
+
+  return { hiddenNodeIds, hiddenDescendantCounts };
 }
 
 type UseMindMapArgs = {
@@ -91,11 +103,12 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
     }
 
     const raw = rf.toObject();
-    // autoEdit は「作成直後だけ編集モードで開く」一時フラグ。永続化するとリロード時に編集モードが復活するため保存前に除去する
+    // autoEdit（作成直後だけ編集モードで開く一時フラグ）と hiddenDescendants（毎レンダー導出の表示用カウント）は
+    // 永続化対象外のため保存前に除去する
     const graph = {
       ...raw,
       nodes: raw.nodes.map((n) => {
-        const { autoEdit: _autoEdit, ...data } = n.data;
+        const { autoEdit: _autoEdit, hiddenDescendants: _hiddenDescendants, ...data } = n.data;
         return { ...n, data };
       }),
     } as unknown as MindMapGraph;
@@ -160,9 +173,15 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
     rfRef.current = rf;
   }
 
-  // 折りたたみ状態から hidden を毎レンダー導出する（保存値には依存しない）
-  const hiddenNodeIds = computeHiddenNodeIds(nodes, edges);
-  const visibleNodes = nodes.map((n) => ({ ...n, hidden: hiddenNodeIds.has(n.id) }));
+  // 折りたたみ状態から hidden と「+N」チップ用の子孫数を毎レンダー導出する（保存値には依存しない）
+  const { hiddenNodeIds, hiddenDescendantCounts } = computeCollapseState(nodes, edges);
+  const visibleNodes = nodes.map((n) => {
+    const base = { ...n, hidden: hiddenNodeIds.has(n.id) };
+    const count = hiddenDescendantCounts.get(n.id);
+    return count === undefined
+      ? base
+      : { ...base, data: { ...base.data, hiddenDescendants: count } };
+  });
   const visibleEdges = edges.map((e) => ({
     ...e,
     hidden: hiddenNodeIds.has(e.source) || hiddenNodeIds.has(e.target),

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useReactFlow, type NodeProps } from "@xyflow/react";
 import { Box, Text, Textarea, useMantineTheme } from "@mantine/core";
+import { CollapseBadge } from "@/features/mind-map/components/nodes/collapse-badge";
 import { NodeActions, nodeColorStyle } from "@/features/mind-map/components/nodes/node-actions";
 import { NodeHandles } from "@/features/mind-map/components/nodes/node-handles";
 
@@ -11,6 +12,8 @@ export function TitleNode({ id, data }: NodeProps) {
   const label = typeof data["label"] === "string" ? data["label"] : "";
   const color = typeof data["color"] === "string" ? data["color"] : theme.colors.blue[6];
   const collapsed = data["collapsed"] === true;
+  const hiddenDescendants =
+    typeof data["hiddenDescendants"] === "number" ? data["hiddenDescendants"] : 0;
   const { textColor, border } = nodeColorStyle(color);
 
   // 保存して編集終了（⌘+Enter / ノード外クリック共通）
@@ -28,6 +31,7 @@ export function TitleNode({ id, data }: NodeProps) {
       onDoubleClick={() => setEditing(true)}
     >
       <NodeHandles />
+      {collapsed && hiddenDescendants > 0 && <CollapseBadge count={hiddenDescendants} id={id} />}
       {!editing && (
         <NodeActions collapsed={collapsed} color={color} id={id} onEdit={() => setEditing(true)} />
       )}

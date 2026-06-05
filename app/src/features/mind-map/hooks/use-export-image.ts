@@ -10,6 +10,8 @@ const EXPORT_SCALE = 2;
 const EXPORT_PADDING = 0.1;
 /** 出力画像の最小辺長（px）。ノードが少なくても潰れないようにする */
 const MIN_EXPORT_PX = 320;
+/** 出力画像の最大辺長（px）。ブラウザの canvas 上限（約16,000px）を超えると描画が壊れるため安全圏に抑える */
+const MAX_EXPORT_PX = 8192;
 
 /** マインドマップ全体を PNG 化してダウンロード / クリップボードコピーするフック。ReactFlowProvider 内で使うこと。 */
 export function useExportImage() {
@@ -25,14 +27,29 @@ export function useExportImage() {
     }
 
     const bounds = getNodesBounds(nodes);
-    const width = Math.max(MIN_EXPORT_PX, Math.round(bounds.width * EXPORT_SCALE));
-    const height = Math.max(MIN_EXPORT_PX, Math.round(bounds.height * EXPORT_SCALE));
-    const viewport = getViewportForBounds(bounds, width, height, 0.1, EXPORT_SCALE, EXPORT_PADDING);
+    // 大きなマップでは倍率を自動で落とし、canvas 上限超過による劣化・描画破綻を防ぐ
+    const scale = Math.min(
+      EXPORT_SCALE,
+      MAX_EXPORT_PX / Math.max(bounds.width, 1),
+      MAX_EXPORT_PX / Math.max(bounds.height, 1),
+    );
+    const width = Math.max(MIN_EXPORT_PX, Math.round(bounds.width * scale));
+    const height = Math.max(MIN_EXPORT_PX, Math.round(bounds.height * scale));
+    const viewport = getViewportForBounds(
+      bounds,
+      width,
+      height,
+      0.01,
+      EXPORT_SCALE,
+      EXPORT_PADDING,
+    );
 
     return Result.tryPromise({
       try: async () => {
         const blob = await toBlob(viewportEl, {
           backgroundColor: "#ffffff",
+          // devicePixelRatio による暗黙の再拡大を止める（width/height で明示制御済み）
+          pixelRatio: 1,
           width,
           height,
           style: {

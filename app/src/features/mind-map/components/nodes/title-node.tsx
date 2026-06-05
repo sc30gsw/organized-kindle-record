@@ -10,6 +10,7 @@ export function TitleNode({ id, data }: NodeProps) {
   const [editing, setEditing] = useState(false);
   const label = typeof data["label"] === "string" ? data["label"] : "";
   const color = typeof data["color"] === "string" ? data["color"] : theme.colors.blue[6];
+  const collapsed = data["collapsed"] === true;
   const { textColor, border } = nodeColorStyle(color);
 
   // 保存して編集終了（⌘+Enter / ノード外クリック共通）
@@ -27,7 +28,9 @@ export function TitleNode({ id, data }: NodeProps) {
       onDoubleClick={() => setEditing(true)}
     >
       <NodeHandles />
-      {!editing && <NodeActions color={color} id={id} onEdit={() => setEditing(true)} />}
+      {!editing && (
+        <NodeActions collapsed={collapsed} color={color} id={id} onEdit={() => setEditing(true)} />
+      )}
       {editing ? (
         <Textarea
           className="nodrag"

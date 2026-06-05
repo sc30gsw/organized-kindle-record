@@ -25,6 +25,44 @@ function titleNode(label: string): Node {
   return { id: "title", type: "title", position: { x: 0, y: 0 }, data: { label } };
 }
 
+/**
+ * source→target を親→子とみなし、折りたたみノード（data.collapsed）の下流ノード id を返す。
+ * 循環は訪問済みガードで打ち切り。根（入次数0）から辿れない循環島は誤って隠さず可視のまま残す。
+ */
+function computeHiddenNodeIds(nodes: Node[], edges: Edge[]): Set<string> {
+  const childrenOf = new Map<string, string[]>();
+  const hasIncoming = new Set<string>();
+  for (const edge of edges) {
+    childrenOf.set(edge.source, [...(childrenOf.get(edge.source) ?? []), edge.target]);
+    hasIncoming.add(edge.target);
+  }
+
+  const collapsedIds = new Set(nodes.filter((n) => n.data["collapsed"] === true).map((n) => n.id));
+  const rootIds = nodes.filter((n) => !hasIncoming.has(n.id)).map((n) => n.id);
+
+  function collectReachable(stopAtCollapsed: boolean): Set<string> {
+    const seen = new Set<string>();
+    const stack = [...rootIds];
+    let current = stack.pop();
+    while (current !== undefined) {
+      if (!seen.has(current)) {
+        seen.add(current);
+        // 折りたたみノード自身は可視のまま、その先だけ辿らない
+        if (!(stopAtCollapsed && collapsedIds.has(current))) {
+          stack.push(...(childrenOf.get(current) ?? []));
+        }
+      }
+      current = stack.pop();
+    }
+    return seen;
+  }
+
+  const visible = collectReachable(true);
+  const reachable = collectReachable(false);
+
+  return new Set([...reachable].filter((id) => !visible.has(id)));
+}
+
 type UseMindMapArgs = {
   bookId: string;
   bookTitle: string;
@@ -122,9 +160,17 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
     rfRef.current = rf;
   }
 
+  // 折りたたみ状態から hidden を毎レンダー導出する（保存値には依存しない）
+  const hiddenNodeIds = computeHiddenNodeIds(nodes, edges);
+  const visibleNodes = nodes.map((n) => ({ ...n, hidden: hiddenNodeIds.has(n.id) }));
+  const visibleEdges = edges.map((e) => ({
+    ...e,
+    hidden: hiddenNodeIds.has(e.source) || hiddenNodeIds.has(e.target),
+  }));
+
   return {
-    nodes,
-    edges,
+    nodes: visibleNodes,
+    edges: visibleEdges,
     onNodesChange,
     onEdgesChange,
     onConnect,

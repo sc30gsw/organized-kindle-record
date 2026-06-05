@@ -12,6 +12,19 @@ type HighlightPanelProps = {
   onQuoteToNode: ReturnType<typeof useMindMap>["addNode"];
 };
 
+/** container 内でテキスト選択中ならその文字列、なければ fallback（引用全文）を返す */
+function selectedTextWithin(container: Element | null, fallback: string): string {
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed || !container) {
+    return fallback;
+  }
+  const text = selection.toString().trim();
+  if (text === "" || !container.contains(selection.anchorNode)) {
+    return fallback;
+  }
+  return text;
+}
+
 export function HighlightPanel({ book, onQuoteToNode }: HighlightPanelProps) {
   const { data } = useSuspenseQuery(bookHighlightsQueryOptions(book.id));
   const { highlights, mentalMap } = data;
@@ -56,7 +69,12 @@ export function HighlightPanel({ book, onQuoteToNode }: HighlightPanelProps) {
               size="compact-xs"
               variant="subtle"
               mt={4}
-              onClick={() => onQuoteToNode(h.quote)}
+              // mousedown のデフォルト動作でテキスト選択が解除されるのを防ぐ
+              onMouseDown={(e) => e.preventDefault()}
+              // このハイライト Box 内で選択中の文字列があればそれだけをノード化、なければ全文
+              onClick={(e) =>
+                onQuoteToNode(selectedTextWithin(e.currentTarget.parentElement, h.quote))
+              }
             >
               ノード化
             </Button>

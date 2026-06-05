@@ -13,6 +13,7 @@ export function TextNode({ id, data }: NodeProps) {
   const [editSize, setEditSize] = useState<{ height: number; width: number } | null>(null);
   const label = typeof data["label"] === "string" ? data["label"] : "";
   const color = typeof data["color"] === "string" ? data["color"] : "#ffffff";
+  const collapsed = data["collapsed"] === true;
   const { textColor, border } = nodeColorStyle(color);
 
   function startEditing() {
@@ -43,7 +44,9 @@ export function TextNode({ id, data }: NodeProps) {
       onDoubleClick={startEditing}
     >
       <NodeHandles />
-      {!editing && <NodeActions color={color} id={id} onEdit={startEditing} />}
+      {!editing && (
+        <NodeActions collapsed={collapsed} color={color} id={id} onEdit={startEditing} />
+      )}
       {editing ? (
         <Textarea
           className="nodrag"

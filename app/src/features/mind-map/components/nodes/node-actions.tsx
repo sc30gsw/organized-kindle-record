@@ -8,7 +8,13 @@ import {
   Popover,
   useMantineTheme,
 } from "@mantine/core";
-import { IconPalette, IconPencil, IconTrash } from "@tabler/icons-react";
+import {
+  IconChevronDown,
+  IconChevronRight,
+  IconPalette,
+  IconPencil,
+  IconTrash,
+} from "@tabler/icons-react";
 
 const SWATCH_KEYS = [
   "blue",
@@ -38,13 +44,14 @@ export function nodeColorStyle(color: MantineColor) {
 }
 
 type NodeActionsProps = {
+  collapsed: boolean;
   color: MantineColor;
   id: string;
   onEdit: () => void;
 };
 
 /** ノード共通の操作ボタン群（編集 / 配色 / 削除）。ボタンのみ nodrag にしてノード自体はドラッグ可能なまま。 */
-export function NodeActions({ color, id, onEdit }: NodeActionsProps) {
+export function NodeActions({ collapsed, color, id, onEdit }: NodeActionsProps) {
   const { updateNodeData, deleteElements } = useReactFlow();
   const theme = useMantineTheme();
   // ⌘+Enter で閉じられるよう controlled にする（外クリック閉じは onChange 経由で維持）
@@ -53,6 +60,17 @@ export function NodeActions({ color, id, onEdit }: NodeActionsProps) {
 
   return (
     <Group gap={4} justify="flex-end" mb={4}>
+      <ActionIcon
+        aria-label={collapsed ? "展開" : "折りたたみ"}
+        className="nodrag"
+        color="gray"
+        onClick={() => updateNodeData(id, { collapsed: !collapsed })}
+        size="xs"
+        variant="subtle"
+      >
+        {collapsed ? <IconChevronRight size={14} /> : <IconChevronDown size={14} />}
+      </ActionIcon>
+
       <ActionIcon
         aria-label="編集"
         className="nodrag"

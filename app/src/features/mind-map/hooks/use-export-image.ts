@@ -2,7 +2,7 @@ import { useState } from "react";
 import { getNodesBounds, getViewportForBounds, useReactFlow } from "@xyflow/react";
 import { notifications } from "@mantine/notifications";
 import { Result } from "better-result";
-import { toBlob } from "html-to-image";
+import { domToBlob } from "modern-screenshot";
 
 /** 出力解像度の倍率（Retina 相当の 2x） */
 const EXPORT_SCALE = 2;
@@ -61,10 +61,11 @@ export function useExportImage() {
     return Result.tryPromise({
       try: () =>
         withBoostedEdgeStroke(viewport.zoom, async () => {
-          const blob = await toBlob(viewportEl, {
+          // html-to-image はエッジ SVG を取りこぼすため、修正済みフォークの modern-screenshot を使う
+          const blob = await domToBlob(viewportEl, {
             backgroundColor: "#ffffff",
-            // devicePixelRatio による暗黙の再拡大を止める（width/height で明示制御済み）
-            pixelRatio: 1,
+            // 暗黙の再拡大をしない（width/height で明示制御済み）
+            scale: 1,
             width,
             height,
             style: {

@@ -110,6 +110,7 @@ function BookDetail() {
       }
       right={
         <MindMapCanvas
+          exportFileName={book?.title ?? "mind-map"}
           nodes={mm.nodes}
           edges={mm.edges}
           onNodesChange={mm.onNodesChange}

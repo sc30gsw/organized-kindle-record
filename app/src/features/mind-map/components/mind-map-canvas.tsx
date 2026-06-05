@@ -23,6 +23,7 @@ import type { WheelMode } from "@/features/mind-map/schemas/wheel-mode-schema";
 const nodeTypes = { title: TitleNode, text: TextNode } as const satisfies NodeTypes;
 
 type MindMapCanvasProps = {
+  exportFileName: string;
   nodes: Node[];
   edges: Edge[];
   onNodesChange: OnNodesChange;
@@ -36,6 +37,7 @@ type MindMapCanvasProps = {
 };
 
 function Canvas({
+  exportFileName,
   nodes,
   edges,
   onNodesChange,
@@ -50,6 +52,7 @@ function Canvas({
   return (
     <Stack gap={0} h="100%">
       <MindMapToolbar
+        exportFileName={exportFileName}
         onAddNode={onAddNode}
         onWheelModeChange={onWheelModeChange}
         wheelMode={wheelMode}

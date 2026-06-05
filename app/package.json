@@ -44,6 +44,7 @@
     "better-result": "^2.9.2",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
+    "html-to-image": "^1.11.13",
     "nitro": "^3.0.260522-beta",
     "p-limit": "^7.3.0",
     "react": "^19.2.3",

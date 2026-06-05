@@ -13,6 +13,49 @@ const MIN_EXPORT_PX = 320;
 /** 出力画像の最大辺長（px）。ブラウザの canvas 上限（約16,000px）を超えると描画が壊れるため安全圏に抑える */
 const MAX_EXPORT_PX = 8192;
 
+type FlowRect = { x: number; y: number; width: number; height: number };
+
+/**
+ * キャプチャ中だけエッジ SVG に「撮影範囲全体を覆う viewBox + 明示サイズ」を与えて run を実行する。
+ * エッジは overflow: visible 頼みで SVG ボックス外に描画されており、画面表示では問題ないが、
+ * DOM→画像のラスタライズでは SVG ボックス外が切り捨てられてエッジだけが消える。
+ * ボックス自体を撮影範囲に一致させて回避する（座標は viewBox で再マップされるため見た目は不変）。
+ */
+function withExportableEdgeSvgs<T>(
+  viewportEl: HTMLElement,
+  rect: FlowRect,
+  run: () => Promise<T>,
+): Promise<T> {
+  const svgs = [...viewportEl.querySelectorAll("svg")].filter(
+    (svg) => svg.classList.contains("react-flow__edges") || svg.closest(".react-flow__edges"),
+  );
+  const restores = svgs.map((svg) => {
+    const prev = {
+      viewBox: svg.getAttribute("viewBox"),
+      cssText: svg.style.cssText,
+    };
+    svg.setAttribute("viewBox", `${rect.x} ${rect.y} ${rect.width} ${rect.height}`);
+    svg.style.position = "absolute";
+    svg.style.left = `${rect.x}px`;
+    svg.style.top = `${rect.y}px`;
+    svg.style.width = `${rect.width}px`;
+    svg.style.height = `${rect.height}px`;
+    return () => {
+      if (prev.viewBox === null) {
+        svg.removeAttribute("viewBox");
+      } else {
+        svg.setAttribute("viewBox", prev.viewBox);
+      }
+      svg.style.cssText = prev.cssText;
+    };
+  });
+  return run().finally(() => {
+    for (const restore of restores) {
+      restore();
+    }
+  });
+}
+
 /**
  * エクスポート中だけエッジ線を太くする CSS を注入して run を実行する。
  * 巨大マップは zoom < 1 で縮小描画され、1px のエッジ線がヘアライン化して PNG 上で消えるため、
@@ -58,27 +101,37 @@ export function useExportImage() {
       EXPORT_PADDING,
     );
 
+    // 画像に写る flow 座標の矩形（この範囲をエッジ SVG のボックスにも設定する）
+    const captureRect = {
+      x: -viewport.x / viewport.zoom,
+      y: -viewport.y / viewport.zoom,
+      width: width / viewport.zoom,
+      height: height / viewport.zoom,
+    };
+
     return Result.tryPromise({
       try: () =>
-        withBoostedEdgeStroke(viewport.zoom, async () => {
-          // html-to-image はエッジ SVG を取りこぼすため、修正済みフォークの modern-screenshot を使う
-          const blob = await domToBlob(viewportEl, {
-            backgroundColor: "#ffffff",
-            // 暗黙の再拡大をしない（width/height で明示制御済み）
-            scale: 1,
-            width,
-            height,
-            style: {
-              width: `${width}px`,
-              height: `${height}px`,
-              transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
-            },
-          });
-          if (!blob) {
-            throw new Error("blob generation returned null");
-          }
-          return blob;
-        }),
+        withExportableEdgeSvgs(viewportEl, captureRect, () =>
+          withBoostedEdgeStroke(viewport.zoom, async () => {
+            // html-to-image はエッジ SVG を取りこぼすため、修正済みフォークの modern-screenshot を使う
+            const blob = await domToBlob(viewportEl, {
+              backgroundColor: "#ffffff",
+              // 暗黙の再拡大をしない（width/height で明示制御済み）
+              scale: 1,
+              width,
+              height,
+              style: {
+                width: `${width}px`,
+                height: `${height}px`,
+                transform: `translate(${viewport.x}px, ${viewport.y}px) scale(${viewport.zoom})`,
+              },
+            });
+            if (!blob) {
+              throw new Error("blob generation returned null");
+            }
+            return blob;
+          }),
+        ),
       catch: (cause) => new Error("画像の生成に失敗しました", { cause }),
     });
   }

@@ -26,32 +26,31 @@ function titleNode(label: string): Node {
 }
 
 /**
- * source→target を親→子とみなした折りたたみの導出状態。
- * - hiddenNodeIds: 折りたたみノード（data.collapsed）の下流で隠すノード id
- * - hiddenDescendantCounts: 折りたたみノード id → そこから辿れる隠れ子孫数（Miro 風「+N」チップ用）
- * 循環は訪問済みガードで打ち切り。根（入次数0）から辿れない循環島は誤って隠さず可視のまま残す。
+ * ルート基準の折りたたみ導出状態。エッジの向き（どちらからドラッグしたか）は見ず、
+ * 無向グラフとして「ルートに近い側が親」で判定する。
+ * - アンカー: タイトルノード。タイトルと繋がっていない島は、その島で最初に作られたノード
+ * - hiddenNodeIds: アンカーから折りたたみノード（data.collapsed）を越えずに辿れないノード id
+ * - hiddenDescendantCounts: 折りたたみノード id → そこに接する隠れ領域のノード数（Miro 風「+N」チップ用）
  */
 function computeCollapseState(nodes: Node[], edges: Edge[]) {
-  const childrenOf = new Map<string, string[]>();
-  const hasIncoming = new Set<string>();
+  const neighborsOf = new Map<string, string[]>();
   for (const edge of edges) {
-    childrenOf.set(edge.source, [...(childrenOf.get(edge.source) ?? []), edge.target]);
-    hasIncoming.add(edge.target);
+    neighborsOf.set(edge.source, [...(neighborsOf.get(edge.source) ?? []), edge.target]);
+    neighborsOf.set(edge.target, [...(neighborsOf.get(edge.target) ?? []), edge.source]);
   }
 
   const collapsedIds = new Set(nodes.filter((n) => n.data["collapsed"] === true).map((n) => n.id));
-  const rootIds = nodes.filter((n) => !hasIncoming.has(n.id)).map((n) => n.id);
 
-  function collectReachable(startIds: string[], stopAtCollapsed: boolean): Set<string> {
+  function bfs(startIds: string[], stopAtCollapsed: boolean, limitTo?: Set<string>): Set<string> {
     const seen = new Set<string>();
     const stack = [...startIds];
     let current = stack.pop();
     while (current !== undefined) {
-      if (!seen.has(current)) {
+      if (!seen.has(current) && (limitTo === undefined || limitTo.has(current))) {
         seen.add(current);
         // 折りたたみノード自身は可視のまま、その先だけ辿らない
         if (!(stopAtCollapsed && collapsedIds.has(current))) {
-          stack.push(...(childrenOf.get(current) ?? []));
+          stack.push(...(neighborsOf.get(current) ?? []));
         }
       }
       current = stack.pop();
@@ -59,16 +58,32 @@ function computeCollapseState(nodes: Node[], edges: Edge[]) {
     return seen;
   }
 
-  const visible = collectReachable(rootIds, true);
-  const reachable = collectReachable(rootIds, false);
-  const hiddenNodeIds = new Set([...reachable].filter((id) => !visible.has(id)));
+  // タイトルノードを最優先アンカーに、未処理の連結成分ごとに可視集合を作る
+  const orderedIds = [
+    ...nodes.filter((n) => n.type === "title").map((n) => n.id),
+    ...nodes.filter((n) => n.type !== "title").map((n) => n.id),
+  ];
+  const assigned = new Set<string>();
+  const visible = new Set<string>();
+  for (const anchorId of orderedIds) {
+    if (assigned.has(anchorId)) {
+      continue;
+    }
+    for (const member of bfs([anchorId], false)) {
+      assigned.add(member);
+    }
+    for (const v of bfs([anchorId], true)) {
+      visible.add(v);
+    }
+  }
 
-  // 各折りたたみノードの下流のうち、実際に隠れているノード数
+  const hiddenNodeIds = new Set(nodes.map((n) => n.id).filter((id) => !visible.has(id)));
+
+  // 各折りたたみノードの +N: 隣接する隠れノードから隠れ領域内だけを辿った数
   const hiddenDescendantCounts = new Map(
     [...collapsedIds].map((id) => {
-      const downstream = collectReachable(childrenOf.get(id) ?? [], false);
-      const count = [...downstream].filter((d) => hiddenNodeIds.has(d)).length;
-      return [id, count] as const;
+      const hiddenNeighbors = (neighborsOf.get(id) ?? []).filter((nb) => hiddenNodeIds.has(nb));
+      return [id, bfs(hiddenNeighbors, false, hiddenNodeIds).size] as const;
     }),
   );
 

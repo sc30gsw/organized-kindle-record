@@ -8,6 +8,7 @@ import {
   type Edge,
   type Node,
   type OnConnect,
+  type OnNodeDrag,
   type ReactFlowInstance,
 } from "@xyflow/react";
 import { mindMapCollection } from "@/features/mind-map/collections";
@@ -79,15 +80,21 @@ function computeCollapseState(nodes: Node[], edges: Edge[]) {
 
   const hiddenNodeIds = new Set(nodes.map((n) => n.id).filter((id) => !visible.has(id)));
 
-  // 各折りたたみノードの +N: 隣接する隠れノードから隠れ領域内だけを辿った数
-  const hiddenDescendantCounts = new Map(
+  // 各折りたたみノードの隠れ領域: 隣接する隠れノードから隠れ領域内だけを辿った id 集合。
+  // ネストした折りたたみも stopAtCollapsed=false で全て含む。ドラッグ追従と +N チップの両方がこれを使う。
+  const hiddenRegionByCollapsedId = new Map(
     [...collapsedIds].map((id) => {
       const hiddenNeighbors = (neighborsOf.get(id) ?? []).filter((nb) => hiddenNodeIds.has(nb));
-      return [id, bfs(hiddenNeighbors, false, hiddenNodeIds).size] as const;
+      return [id, bfs(hiddenNeighbors, false, hiddenNodeIds)] as const;
     }),
   );
 
-  return { hiddenNodeIds, hiddenDescendantCounts };
+  // 「+N」チップ用の子孫数は隠れ領域のサイズから導出
+  const hiddenDescendantCounts = new Map(
+    [...hiddenRegionByCollapsedId].map(([id, region]) => [id, region.size] as const),
+  );
+
+  return { hiddenNodeIds, hiddenDescendantCounts, hiddenRegionByCollapsedId };
 }
 
 type UseMindMapArgs = {
@@ -110,6 +117,8 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
   const saveRef = useRef<() => void>(() => {});
   // 連続追加のカスケード段数。viewport が動いたらリセットする
   const cascadeRef = useRef({ count: 0, viewportKey: "" });
+  // ドラッグ開始時に掴んだノードの位置。停止時に delta を出して隠れ領域へ反映する
+  const dragStartRef = useRef<{ x: number; y: number } | null>(null);
 
   saveRef.current = () => {
     const rf = rfRef.current;
@@ -189,7 +198,10 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
   }
 
   // 折りたたみ状態から hidden と「+N」チップ用の子孫数を毎レンダー導出する（保存値には依存しない）
-  const { hiddenNodeIds, hiddenDescendantCounts } = computeCollapseState(nodes, edges);
+  const { hiddenNodeIds, hiddenDescendantCounts, hiddenRegionByCollapsedId } = computeCollapseState(
+    nodes,
+    edges,
+  );
   const visibleNodes = nodes.map((n) => {
     const base = { ...n, hidden: hiddenNodeIds.has(n.id) };
     const count = hiddenDescendantCounts.get(n.id);
@@ -202,6 +214,47 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
     hidden: hiddenNodeIds.has(e.source) || hiddenNodeIds.has(e.target),
   }));
 
+  // ドラッグ開始時、掴んだノードの位置を控える
+  function onNodeDragStart(...args: Parameters<OnNodeDrag<Node>>) {
+    const node = args[1];
+    dragStartRef.current = { x: node.position.x, y: node.position.y };
+  }
+
+  // 折りたたみノードをドラッグして停止したら、その隠れ領域を同じ delta で追従させる。
+  // 隠れノードは描画されないため停止時に一括反映で十分。dragged ノード自身は react-flow が確定済み。
+  function onNodeDragStop(...args: Parameters<OnNodeDrag<Node>>) {
+    const [, node, draggedNodes] = args;
+    const start = dragStartRef.current;
+    dragStartRef.current = null;
+    if (!start) {
+      return;
+    }
+    const delta = { x: node.position.x - start.x, y: node.position.y - start.y };
+    if (delta.x === 0 && delta.y === 0) {
+      return;
+    }
+
+    // ドラッグ集合（掴んだノード＋複数選択分）に含まれる折りたたみノードの隠れ領域を union（重複排除）
+    const draggedIds = new Set([node.id, ...draggedNodes.map((n) => n.id)]);
+    const toShift = new Set<string>();
+    for (const id of draggedIds) {
+      for (const hiddenId of hiddenRegionByCollapsedId.get(id) ?? []) {
+        toShift.add(hiddenId);
+      }
+    }
+    if (toShift.size === 0) {
+      return;
+    }
+
+    setNodes((nds) =>
+      nds.map((n) =>
+        toShift.has(n.id)
+          ? { ...n, position: { x: n.position.x + delta.x, y: n.position.y + delta.y } }
+          : n,
+      ),
+    );
+  }
+
   return {
     nodes: visibleNodes,
     edges: visibleEdges,
@@ -209,6 +262,8 @@ export function useMindMap({ bookId, bookTitle, initialGraph }: UseMindMapArgs) 
     onEdgesChange,
     onConnect,
     onReconnect,
+    onNodeDragStart,
+    onNodeDragStop,
     addNode,
     setRfInstance,
   };

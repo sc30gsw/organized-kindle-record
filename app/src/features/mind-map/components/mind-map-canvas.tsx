@@ -11,6 +11,7 @@ import {
   type Node,
   type OnConnect,
   type OnEdgesChange,
+  type OnNodeDrag,
   type OnNodesChange,
   type ReactFlowInstance,
 } from "@xyflow/react";
@@ -30,6 +31,8 @@ type MindMapCanvasProps = {
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
   onReconnect: (oldEdge: Edge, newConnection: Connection) => void;
+  onNodeDragStart: OnNodeDrag<Node>;
+  onNodeDragStop: OnNodeDrag<Node>;
   onInit: (rf: ReactFlowInstance<Node, Edge>) => void;
   onAddNode: () => void;
   onWheelModeChange: (mode: WheelMode) => void;
@@ -44,6 +47,8 @@ function Canvas({
   onEdgesChange,
   onConnect,
   onReconnect,
+  onNodeDragStart,
+  onNodeDragStop,
   onInit,
   onAddNode,
   onWheelModeChange,
@@ -65,6 +70,8 @@ function Canvas({
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           onReconnect={onReconnect}
+          onNodeDragStart={onNodeDragStart}
+          onNodeDragStop={onNodeDragStop}
           onInit={onInit}
           nodeTypes={nodeTypes}
           connectionMode={ConnectionMode.Loose}

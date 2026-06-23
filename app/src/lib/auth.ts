@@ -1,5 +1,6 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { dash } from "@better-auth/infra";
 import { betterAuth, User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
@@ -42,5 +43,8 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [tanstackStartCookies()],
+  plugins: [
+    tanstackStartCookies(),
+    dash({ apiKey: process.env["BETTER_AUTH_API_KEY"] ?? "" }),
+  ],
 });

@@ -17,3 +17,4 @@ done.log
 .vite/
 .nitro/
 .DS_Store
+.vercel

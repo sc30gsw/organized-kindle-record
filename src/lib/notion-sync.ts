@@ -50,7 +50,9 @@ export async function getExistingQuoteTexts(pageId: PageId) {
     for (const block of res.results) {
       if (!('type' in block) || block.type !== 'quote') continue;
       if (!('quote' in block)) continue;
-      const text = block.quote.rich_text.map((rt: { plain_text: string }) => rt.plain_text).join('');
+      const text = block.quote.rich_text
+        .map((rt: { plain_text: string }) => rt.plain_text)
+        .join('');
       texts.add(normalizeQuoteText(text));
     }
     cursor = res.has_more ? (res.next_cursor ?? undefined) : undefined;

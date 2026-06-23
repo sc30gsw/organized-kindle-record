@@ -1,11 +1,11 @@
-import { BlockObjectResponse } from "@notionhq/client";
-import { notion, withRetry } from "~/notion-client";
-import { Highlight, PageId } from "~/types";
+import { BlockObjectResponse } from '@notionhq/client';
+import { notion, withRetry } from '~/notion-client';
+import { Highlight, PageId } from '~/types';
 
 /** 1 ハイライト分の表示用データ（引用 + メモ群）。Notion の quote ブロックと子 bullet から復元。 */
 export type BookHighlight = {
   quote: string;
-  notes: Highlight["notes"];
+  notes: Highlight['notes'];
 };
 
 /** メンタルマップの 1 問分。質問（H3 見出し）とその配下の答え群。 */
@@ -20,36 +20,36 @@ export type BookDetail = {
   mentalMap: MentalMapItem[];
 };
 
-const MENTAL_MAP_HEADING = "メンタルマップ";
+const MENTAL_MAP_HEADING = 'メンタルマップ';
 
-const SECTION_BOUNDARY_LABELS = new Set(["Summary", "Highlights & Notes"]);
+const SECTION_BOUNDARY_LABELS = new Set(['Summary', 'Highlights & Notes']);
 
-function richTextToPlain(richText: Record<"plain_text", string>[]) {
-  return richText.map((rt) => rt.plain_text).join("");
+function richTextToPlain(richText: Record<'plain_text', string>[]) {
+  return richText.map((rt) => rt.plain_text).join('');
 }
 
 /** テキストを持つブロックから本文を取り出す（対象外の型は null）。 */
 function blockText(block: BlockObjectResponse): string | null {
   switch (block.type) {
-    case "paragraph":
+    case 'paragraph':
       return richTextToPlain(block.paragraph.rich_text) || null;
 
-    case "bulleted_list_item":
+    case 'bulleted_list_item':
       return richTextToPlain(block.bulleted_list_item.rich_text) || null;
 
-    case "numbered_list_item":
+    case 'numbered_list_item':
       return richTextToPlain(block.numbered_list_item.rich_text) || null;
 
-    case "quote":
+    case 'quote':
       return richTextToPlain(block.quote.rich_text) || null;
 
-    case "to_do":
+    case 'to_do':
       return richTextToPlain(block.to_do.rich_text) || null;
 
-    case "callout":
+    case 'callout':
       return richTextToPlain(block.callout.rich_text) || null;
 
-    case "heading_3":
+    case 'heading_3':
       return richTextToPlain(block.heading_3.rich_text) || null;
 
     default:
@@ -93,28 +93,28 @@ export async function getBookHighlights(pageId: PageId): Promise<BookDetail> {
   /** メンタルマップ収集中の本文を、現在の質問の答えとして追加する（質問が無ければ作る）。 */
   function pushAnswer(text: string) {
     if (!currentItem) {
-      currentItem = { question: "", answers: [] };
+      currentItem = { question: '', answers: [] };
       mentalMap.push(currentItem);
     }
     currentItem.answers.push(text);
   }
 
   for (const block of topBlocks) {
-    if (!("type" in block)) {
+    if (!('type' in block)) {
       continue;
     }
 
     // H1/H2 はセクション境界。「メンタルマップ」H2 のときだけ収集を開始する。
-    if (block.type === "heading_1" || block.type === "heading_2") {
+    if (block.type === 'heading_1' || block.type === 'heading_2') {
       const headingText =
-        block.type === "heading_2" ? richTextToPlain(block.heading_2.rich_text).trim() : "";
+        block.type === 'heading_2' ? richTextToPlain(block.heading_2.rich_text).trim() : '';
       inMentalMap = headingText === MENTAL_MAP_HEADING;
       currentItem = null;
       continue;
     }
 
     // H3：メンタルマップ内では質問見出し（新しい項目）。Summary/Highlights & Notes だけ境界。
-    if (block.type === "heading_3") {
+    if (block.type === 'heading_3') {
       const h3 = richTextToPlain(block.heading_3.rich_text).trim();
       if (inMentalMap && !SECTION_BOUNDARY_LABELS.has(h3)) {
         currentItem = { question: h3, answers: [] };
@@ -128,10 +128,10 @@ export async function getBookHighlights(pageId: PageId): Promise<BookDetail> {
 
     if (inMentalMap) {
       const text = blockText(block);
-      const trimmed = text?.trim() ?? "";
+      const trimmed = text?.trim() ?? '';
 
       // quote（ハイライト開始）や平テキストの既知ラベルに当たったら収集を終了し、通常処理へ落とす。
-      if (block.type === "quote" || SECTION_BOUNDARY_LABELS.has(trimmed)) {
+      if (block.type === 'quote' || SECTION_BOUNDARY_LABELS.has(trimmed)) {
         inMentalMap = false;
         currentItem = null;
       } else {
@@ -153,15 +153,15 @@ export async function getBookHighlights(pageId: PageId): Promise<BookDetail> {
       }
     }
 
-    if (block.type !== "quote") continue;
+    if (block.type !== 'quote') continue;
 
     const quote = richTextToPlain(block.quote.rich_text);
-    const notes: Highlight["notes"][number][] = [];
+    const notes: Highlight['notes'][number][] = [];
 
     if (block.has_children) {
       const children = await listAllChildren(block.id);
       for (const child of children) {
-        if ("type" in child && child.type === "bulleted_list_item") {
+        if ('type' in child && child.type === 'bulleted_list_item') {
           notes.push(richTextToPlain(child.bulleted_list_item.rich_text));
         }
       }

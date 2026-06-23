@@ -43,8 +43,5 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [
-    tanstackStartCookies(),
-    dash({ apiKey: process.env["BETTER_AUTH_API_KEY"] ?? "" }),
-  ],
+  plugins: [tanstackStartCookies(), dash({ apiKey: process.env["BETTER_AUTH_API_KEY"] ?? "" })],
 });

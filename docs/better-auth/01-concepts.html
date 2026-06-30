@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>コンセプト — コア構成要素 | Better Auth 詳細リファレンス</title>
+<style>
+  :root{--bg:#0f1115;--panel:#161a22;--text:#e6e9ef;--muted:#9aa4b2;--accent:#7c9cff;--accent2:#58e0c0;--border:#2a3140;--code-bg:#0b0d12;--th-bg:#222838;--max:920px}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  .topbar{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .topbar-inner{max-width:var(--max);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand{font-weight:700;font-size:13px;color:var(--muted);letter-spacing:.02em;text-decoration:none}
+  .brand:hover{color:var(--text)}
+  .nav{display:flex;gap:10px;font-size:12px}
+  .nav a{color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:5px 10px;border-radius:7px}
+  .nav a:hover{color:var(--text);border-color:var(--accent)}
+  .spacer{margin-left:auto}
+  .tabs{display:flex;gap:6px}
+  .tab{appearance:none;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;transition:all .15s}
+  .tab:hover{color:var(--text);border-color:var(--accent)}
+  .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b0d12;border-color:transparent}
+  .copy-btn{appearance:none;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600}
+  .copy-btn:hover{color:var(--text);border-color:var(--accent2)}
+  main{max-width:var(--max);margin:0 auto;padding:32px 20px 120px}
+  .view[hidden]{display:none}
+  .pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:13px}
+  .pager a{color:var(--accent);text-decoration:none;max-width:48%}
+  .md h1{font-size:1.9rem;line-height:1.3;margin:0 0 .6em;letter-spacing:.01em}
+  .md h2{font-size:1.4rem;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--border);color:#fff}
+  .md h3{font-size:1.12rem;margin:1.6em 0 .5em;color:var(--accent2)}
+  .md h4{font-size:1rem;margin:1.2em 0 .4em;color:var(--accent)}
+  .md p{margin:.7em 0}
+  .md a{text-decoration:none;border-bottom:1px solid rgba(124,156,255,.35)}
+  .md a:hover{border-bottom-color:var(--accent)}
+  .md strong{color:#fff;font-weight:700}
+  .md ul,.md ol{margin:.6em 0;padding-left:1.5em}
+  .md li{margin:.3em 0}
+  .md ul ul,.md ul ol{margin:.25em 0}
+  .md code{background:var(--code-bg);border:1px solid var(--border);padding:.12em .42em;border-radius:5px;font-size:.86em;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;color:#ffd9a8}
+  .md pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;margin:1em 0}
+  .md pre code{background:none;border:none;padding:0;color:#d6e2ff;font-size:.85rem;line-height:1.6}
+  .md blockquote{margin:1.1em 0;padding:.6em 1.1em;border-left:3px solid var(--accent2);background:var(--panel);border-radius:0 8px 8px 0;color:#d7deea}
+  .md blockquote p{margin:.3em 0}
+  .md hr{border:none;border-top:1px solid var(--border);margin:2.2em 0}
+  .md table{border-collapse:collapse;width:100%;margin:1.1em 0;font-size:.92rem;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+  .md th{background:var(--th-bg);color:#fff;font-weight:700;white-space:nowrap}
+  .md tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+  .raw{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;white-space:pre;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:.82rem;line-height:1.6;color:#cdd6e6}
+  .note{color:var(--muted);font-size:12px;margin:0 0 14px}
+  .toc{list-style:none;padding:0;margin:24px 0}
+  .toc li{margin:0 0 10px;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
+  .toc a{display:block;padding:16px 18px;text-decoration:none;color:var(--text)}
+  .toc a:hover{border-color:var(--accent)}
+  .toc .num{color:var(--accent2);font-weight:700;margin-right:10px}
+  .toc .desc{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+  .lead{color:#d7deea;font-size:1.02rem}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-inner"><a class="brand" href="index.html">← 目次</a><span class="nav"><a href="00-introduction.html">‹ Introduction — Bet</a><a href="02-authentication.html">認証 — Email &amp; Passw ›</a></span><span class="spacer"></span><div class="tabs" role="tablist"><button class="tab" id="tab-read" role="tab" aria-selected="true">📖 読む</button><button class="tab" id="tab-raw" role="tab" aria-selected="false">📝 Markdown</button></div><button class="copy-btn" id="copy">Markdown をコピー</button></div></div>
+<main>
+<section class="view md" id="view-read" role="tabpanel"></section><section class="view" id="view-raw" role="tabpanel" hidden><p class="note">そのまま .md として保存・コピーできます。</p><div class="raw" id="raw"></div></section><div class="pager"><a href="00-introduction.html">‹ Introduction — Better Auth とは / 比較 / Auth.js 合流</a><a href="02-authentication.html">認証 — Email &amp; Password と OAuth ›</a></div>
+<script>var SRC="# コンセプト — コア構成要素\n\n\u003e Better Auth は「サーバーの `auth` インスタンス + クライアントの `authClient`」を中心に、API・CLI・Database アダプタ・Email・Plugins・OAuth・Cookies・Hooks・Session・Rate limit・User/Account・型推論という構成要素が噛み合って成り立つ。本章ではそれぞれを「何であるか／どう設定するか／どこにフックできるか」の観点で、コード例つきで詳細に解説する。\n\n---\n\n### 🎤 登壇メモ\n\n- **つかみ**: 「Better Auth は “薄いコア＋プラグイン” の二層。この地図さえ掴めば、後の章は全部ここに刺さる」。\n- **強調**: コアは常駐（session/cookie/user/account/rate limit）、機能はプラグインで足す——という**二層構造**が一番の勘所。\n- **10分なら**: 構成要素の表をさっと見せ、**Session と Plugin の2つだけ**口頭で補足して先へ。各論は深入りしない。\n- リンク先: 機能を足す仕組みは（→ [§03 プラグイン大全](03-plugins.html)）、ソーシャルログインは（→ [§02 認証](02-authentication.html)）、CLI/MCP は（→ [§07 AI Resources](07-ai-resources.html)）、DB アダプタは（→ [§05 Database](05-database.html)）。\n\n---\n\nすべての出発点は `betterAuth(options)` が返す **`auth` インスタンス**である。`auth` は以下を内包する。\n\n- `auth.handler` — `/api/auth/*` を処理する Web 標準の `(req: Request) =\u003e Promise\u003cResponse\u003e` ハンドラ。\n- `auth.api` — 全エンドポイントをサーバー側から型安全に呼ぶための関数群。\n- `auth.$Infer` — `Session` / `User` などの型を推論するための型専用名前空間。\n- `auth.options` — 正規化済みの設定。\n\n```ts\n// auth.ts\nimport { betterAuth } from \"better-auth\";\n\nexport const auth = betterAuth({\n  emailAndPassword: { enabled: true },\n  socialProviders: {\n    google: {\n      clientId: process.env.GOOGLE_CLIENT_ID!,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,\n    },\n  },\n});\n```\n\n#### 全体像（コア＋プラグインの二層構造）\n\n```text\nServer: auth = betterAuth(options)\n┌────────────────────────────────────────────────────────────\n│ Plugins 層 (任意・着脱可)\n│   twoFactor / organization / genericOAuth / passkey / ...\n│   → endpoints・schema・hooks・rateLimit ルールを「足す」\n├────────────────────────────────────────────────────────────\n│ Core 層 (常に存在)\n│   emailAndPassword・socialProviders・session・cookies\n│   rateLimit・user / account・email\n├────────────────────────────────────────────────────────────\n│ Database アダプタ\n│   Kysely(組込) / Prisma / Drizzle / MongoDB\n└────────────────────────────────────────────────────────────\n        │  auth.handler を /api/auth/* にマウント\n        ▼\nClient: createAuthClient(better-auth/react | vue | svelte | solid | client)\n│   + 対のクライアントプラグイン (better-auth/client/plugins)\n│   → authClient.signIn / signUp / useSession / twoFactor.* ...\n└────────────────────────────────────────────────────────────\n```\n\n---\n\n### API\n\nBetter Auth の機能はすべて **エンドポイント** として公開される。エンドポイントは 2 つの経路から呼べる。\n\n1. **HTTP 経由**（クライアントやブラウザから）— `auth.handler` を `/api/auth/*` にマウントする。\n2. **サーバー内部から直接** — `auth.api.*` を関数として呼ぶ。HTTP を経由しないため高速で、サーバーコンポーネントや Server Function、別の API ルートから利用する。\n\n`auth.api` は「`auth` インスタンスに存在するすべてのエンドポイント」を関数として露出する。引数は `{ body, headers, query, params }` の形を取り、**戻り値は既定でパース済みのデータオブジェクト**（`Response` ではない）。\n\n```ts\n// サーバー側でセッションを取得する\nimport { auth } from \"~/auth\";\nimport { headers } from \"next/headers\";\n\nconst session = await auth.api.getSession({\n  headers: await headers(), // 一部のendpointはheadersを要求する\n});\n\n// サインアップも内部呼び出しできる\nconst res = await auth.api.signUpEmail({\n  body: { email: \"test@example.com\", password: \"password1234\", name: \"Taro\" },\n});\n```\n\n#### Response / Headers の取得\n\nデータではなく生の `Response` が欲しい場合は `asResponse: true`、`Set-Cookie` などのレスポンスヘッダが欲しい場合は `returnHeaders: true` を渡す。\n\n```ts\n// 生のResponseが欲しい(handlerに転送したい)場合\nconst response = await auth.api.signInEmail({\n  body: { email, password },\n  asResponse: true,\n});\n\n// セッションCookieを自前のResponseに載せ替えたい場合\nconst { headers, response } = await auth.api.signInEmail({\n  body: { email, password },\n  returnHeaders: true,\n});\nconst setCookie = headers.get(\"set-cookie\");\n```\n\n#### route handler への接続\n\nHTTP 経由で使う場合、各フレームワークのキャッチオールルートに `auth.handler` をマウントする。`basePath` の既定は `/api/auth`。\n\n```ts\n// Next.js App Router: app/api/auth/[...all]/route.ts\nimport { auth } from \"~/auth\";\nimport { toNextJsHandler } from \"better-auth/next-js\";\n\nexport const { GET, POST } = toNextJsHandler(auth.handler);\n```\n\n```ts\n// Node/Express など: toNodeHandler を使う\nimport { auth } from \"~/auth\";\nimport { toNodeHandler } from \"better-auth/node\";\n\napp.all(\"/api/auth/*\", toNodeHandler(auth));\n// 注意: Express では express.json() より前にマウントする(bodyを奪われないため)\n```\n\n\u003e エラーハンドリング: `auth.api.*` は失敗時に `APIError` を throw する。HTTP 経由（`authClient`）では throw せず `{ data, error }` を返す、という非対称性に注意。\n\n---\n\n### CLI\n\n`@better-auth/cli` はスキーマ生成・マイグレーション・初期化・診断を行う公式 CLI で、**プロジェクト初期から存在する**。設定ファイル（`auth.ts` など）を読み取り、登録済みプラグインも含めた必要スキーマを算出する。\n\n| コマンド | 役割 |\n|---|---|\n| `generate` | アダプタに応じたスキーマ/マイグレーションファイルを生成する |\n| `migrate` | スキーマを DB に直接適用する（**Kysely 組み込みアダプタ限定**） |\n| `init` | プロジェクトに Better Auth を初期セットアップする |\n| `secret` | `BETTER_AUTH_SECRET` 用のランダムキーを生成する |\n| `info` | 環境・設定の診断情報を出力する（issue 報告用） |\n| `mcp` | エディタ向けの MCP サーバー設定を書き出す |\n\n```bash\n# Prisma/Drizzle なら ORM スキーマ、Kysely なら SQL を生成\nnpx @better-auth/cli@latest generate\n\n# Kysely 組み込みアダプタの場合のみ DB に直接適用できる\nnpx @better-auth/cli@latest migrate\n\n# 初期化(npx auth@latest init でも可)\nnpx @better-auth/cli@latest init\n\n# 秘密鍵の生成\nnpx @better-auth/cli@latest secret\n```\n\n#### MCP セットアップ\n\nエディタの AI に Better Auth の文脈を渡すための MCP 設定を生成する。Cursor 向けは次のとおり。\n\n```bash\nnpx @better-auth/cli mcp --cursor\n```\n\n\u003e `generate` と `migrate` の違い: **Prisma / Drizzle / MongoDB など外部 ORM では `migrate` は使えない**。`generate` でスキーマを出力し、その ORM 自身のマイグレーションツール（`prisma migrate` など）で適用する。`migrate` が使えるのは内部 Kysely アダプタ（`pg` / `mysql2` / `better-sqlite3` 直結）のときだけ。\n\n#### 主なオプション\n\n- `--config` — 設定ファイルのパスを明示する（自動検出に失敗するとき）。\n- `--output` — 生成物の出力先を指定する。\n- `--yes` — 対話プロンプトをスキップする。\n\n---\n\n### Client\n\nBetter Auth はフロントエンド各種フレームワーク向けのクライアントライブラリを提供する。**インポートパスでフレームワークを切り替える**のがポイント。\n\n| import パス | 対象 |\n|---|---|\n| `better-auth/react` | React（`useSession` は hook） |\n| `better-auth/vue` | Vue（リアクティブな ref/store） |\n| `better-auth/svelte` | Svelte（store） |\n| `better-auth/solid` | Solid（signal） |\n| `better-auth/client` | フレームワーク非依存（vanilla） |\n\n```ts\n// lib/auth-client.ts (React)\nimport { createAuthClient } from \"better-auth/react\";\n\nexport const authClient = createAuthClient({\n  baseURL: \"http://localhost:3000\", // auth サーバーのベース URL\n});\n```\n\n#### 主要なクライアントメソッド\n\n```ts\n// サインアップ(email/password)。email と password と name が必須\nconst { data, error } = await authClient.signUp.email({\n  email: \"user@email.com\",\n  password: \"password\",\n  name: \"User\",\n});\n\n// サインイン(email/password)\nawait authClient.signIn.email({ email, password });\n\n// ソーシャルサインイン(OAuth リダイレクト開始)\nawait authClient.signIn.social({ provider: \"google\", callbackURL: \"/dashboard\" });\n\n// サインアウト\nawait authClient.signOut();\n```\n\nクライアント呼び出しは throw せず、`{ data, error }` を返す。`error.code` で分岐し、`getErrorMessage()` などで翻訳できる。\n\n#### セッションの参照\n\n```tsx\n// React: リアクティブに購読する hook\nimport { authClient } from \"~/lib/auth-client\";\n\nexport function UserButton() {\n  const { data: session, isPending, error } = authClient.useSession();\n  if (isPending) return \u003cspan\u003e...\u003c/span\u003e;\n  return \u003cspan\u003e{session?.user.name}\u003c/span\u003e;\n}\n```\n\n```ts\n// 一度だけ取得する(非リアクティブ)\nconst { data: session } = await authClient.getSession();\n```\n\n#### セッションの失効（複数デバイス管理）\n\n```ts\n// アクティブなセッション一覧\nconst { data: sessions } = await authClient.listSessions();\n\n// 特定のセッションを失効(token を指定)\nawait authClient.revokeSession({ token: sessions[0].token });\n\n// 現在のセッション以外をすべて失効(ログイン中端末の一括ログアウト)\nawait authClient.revokeOtherSessions();\n\n// すべてのセッションを失効\nawait authClient.revokeSessions();\n```\n\n\u003e `useSession` がリアクティブストア、`getSession` が単発フェッチ。React の場合 `useSession` は hook、Vue/Svelte/Solid ではそのフレームワークのリアクティブ・プリミティブを返す。\n\n---\n\n### Database\n\nBetter Auth は **アダプタ経由** で DB に接続する。ユーザー・セッション・アカウント・検証トークンなどを保存する。\n\n- **組み込み Kysely アダプタ** — `pg` / `mysql2` / `better-sqlite3` の接続インスタンス、または Kysely Dialect を `database` に渡すと、内部で Kysely を使って直接 SQL を発行する。`migrate` が使えるのはこのモードのみ。\n- **ORM アダプタ** — `prismaAdapter` / `drizzleAdapter` / `mongodbAdapter` など。ORM 側のクライアントを渡し、スキーマは `generate` で出力する。\n\n```ts\n// 組み込み Kysely(pg を直接渡す)\nimport { betterAuth } from \"better-auth\";\nimport { Pool } from \"pg\";\n\nexport const auth = betterAuth({\n  database: new Pool({ connectionString: process.env.DATABASE_URL }),\n});\n```\n\n```ts\n// Prisma アダプタ\nimport { betterAuth } from \"better-auth\";\nimport { prismaAdapter } from \"better-auth/adapters/prisma\";\nimport { PrismaClient } from \"@prisma/client\";\n\nconst prisma = new PrismaClient();\nexport const auth = betterAuth({\n  database: prismaAdapter(prisma, { provider: \"postgresql\" }),\n});\n```\n\n#### コアスキーマ\n\n既定で `user` / `session` / `account` / `verification` の 4 モデルを使う。プラグインは独自モデルを追加する（例: `twoFactor` は `twoFactor` テーブル）。\n\n#### `modelName` はテーブル名ではなく「アダプタのモデル名」\n\n重要な落とし穴: `modelName` / `fields` で名前をカスタマイズできるが、**`modelName` はアダプタが解決する「モデル名」であってテーブル名そのものではない**。Prisma のような ORM では `modelName` は Prisma モデル名にマッピングされ、実テーブル名は ORM 側の `@@map` などが決める。Kysely 直結のときは実テーブル名と一致する。\n\n```ts\nexport const auth = betterAuth({\n  user: {\n    modelName: \"users\", // アダプタのモデル名(ORM ではモデル名に解決)\n    fields: {\n      name: \"full_name\", // カラム名のリネーム\n      email: \"email_address\",\n    },\n  },\n  session: {\n    modelName: \"user_sessions\",\n    fields: { userId: \"user_id\" },\n  },\n});\n```\n\n---\n\n### Email / Mail\n\nEmail は認証方式を問わず Better Auth の中核要素。メール送信ロジックは**ユーザーが実装する**（送信手段は任意の SMTP/SaaS）。Better Auth は「いつ・どんな URL/トークンで送るか」を組み立てて渡す。\n\n#### メール検証（email verification）\n\n```ts\nexport const auth = betterAuth({\n  emailVerification: {\n    sendOnSignUp: true,          // サインアップ時に検証メールを送る\n    autoSignInAfterVerification: true, // 検証完了後に自動サインイン\n    sendVerificationEmail: async ({ user, url, token }, request) =\u003e {\n      await sendMail({\n        to: user.email,\n        subject: \"メールアドレスの確認\",\n        body: `次のリンクで確認してください: ${url}`,\n      });\n    },\n    afterEmailVerification: async (user, request) =\u003e {\n      // 検証成功後の副作用(プレミアム付与など)\n      console.log(`${user.email} verified`);\n    },\n  },\n});\n```\n\n- `sendVerificationEmail({ user, url, token }, request)` — 検証メール送信の実体。`url` をそのまま踏ませれば検証が完了する。\n- `sendOnSignUp: true` — サインアップ直後に検証メールを送る。\n- `sendOnSignIn: true` — 未検証ユーザーが email/password でサインインを試みたときに送る（`sendVerificationEmail` 実装が前提）。\n- `autoSignInAfterVerification: true` — 検証リンク踏破後に自動でセッションを張る。\n\n#### パスワードリセット\n\nリセットは `emailAndPassword` 側の `sendResetPassword` で送る。\n\n```ts\nexport const auth = betterAuth({\n  emailAndPassword: {\n    enabled: true,\n    revokeSessionsOnPasswordReset: true, // リセット時に既存セッションを失効\n    sendResetPassword: async ({ user, url, token }, request) =\u003e {\n      await sendMail({\n        to: user.email,\n        subject: \"パスワード再設定\",\n        body: `次のリンクから再設定してください: ${url}`,\n      });\n    },\n  },\n});\n```\n\n\u003e 検証メールは `emailVerification.sendVerificationEmail`、リセットメールは `emailAndPassword.sendResetPassword` と**設定の置き場所が異なる**点に注意。\n\n---\n\n### Plugins\n\nPlugins は Better Auth を拡張する中核機構。新しい認証方式・機能・振る舞いの上書きを差し込める。プラグインは **サーバー側プラグインとクライアント側プラグインのペア** で構成され、片方だけのものもある。\n\n- サーバー側 — `betterAuth({ plugins: [...] })` に登録。エンドポイント・スキーマ・hooks・rate limit ルールなどを追加する。\n- クライアント側 — `createAuthClient({ plugins: [...] })` に登録。対応するアクション・ストアを `authClient` に生やす。\n\n**専用インポートパスでツリーシェイク**: サーバー側プラグインは `better-auth/plugins` から、クライアント側プラグインは `better-auth/client/plugins` から import する。サーバー／クライアントでエントリポイントが分かれており、各エントリもツリーシェイク可能なので、実際に使うプラグインのコードだけがバンドルに含まれる（一部プラグインは `better-auth/plugins/\u003cname\u003e` 形式の深いサブパスも公開する。例: `better-auth/plugins/mcp/client`）。\n\n```ts\n// auth.ts (サーバー)\nimport { betterAuth } from \"better-auth\";\nimport { twoFactor } from \"better-auth/plugins\";\n\nexport const auth = betterAuth({\n  plugins: [twoFactor()],\n});\n```\n\n```ts\n// auth-client.ts (クライアント) — 対のプラグインを登録\nimport { createAuthClient } from \"better-auth/react\";\nimport { twoFactorClient } from \"better-auth/client/plugins\";\n\nexport const authClient = createAuthClient({\n  plugins: [twoFactorClient()],\n});\n// → authClient.twoFactor.* が型安全に生える\n```\n\n\u003e サーバーにプラグインを足したら、対応するクライアントプラグインも登録する。これによりクライアント側のメソッドと型が自動的に揃う。\n\n---\n\n### OAuth\n\nBetter Auth は OAuth 2.0 / OpenID Connect を組み込みでサポートする。経路は 2 つ。\n\n#### 1. socialProviders（組み込みプロバイダ）\n\nGoogle・GitHub・Facebook など主要プロバイダは `socialProviders` に `clientId` / `clientSecret` を渡すだけで使える。\n\n```ts\nexport const auth = betterAuth({\n  socialProviders: {\n    google: {\n      clientId: process.env.GOOGLE_CLIENT_ID!,\n      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,\n      scope: [\"openid\", \"email\", \"profile\"],\n      mapProfileToUser: (profile) =\u003e ({ name: profile.name }),\n    },\n  },\n});\n```\n\n```ts\n// クライアントからサインイン開始(プロバイダへリダイレクト)\nawait authClient.signIn.social({ provider: \"google\", callbackURL: \"/dashboard\" });\n```\n\n#### 2. Generic OAuth（汎用プロバイダ）\n\n組み込みにないプロバイダは `genericOAuth` プラグインで OIDC/OAuth2 エンドポイントを手動指定して接続する。\n\n```ts\n// auth.ts\nimport { betterAuth } from \"better-auth\";\nimport { genericOAuth } from \"better-auth/plugins\";\n\nexport const auth = betterAuth({\n  plugins: [\n    genericOAuth({\n      config: [\n        {\n          providerId: \"custom\",\n          clientId: process.env.CUSTOM_CLIENT_ID!,\n          clientSecret: process.env.CUSTOM_CLIENT_SECRET!,\n          discoveryUrl: \"https://example.com/.well-known/openid-configuration\",\n          scopes: [\"openid\", \"email\"],\n        },\n      ],\n    }),\n  ],\n});\n```\n\n```ts\n// auth-client.ts\nimport { genericOAuthClient } from \"better-auth/client/plugins\";\n// createAuthClient({ plugins: [genericOAuthClient()] })\n// → authClient.signIn.oauth2({ providerId: \"custom\" })\n```\n\n\u003e アカウント連携（同一ユーザーに複数プロバイダを紐付ける）の挙動は後述の **User + Account** の `accountLinking` で制御する。\n\n---\n\n### Cookies\n\nCookie はセッショントークン・セッションデータ・OAuth state などの格納に使われる。**すべての Cookie は `secret`（または `BETTER_AUTH_SECRET`）で署名される**。\n\n#### セッション Cookie とキャッシュ戦略\n\nセッション Cookie には毎リクエストで送られるトークンが入る。`session.cookieCache` を有効にすると、セッションデータを暗号化して Cookie 側にキャッシュし、毎回の DB アクセスを減らせる。`strategy` で表現方式を選ぶ。\n\n| strategy | 内容 |\n|---|---|\n| `compact` | 既定。コンパクトな署名付き表現 |\n| `jwt` | JWT 形式 |\n| `jwe` | 暗号化された JWE 形式 |\n\n```ts\nexport const auth = betterAuth({\n  session: {\n    cookieCache: {\n      enabled: true,\n      maxAge: 5 * 60,      // 5分間キャッシュ\n      strategy: \"compact\", // \"jwt\" / \"jwe\" も選べる\n    },\n  },\n});\n```\n\n#### セキュア Cookie とドメイン共有\n\n```ts\nexport const auth = betterAuth({\n  advanced: {\n    useSecureCookies: true, // Secure 属性を強制(本番では既定で有効)\n    crossSubDomainCookies: {\n      enabled: true,\n      domain: \"example.com\", // app.example.com と auth.example.com で共有\n    },\n    cookiePrefix: \"my-app\", // Cookie 名のプレフィックスをカスタム\n  },\n});\n```\n\n- `useSecureCookies` — `Secure` 属性を付けて HTTPS 限定にする。本番では既定で有効。\n- `crossSubDomainCookies` — サブドメイン間でセッション Cookie を共有する（`domain` 指定）。\n- `cookiePrefix` / `advanced.cookies` — Cookie 名や個別属性（`sameSite` など）をカスタマイズする。\n\n---\n\n### Hooks\n\nHooks は「フルプラグインを書かずに振る舞いを差し込む」ための仕組み。**2 種類**ある。\n\n#### 1. エンドポイント hooks（`hooks.before` / `hooks.after`）\n\nリクエスト処理の前後に割り込む。`before` / `after` はそれぞれ **1 つの `createAuthMiddleware`** を受け取り、その中で `ctx.path` を条件分岐して複数エンドポイントを扱う。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { createAuthMiddleware, APIError } from \"better-auth/api\";\n\nexport const auth = betterAuth({\n  hooks: {\n    // before: リクエストボディの書き換え・バリデーション・中断\n    before: createAuthMiddleware(async (ctx) =\u003e {\n      if (ctx.path === \"/sign-up/email\") {\n        if (!ctx.body?.email.endsWith(\"@example.com\")) {\n          throw new APIError(\"BAD_REQUEST\", { message: \"社内メールのみ許可\" });\n        }\n        return { context: { ...ctx, body: { ...ctx.body, name: \"Default\" } } };\n      }\n    }),\n    // after: レスポンス後の副作用。ctx.context.returned で結果を参照\n    after: createAuthMiddleware(async (ctx) =\u003e {\n      if (ctx.path.startsWith(\"/sign-in\")) {\n        const session = ctx.context.returned; // 返却済みの値\n        // 監査ログ送信などの background 処理\n      }\n    }),\n  },\n});\n```\n\n- `ctx.path` — エンドポイントのパス（`/sign-up/email` など）で分岐する。\n- `ctx.body` / `ctx.headers` / `ctx.query` — 入力。`before` で書き換えると後段に伝播する。\n- `ctx.context.returned` — `after` で参照できる「返却された値」。\n- `ctx.context.session` — 現在のセッション。\n- `throw new APIError(...)` — 任意の地点で処理を中断しエラーを返す。\n\n#### 2. データベース hooks（`databaseHooks`）\n\n`user` / `session` / `account` の各モデルに対し、DB レコードの `create` / `update` の `before` / `after` をフックする。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { APIError } from \"better-auth/api\";\n\nexport const auth = betterAuth({\n  databaseHooks: {\n    user: {\n      create: {\n        before: async (user, ctx) =\u003e {\n          if (user.isAgreedToTerms === false) {\n            throw new APIError(\"BAD_REQUEST\", { message: \"規約同意が必要です\" });\n          }\n          return { data: { ...user, role: \"user\" } }; // payload を差し替え\n        },\n        after: async (user, ctx) =\u003e {\n          // 作成後の副作用(ウェルカムメール等)\n        },\n      },\n    },\n  },\n});\n```\n\n\u003e `before` が `false` を返すと操作を中断、データオブジェクト（`{ data }`）を返すと元のペイロードを置き換える。`after` は作成/更新の成功後に呼ばれる。\n\n---\n\n### Session\n\nBetter Auth は**伝統的な Cookie ベースのセッション管理**を採る。セッションは Cookie に保存され、毎リクエストでサーバーへ送られる。\n\n#### 有効期限と更新\n\n- 既定で **7 日（`expiresIn`）** で失効する。\n- セッションが使われ、かつ `updateAge`（既定 1 日）に達すると、失効時刻が「現在 + `expiresIn`」へ更新される（ローリング有効期限）。\n\n```ts\nexport const auth = betterAuth({\n  session: {\n    expiresIn: 60 * 60 * 24 * 7, // 7 日\n    updateAge: 60 * 60 * 24,     // 1 日ごとに延長\n  },\n});\n```\n\n#### Secondary storage（Redis / KV）\n\nセッションやレート制限カウンタを Redis などの KV に逃がす。`get` / `set` / `delete` の 3 関数を実装する。\n\n```ts\nexport const auth = betterAuth({\n  secondaryStorage: {\n    get: async (key) =\u003e await redis.get(key),\n    set: async (key, value, ttl) =\u003e await redis.set(key, value, \"EX\", ttl),\n    delete: async (key) =\u003e await redis.del(key),\n  },\n});\n```\n\n- `session.storeSessionInDatabase` — secondary storage を使う場合でも、セッションを併せて主 DB にも保存するか。\n- `cookieCache` — 前述のとおりセッションデータを Cookie にキャッシュし、毎回の読み出しを省く（実質ステートレス運用にもできる）。\n\n```ts\n// 主 DB を持たず Redis + 短命 Cookie キャッシュで運用する例\nexport const auth = betterAuth({\n  secondaryStorage: { get: redisGet, set: redisSet, delete: redisDelete },\n  session: {\n    cookieCache: { maxAge: 5 * 60, refreshCache: false },\n  },\n});\n```\n\n#### セッション保存先の分岐\n\n```text\nセッションをどこに保存する?\n│\n├─ secondaryStorage を定義した?\n│   ├─ Yes → セッションは secondaryStorage (Redis / KV) に保存\n│   │         └─ storeSessionInDatabase: true なら 主DB にも併存させる\n│   └─ No  → セッションは 主データベース (session テーブル) に保存\n│\n└─ session.cookieCache を有効化した?\n    ├─ Yes → セッションデータを署名/暗号化して Cookie にキャッシュ\n    │         (毎リクエストの保存先参照を省略 = ほぼ stateless)\n    │         strategy: compact(既定) / jwt / jwe\n    └─ No  → 毎回 保存先 (主DB or secondaryStorage) を参照\n```\n\n\u003e ステートレス志向の構成では `cookieCache` を中心に据え、`secondaryStorage` で失効・revoke の整合を取る。完全ステートレスにすると即時 revoke が効きにくくなるトレードオフがある。\n\n---\n\n### Rate limit\n\nBetter Auth は組み込みのレートリミッタを持ち、**本番モードでは既定で有効**。\n\n- 既定: **window 60 秒 / max 100 リクエスト**。\n- ストレージは既定でメモリ。サーバーレスや複数インスタンスではメモリは不向きなので、DB か secondary storage に逃がす。\n\n```ts\nexport const auth = betterAuth({\n  rateLimit: {\n    enabled: true,\n    window: 60,  // 秒\n    max: 100,    // window 内の最大リクエスト数\n    storage: \"secondary-storage\", // \"memory\" | \"database\" | \"secondary-storage\"\n    customRules: {\n      \"/sign-in/email\": { window: 10, max: 3 }, // 厳しめの個別ルール\n      \"/two-factor/*\": async (request) =\u003e ({ window: 10, max: 3 }),\n    },\n  },\n});\n```\n\n- `storage` — `\"memory\"`（既定）/ `\"database\"` / `\"secondary-storage\"`。\n- `customRules` — パス単位で `{ window, max }` を上書き。関数を渡して動的算出も可能。\n- プラグインも独自ルールを定義する（例: `twoFactor` は `/two-factor/*` に専用のレート制限を持つ）。\n\n\u003e サーバーレス／水平スケール環境では `\"memory\"` だとインスタンスごとにカウンタが分裂する。`\"database\"` か `\"secondary-storage\"` を選ぶこと。\n\n---\n\n### User + Account\n\n認証だけでなくユーザー/アカウント管理 API も提供する。**1 人の `user` に複数の `account`（= 認証方式・プロバイダ）が紐付く**モデル。email/password 登録には **`email` と `name` が必須**。\n\n#### user の設定\n\n```ts\nexport const auth = betterAuth({\n  user: {\n    modelName: \"users\",                    // アダプタのモデル名\n    fields: { name: \"full_name\" },         // カラム名リネーム\n    additionalFields: {                    // スキーマ拡張\n      role: {\n        type: [\"user\", \"admin\"],\n        required: false,\n        defaultValue: \"user\",\n        input: false, // サインアップ時にユーザー入力を許可しない\n      },\n      lang: { type: \"string\", required: false, defaultValue: \"en\" },\n    },\n    changeEmail: {\n      enabled: true, // 既定は無効。有効化してメール変更を許可\n      sendChangeEmailVerification: async ({ user, newEmail, url, token }, request) =\u003e {\n        await sendMail({ to: user.email, subject: \"メール変更の確認\", body: url });\n      },\n    },\n    deleteUser: {\n      enabled: true,\n      sendDeleteAccountVerification: async ({ user, url, token }, request) =\u003e {\n        await sendMail({ to: user.email, subject: \"退会の確認\", body: url });\n      },\n    },\n  },\n});\n```\n\n- `additionalFields` — `type` / `required` / `defaultValue` / `input` を持つフィールド定義でスキーマを拡張する。`input: false` は「登録時にクライアントから渡させない」フィールド（`role` 等）に使う。\n- `changeEmail` — 既定で無効。`enabled: true` とし、検証メールを `sendChangeEmailVerification` で送る。\n- `deleteUser` — 退会フロー。検証付きで `sendDeleteAccountVerification` を送り、`authClient.deleteUser({ token })` で確定する。\n\n#### account の連携（accountLinking）\n\nアカウント連携は**既定で有効**で、プロバイダが email を verified として返せば、既存ユーザーに別のソーシャル/OAuth を紐付けられる。\n\n```ts\nexport const auth = betterAuth({\n  account: {\n    accountLinking: {\n      enabled: true,\n      trustedProviders: [\"google\", \"github\"], // 自動連携を信頼するプロバイダ\n      allowDifferentEmails: true,              // 異なる email でも連携を許可\n    },\n  },\n});\n```\n\n\u003e `trustedProviders` に含まれるプロバイダは email verified を信頼して自動連携する。`allowDifferentEmails: true` は「既存アカウントと別の email を返すプロバイダ」も連携対象にする（乗っ取りリスクとのトレードオフ）。\n\n---\n\n### 型安全（Type safety）\n\nBetter Auth はサーバー・クライアントとも TypeScript 製で、設定から型を推論する。`tsconfig.json` の `strict: true` を前提に最良の推論が効く。\n\n#### サーバー側: `$Infer`\n\n`auth.$Infer` から `Session`（`session` + `user`）などの型を取り出せる。`additionalFields` を足すと、その型にも自動で反映される。\n\n```ts\nimport { auth } from \"~/auth\";\n\ntype Session = typeof auth.$Infer.Session;\n// Session[\"user\"][\"role\"] のような追加フィールドも型に乗る\n```\n\n#### クライアント側: サーバー型をブリッジする\n\nクライアントに `additionalFields` を認識させるには、サーバーの `auth` 型を **`inferAdditionalFields\u003ctypeof auth\u003e()` プラグイン** 経由で渡す。これが「サーバー型（`typeof auth`）をクライアントへ橋渡しする」正攻法。\n\n```ts\n// auth-client.ts\nimport { createAuthClient } from \"better-auth/client\";\nimport { inferAdditionalFields } from \"better-auth/client/plugins\";\nimport type { auth } from \"~/auth\";\n\nexport const authClient = createAuthClient({\n  plugins: [inferAdditionalFields\u003ctypeof auth\u003e()],\n});\n// → authClient.useSession() の user に role / lang などが型付きで現れる\n```\n\n\u003e サーバーとクライアントが同一リポジトリなら `typeof auth` を直接渡せる。別リポジトリで `auth` 型を import できない場合は、`inferAdditionalFields({ user: { ... } })` のようにフィールド定義を手で渡す代替手段がある。プラグインのアクション/型も、クライアントに対応プラグインを登録することで自動的に推論される。\n\n---\n\n## 一次情報（参照元）\n\n- API — \u003chttps://www.better-auth.com/docs/concepts/api\u003e\n- CLI — \u003chttps://www.better-auth.com/docs/concepts/cli\u003e\n- Client — \u003chttps://www.better-auth.com/docs/concepts/client\u003e\n- Database — \u003chttps://www.better-auth.com/docs/concepts/database\u003e\n- Email — \u003chttps://www.better-auth.com/docs/concepts/email\u003e\n- Plugins — \u003chttps://www.better-auth.com/docs/concepts/plugins\u003e\n- OAuth — \u003chttps://www.better-auth.com/docs/concepts/oauth\u003e\n- Cookies — \u003chttps://www.better-auth.com/docs/concepts/cookies\u003e\n- Hooks — \u003chttps://www.better-auth.com/docs/concepts/hooks\u003e\n- Session Management — \u003chttps://www.better-auth.com/docs/concepts/session-management\u003e\n- Rate Limit — \u003chttps://www.better-auth.com/docs/concepts/rate-limit\u003e\n- User & Accounts — \u003chttps://www.better-auth.com/docs/concepts/users-accounts\u003e\n- TypeScript — \u003chttps://www.better-auth.com/docs/concepts/typescript\u003e\n";</script>
+<script>(function () {
+  "use strict";
+  var src = (typeof SRC === "string") ? SRC : "";
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // inline formatting. input is already HTML-escaped.
+  function inline(s) {
+    var codes = [];
+    s = s.replace(/`([^`]+)`/g, function (_, c) {
+      codes.push(c);
+      return "@@CODE" + (codes.length - 1) + "@@";
+    });
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/&lt;(https?:\/\/[^\s&]+)&gt;/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/@@CODE(\d+)@@/g, function (_, i) {
+      return "<code>" + codes[+i] + "</code>";
+    });
+    return s;
+  }
+
+  function isTableSep(line) {
+    return /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(line) && line.indexOf("-") !== -1;
+  }
+  function splitRow(line) {
+    var t = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+    return t.split("|").map(function (c) { return c.trim(); });
+  }
+
+  function render(md) {
+    var lines = md.replace(/\r\n/g, "\n").split("\n");
+    var out = [];
+    var i = 0;
+    while (i < lines.length) {
+      var line = lines[i];
+
+      var fence = line.match(/^```(\w*)\s*$/);
+      if (fence) {
+        var buf = [];
+        i++;
+        while (i < lines.length && !/^```\s*$/.test(lines[i])) { buf.push(lines[i]); i++; }
+        i++;
+        out.push("<pre><code>" + esc(buf.join("\n")) + "</code></pre>");
+        continue;
+      }
+
+      if (/^\s*$/.test(line)) { i++; continue; }
+
+      if (/^---+\s*$/.test(line)) { out.push("<hr>"); i++; continue; }
+
+      var h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) {
+        var lv = h[1].length;
+        out.push("<h" + lv + ">" + inline(esc(h[2])) + "</h" + lv + ">");
+        i++; continue;
+      }
+
+      if (line.indexOf("|") !== -1 && i + 1 < lines.length && isTableSep(lines[i + 1])) {
+        var header = splitRow(line);
+        i += 2;
+        var rows = [];
+        while (i < lines.length && lines[i].indexOf("|") !== -1 && !/^\s*$/.test(lines[i])) {
+          rows.push(splitRow(lines[i])); i++;
+        }
+        var t = "<table><thead><tr>";
+        header.forEach(function (c) { t += "<th>" + inline(esc(c)) + "</th>"; });
+        t += "</tr></thead><tbody>";
+        rows.forEach(function (r) {
+          t += "<tr>";
+          r.forEach(function (c) { t += "<td>" + inline(esc(c)) + "</td>"; });
+          t += "</tr>";
+        });
+        t += "</tbody></table>";
+        out.push(t);
+        continue;
+      }
+
+      if (/^>\s?/.test(line)) {
+        var qbuf = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])) {
+          qbuf.push(lines[i].replace(/^>\s?/, "")); i++;
+        }
+        out.push("<blockquote>" + render(qbuf.join("\n")) + "</blockquote>");
+        continue;
+      }
+
+      if (/^(\s*)([-*]|\d+\.)\s+/.test(line)) {
+        var items = [];
+        while (i < lines.length && /^(\s*)([-*]|\d+\.)\s+/.test(lines[i])) {
+          var m = lines[i].match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
+          items.push({ indent: m[1].length, ordered: /\d/.test(m[2]), num: parseInt(m[2], 10), text: m[3] });
+          i++;
+        }
+        out.push(buildList(items));
+        continue;
+      }
+
+      var pbuf = [];
+      while (i < lines.length && !/^\s*$/.test(lines[i]) &&
+             !/^(#{1,6})\s/.test(lines[i]) && !/^```/.test(lines[i]) &&
+             !/^>\s?/.test(lines[i]) && !/^---+\s*$/.test(lines[i]) &&
+             !/^(\s*)([-*]|\d+\.)\s+/.test(lines[i]) &&
+             !(lines[i].indexOf("|") !== -1 && i + 1 < lines.length && isTableSep(lines[i + 1]))) {
+        pbuf.push(lines[i]); i++;
+      }
+      out.push("<p>" + inline(esc(pbuf.join(" "))) + "</p>");
+    }
+    return out.join("\n");
+  }
+
+  function buildList(items) {
+    var ordered = items[0].ordered;
+    var tag = ordered ? "ol" : "ul";
+    var start = ordered && items[0].num !== 1 ? ' start="' + items[0].num + '"' : "";
+    var html = "<" + tag + start + ">";
+    var n = 0;
+    while (n < items.length) {
+      var it = items[n];
+      var li = "<li>" + inline(esc(it.text));
+      var children = [];
+      var k = n + 1;
+      while (k < items.length && items[k].indent > it.indent) { children.push(items[k]); k++; }
+      if (children.length) li += buildList(children);
+      li += "</li>";
+      html += li;
+      n = k;
+    }
+    html += "</" + tag + ">";
+    return html;
+  }
+
+  var viewRead = document.getElementById("view-read");
+  if (viewRead) viewRead.innerHTML = render(src);
+  var rawEl = document.getElementById("raw");
+  if (rawEl) rawEl.textContent = src;
+
+  var tabRead = document.getElementById("tab-read");
+  var tabRaw = document.getElementById("tab-raw");
+  var viewRaw = document.getElementById("view-raw");
+  function select(which) {
+    var read = which === "read";
+    if (tabRead) tabRead.setAttribute("aria-selected", read ? "true" : "false");
+    if (tabRaw) tabRaw.setAttribute("aria-selected", read ? "false" : "true");
+    if (viewRead) viewRead.hidden = !read;
+    if (viewRaw) viewRaw.hidden = read;
+  }
+  if (tabRead) tabRead.addEventListener("click", function () { select("read"); });
+  if (tabRaw) tabRaw.addEventListener("click", function () { select("raw"); });
+
+  var copyBtn = document.getElementById("copy");
+  if (copyBtn) copyBtn.addEventListener("click", function () {
+    var btn = this;
+    navigator.clipboard.writeText(src).then(function () {
+      var prev = btn.textContent;
+      btn.textContent = "コピーしました ✓";
+      setTimeout(function () { btn.textContent = prev; }, 1500);
+    });
+  });
+})();
+</script>
+<footer style="margin-top:64px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:12px">調査日 2026-06-24・Better Auth は更新の速いライブラリ。最終的な裏取りは一次情報で確認すること。</footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Infrastructure — 公式の有料運用レイヤー | Better Auth 詳細リファレンス</title>
+<style>
+  :root{--bg:#0f1115;--panel:#161a22;--text:#e6e9ef;--muted:#9aa4b2;--accent:#7c9cff;--accent2:#58e0c0;--border:#2a3140;--code-bg:#0b0d12;--th-bg:#222838;--max:920px}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  .topbar{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .topbar-inner{max-width:var(--max);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand{font-weight:700;font-size:13px;color:var(--muted);letter-spacing:.02em;text-decoration:none}
+  .brand:hover{color:var(--text)}
+  .nav{display:flex;gap:10px;font-size:12px}
+  .nav a{color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:5px 10px;border-radius:7px}
+  .nav a:hover{color:var(--text);border-color:var(--accent)}
+  .spacer{margin-left:auto}
+  .tabs{display:flex;gap:6px}
+  .tab{appearance:none;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;transition:all .15s}
+  .tab:hover{color:var(--text);border-color:var(--accent)}
+  .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b0d12;border-color:transparent}
+  .copy-btn{appearance:none;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600}
+  .copy-btn:hover{color:var(--text);border-color:var(--accent2)}
+  main{max-width:var(--max);margin:0 auto;padding:32px 20px 120px}
+  .view[hidden]{display:none}
+  .pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:13px}
+  .pager a{color:var(--accent);text-decoration:none;max-width:48%}
+  .md h1{font-size:1.9rem;line-height:1.3;margin:0 0 .6em;letter-spacing:.01em}
+  .md h2{font-size:1.4rem;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--border);color:#fff}
+  .md h3{font-size:1.12rem;margin:1.6em 0 .5em;color:var(--accent2)}
+  .md h4{font-size:1rem;margin:1.2em 0 .4em;color:var(--accent)}
+  .md p{margin:.7em 0}
+  .md a{text-decoration:none;border-bottom:1px solid rgba(124,156,255,.35)}
+  .md a:hover{border-bottom-color:var(--accent)}
+  .md strong{color:#fff;font-weight:700}
+  .md ul,.md ol{margin:.6em 0;padding-left:1.5em}
+  .md li{margin:.3em 0}
+  .md ul ul,.md ul ol{margin:.25em 0}
+  .md code{background:var(--code-bg);border:1px solid var(--border);padding:.12em .42em;border-radius:5px;font-size:.86em;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;color:#ffd9a8}
+  .md pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;margin:1em 0}
+  .md pre code{background:none;border:none;padding:0;color:#d6e2ff;font-size:.85rem;line-height:1.6}
+  .md blockquote{margin:1.1em 0;padding:.6em 1.1em;border-left:3px solid var(--accent2);background:var(--panel);border-radius:0 8px 8px 0;color:#d7deea}
+  .md blockquote p{margin:.3em 0}
+  .md hr{border:none;border-top:1px solid var(--border);margin:2.2em 0}
+  .md table{border-collapse:collapse;width:100%;margin:1.1em 0;font-size:.92rem;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+  .md th{background:var(--th-bg);color:#fff;font-weight:700;white-space:nowrap}
+  .md tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+  .raw{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;white-space:pre;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:.82rem;line-height:1.6;color:#cdd6e6}
+  .note{color:var(--muted);font-size:12px;margin:0 0 14px}
+  .toc{list-style:none;padding:0;margin:24px 0}
+  .toc li{margin:0 0 10px;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
+  .toc a{display:block;padding:16px 18px;text-decoration:none;color:var(--text)}
+  .toc a:hover{border-color:var(--accent)}
+  .toc .num{color:var(--accent2);font-weight:700;margin-right:10px}
+  .toc .desc{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+  .lead{color:#d7deea;font-size:1.02rem}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-inner"><a class="brand" href="index.html">← 目次</a><span class="nav"><a href="05-database.html">‹ Database — 対応DB網羅 </a><a href="07-ai-resources.html">AI Resources — AI  ›</a></span><span class="spacer"></span><div class="tabs" role="tablist"><button class="tab" id="tab-read" role="tab" aria-selected="true">📖 読む</button><button class="tab" id="tab-raw" role="tab" aria-selected="false">📝 Markdown</button></div><button class="copy-btn" id="copy">Markdown をコピー</button></div></div>
+<main>
+<section class="view md" id="view-read" role="tabpanel"></section><section class="view" id="view-raw" role="tabpanel" hidden><p class="note">そのまま .md として保存・コピーできます。</p><div class="raw" id="raw"></div></section><div class="pager"><a href="05-database.html">‹ Database — 対応DB網羅 + アダプタ</a><a href="07-ai-resources.html">AI Resources — AI が認証を書く / AI が認証する ›</a></div>
+<script>var SRC="# Infrastructure — 公式の有料運用レイヤー\n\n\u003e Better Auth 本体は OSS・無料のライブラリだ。だが本番運用では「管理 GUI・不正対策・メール配信・SSO/SCIM」といった、ライブラリだけでは埋まらない領域が必ず出てくる。それを公式のマネージドサービスが肩代わりするのが **Better Auth Infrastructure**。導入はプラグイン 1 行、コアは自前に持ったまま「運用知能」だけを買い足せる。\n\n### 🎤 登壇メモ\n\n- **つかみ**: 「認証ライブラリはタダ。じゃあ Better Auth は何で食ってるの?」——答えは**運用を売る**。コードは無料で配り、本番で誰もが詰まる管理・防御・配信を有料で肩代わりする。これが Infrastructure。\n- **強調**: ①導入は `plugins: [dash()]` の**1 行**。②課金対象は認証そのものではなく、ダッシュボード・不正検知・メール配信といった**運用知能**。③だから **Auth0/Clerk とは思想が逆**——「全部ホスト」ではなく「**コアは自前、運用知能だけ買う**」。\n- **10 分なら**: 「位置づけ（4 つの柱）」→「プラグイン 1 行のデモ」→「ビジネスモデル（Supabase 型）」の 3 点だけに絞る。各プラグインの設定オプション表は配布資料に逃がし、口頭では `dash()` / `sentinel()` が**何を肩代わりするか**だけ語る。\n\n---\n\n## 位置づけ — ライブラリが埋めない「運用」を肩代わりする\n\nBetter Auth のコア（`better-auth` 本体とプラグイン群）は OSS で無料、自前ホストが前提だ。サインイン・セッション・OAuth・組織管理といった**認証の機能**はこれで完結する。\n\nしかし実運用に乗せると、認証ロジックとは別レイヤーの仕事が立ち上がってくる。\n\n- ユーザー・組織・セッションを**眺めて操作する管理画面**が欲しい\n- クレデンシャルスタッフィングやボット、使い捨てメールを**検知・遮断**したい\n- 検証メール・パスワードリセット・招待メールを**確実に配信**したい\n- エンタープライズ向けに **SSO/SAML・ディレクトリ同期（SCIM）・ログドレイン**を提供したい\n\nこれらは「認証ライブラリ」の責務というより「**認証基盤の運用**」の責務だ。Better Auth Infrastructure は、この運用レイヤーを公式のマネージドサービスとして提供する有料プロダクトで、自分でダッシュボードや不正検知パイプラインやメール基盤を構築・運用せずに済ませられる。\n\nなお `dash()` / `sentinel()` も実体は **Better Auth のプラグイン**であり、[§03 プラグイン](03-plugins.html)で扱うプラグイン機構の上に載る。違いは「接続先が自分の DB ではなく公式のマネージドサービス（有料）である」点だけだ。\n\n\u003e Infrastructure は **4 つの柱**で構成される。Dashboard（管理 GUI と分析）・Security（不正対策＝`sentinel`）・Email & SMS（マネージド配信）・Enterprise（SSO/SAML・SCIM・ログドレイン・ロールベースのダッシュボードアクセス）。\n\n---\n\n## 導入はプラグイン 1 行\n\n### 前提\n\n1. 動作している [Better Auth](https://www.better-auth.com/docs/installation) のインストール\n2. [Better Auth Infrastructure ダッシュボード](https://www.better-auth.com/dashboard)でのアカウント作成と **API キー**の発行\n\n### インストール\n\n`@better-auth/infra` パッケージを追加する。\n\n```bash\nnpm install @better-auth/infra\n```\n\n### 環境変数\n\n発行した API キーを本番環境変数に設定する。`BETTER_AUTH_API_KEY` のみが必須で、`BETTER_AUTH_API_URL` と `BETTER_AUTH_KV_URL` は任意（自前エンドポイントを指す場合のみ）。\n\n```dotenv\n# 必須: Better Auth Infrastructure の API キー\nBETTER_AUTH_API_KEY=your_api_key_here\n# 任意\nBETTER_AUTH_API_URL=https://api.betterauth.com\nBETTER_AUTH_KV_URL=https://kv.better-auth.com\n```\n\n### サーバー設定（プラグインを足すだけ）\n\n基本は `dash()` をプラグイン配列に 1 行足すだけだ。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { dash } from \"@better-auth/infra\";\n\nexport const auth = betterAuth({\n  // ... 既存の Better Auth 設定\n  plugins: [\n    dash({\n      apiKey: process.env.BETTER_AUTH_API_KEY,\n    }),\n  ],\n});\n```\n\n**Pro プラン以上**なら、セキュリティ層 `sentinel()` も並べて有効化できる。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { dash, sentinel } from \"@better-auth/infra\";\n\nexport const auth = betterAuth({\n  plugins: [\n    dash({ /* ... */ }),\n    sentinel({\n      apiKey: process.env.BETTER_AUTH_API_KEY,\n    }),\n  ],\n});\n```\n\n### クライアント設定\n\nクライアント側にも対応プラグインを足す。`sentinelClient` はデバイスフィンガープリントと PoW チャレンジの自動解決を担う。\n\n```ts\nimport { createAuthClient } from \"better-auth/client\";\nimport { dashClient, sentinelClient } from \"@better-auth/infra/client\";\n\nexport const authClient = createAuthClient({\n  plugins: [\n    dashClient(),\n    sentinelClient({\n      autoSolveChallenge: true, // PoW チャレンジを自動で解く\n    }),\n  ],\n});\n```\n\n\u003e **Expo / React Native** の場合は `@better-auth/infra/client` ではなく `@better-auth/infra/native` から `dashClient` と `sentinelNativeClient` を import する。\n\n`dash()` と `sentinel()` は独立して使えるが、両方を入れて初めて Infrastructure の全機能が揃う。\n\n---\n\n## アーキテクチャとデータの流れ\n\nInfrastructure は「自分のアプリ（自前ホスト）」と「Better Auth Infra（マネージド）」の二者構成だ。**自分の DB とユーザーデータはあくまで自前**に残り、Infra 側が担うのは分析・検知・配信といった運用知能に限られる。\n\n- **イベント送信（dash）**: サインアップ等が起きると、`dash()` が Better Auth 内部のフックに乗ってイベントを捕捉し、`apiUrl`（Infra API）へ送る。`kvUrl`（KV ストア）はキャッシュに使う。API/KV にはそれぞれタイムアウト（既定 3000ms / 1000ms）が設定され、Infra 側が遅延・障害でも認証フロー本体を止めない設計になっている。\n- **リクエスト検査（sentinel）**: ログイン等のリクエスト時に、`sentinel()` が KV でレート制限カウンタやフィンガープリントを照合し、Infra API でクレデンシャルスタッフィング判定や HaveIBeenPwned 照合を行う。結果に応じて `log` / `challenge` / `block` のいずれかを適用する。\n- **クライアント連携**: クライアントプラグインがフィンガープリント（`X-Visitor-Id` ヘッダ）を付与し、サーバーが PoW チャレンジを返したら自動で解いて `X-PoW-Solution` ヘッダで再送する。\n- **管理 GUI**: Infra 側の Web ダッシュボードは、`dash()` が登録する `/dash/*` 管理エンドポイント群を叩いてユーザー・組織・セッションを操作する。\n- **監査ログ**: 捕捉されたイベントは Infra 側に蓄積され、`/events/*` や `authClient.dash.getAuditLogs()` から照会できる。\n\n\u003e 流れを一言でいえば「自分のアプリで認証を回し、その傍らで Infra に**観測・判定・配信**を委譲する」構図だ。コアの主権は手放さない。\n\n---\n\n## コンポーネント詳細\n\n### Dashboard プラグイン `dash()`\n\nBetter Auth インスタンスを Infrastructure に接続する中核プラグイン。**分析トラッキング・イベントログ・管理ダッシュボード API**を有効化する。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { dash } from \"@better-auth/infra\";\n\nexport const auth = betterAuth({\n  plugins: [\n    dash({\n      apiUrl: process.env.BETTER_AUTH_API_URL,\n      kvUrl: process.env.BETTER_AUTH_KV_URL,\n      apiKey: process.env.BETTER_AUTH_API_KEY,\n    }),\n  ],\n});\n```\n\n#### 設定オプション（DashOptions）\n\n| Option | Type | Description |\n|---|---|---|\n| `apiUrl` | `string` | Infrastructure API の URL |\n| `kvUrl` | `string` | キャッシュ用 KV ストアの URL |\n| `apiKey` | `string` | 認証用の API キー |\n| `apiTimeout` | `number` | Infra API への HTTP タイムアウト（ms）。既定 `3000` |\n| `kvTimeout` | `number` | KV への HTTP タイムアウト（ms）。既定 `1000` |\n| `activityTracking` | `object` | アクティビティトラッキング設定 |\n\n#### アクティビティトラッキング\n\n有効化するとユーザースキーマに `lastActiveAt` 列が追加され、ユーザー操作のたびに自動更新される。更新間隔は DB 書き込み量に直結するため、高トラフィックなアプリでは間隔を長めに取る。\n\n```ts\ndash({\n  apiKey: process.env.BETTER_AUTH_API_KEY,\n  activityTracking: {\n    enabled: true,\n    updateInterval: 300000, // 更新間隔 ms（既定: 5 分）\n  },\n}),\n```\n\n有効化後は DB マイグレーションの実行を忘れずに（追加されるスキーマ拡張は下記）。\n\n```ts\nuser: {\n  fields: {\n    lastActiveAt: {\n      type: \"date\",\n    },\n  },\n}\n```\n\n#### 自動イベントトラッキング\n\n`dash()` を入れるだけで、認証イベントが追加設定なしに記録される。捕捉されるイベントの全カタログは後述の [Audit Logs](#audit-logs--認証イベントの追跡と照会) を参照。ユーザー・セッション・アカウント・検証・組織（organization プラグイン使用時）の各カテゴリが自動で収集される。\n\n#### 管理ダッシュボード API エンドポイント\n\n`dash()` はダッシュボード用に多数の管理エンドポイントを登録する。ここに Infrastructure のエンタープライズ機能（SSO・SCIM ディレクトリ同期・ログドレイン）も API として現れる。\n\n**ユーザー管理**\n\n| Endpoint | Method | Description |\n|---|---|---|\n| `/dash/users` | GET | ユーザー一覧（ページング） |\n| `/dash/users/online-count` | GET | オンラインユーザー数 |\n| `/dash/user` | GET / POST / PATCH / DELETE | ユーザーの取得・作成・更新・削除 |\n| `/dash/user/ban` | POST | ユーザーを BAN |\n| `/dash/user/unban` | POST | BAN 解除 |\n| `/dash/user/password` | POST | パスワード設定 |\n| `/dash/user/impersonate` | POST | なりすまし（代理ログイン） |\n\n**セッション管理**\n\n| Endpoint | Method | Description |\n|---|---|---|\n| `/dash/sessions` | GET / DELETE | セッション一覧・削除 |\n| `/dash/session/revoke` | POST | 単一セッションを失効 |\n| `/dash/sessions/revoke-all` | POST | ユーザーの全セッションを失効 |\n\n**組織・チーム・招待管理**\n\n| Endpoint | Method | Description |\n|---|---|---|\n| `/dash/organizations` | GET | 組織一覧 |\n| `/dash/organization` | GET / POST / PATCH / DELETE | 組織の取得・作成・更新・削除 |\n| `/dash/organization/members` | GET | メンバー一覧 |\n| `/dash/organization/member` | POST / DELETE | メンバー追加・削除 |\n| `/dash/organization/member/role` | PATCH | メンバーのロール更新 |\n| `/dash/organization/teams` | GET | チーム一覧 |\n| `/dash/organization/team` | POST / PATCH / DELETE | チームの作成・更新・削除 |\n| `/dash/organization/team/member` | POST / DELETE | チームメンバー追加・削除 |\n| `/dash/organization/invitations` | GET | 招待一覧 |\n| `/dash/organization/invite` | POST | 招待送信 |\n| `/dash/organization/invite/cancel` | POST | 招待取り消し |\n| `/dash/organization/invite/resend` | POST | 招待再送 |\n\n**エンタープライズ（SSO・ディレクトリ同期・ログドレイン）**\n\n| Endpoint | Method | Description |\n|---|---|---|\n| `/dash/organization/sso-providers` | GET | SSO プロバイダ一覧 |\n| `/dash/organization/sso-provider` | POST / PATCH / DELETE | SSO プロバイダの作成・更新・削除 |\n| `/dash/organization/sso-provider/verify-domain` | POST | ドメイン検証 |\n| `/dash/organization/directories` | GET | ディレクトリ一覧（SCIM） |\n| `/dash/organization/directory` | POST / DELETE | ディレクトリの作成・削除 |\n| `/dash/organization/directory/token` | POST | トークン再生成 |\n| `/dash/organization/log-drains` | GET | ログドレイン一覧 |\n| `/dash/organization/log-drain` | POST / PATCH / DELETE | ログドレインの作成・更新・削除 |\n| `/dash/organization/log-drain/test` | POST | ログドレインのテスト |\n\n**イベント・分析・2FA**\n\n| Endpoint | Method | Description |\n|---|---|---|\n| `/events/list` | GET | ユーザーイベント取得 |\n| `/events/audit-logs` | GET | 監査ログ取得 |\n| `/events/types` | GET | イベント種別取得 |\n| `/dash/stats` | GET | ユーザー統計 |\n| `/dash/graph` | GET | グラフデータ |\n| `/dash/retention` | GET | リテンションデータ |\n| `/dash/map` | GET | 地理データ |\n| `/dash/user/2fa/enable` | POST | 2FA 有効化 |\n| `/dash/user/2fa/disable` | POST | 2FA 無効化 |\n| `/dash/user/2fa/totp-uri` | GET | TOTP URI 取得 |\n| `/dash/user/2fa/backup-codes` | GET | バックアップコード閲覧 |\n| `/dash/user/2fa/backup-codes/generate` | POST | バックアップコード再生成 |\n\n#### クライアント統合（dashClient）\n\nクライアントプラグインからは監査ログ照会 API が使える。ユーザー ID の解決ロジックは `resolveUserId` でカスタマイズできる。\n\n```ts\ndashClient({\n  resolveUserId: ({ userId, user, session }) =\u003e {\n    return userId || user?.id || session?.user?.id;\n  },\n}),\n```\n\n#### ベストプラクティス\n\n1. **API キーは必ず設定する** — ないと Infra API と通信できない。\n2. **アクティビティトラッキングの間隔は慎重に** — 更新間隔が DB 書き込み量を左右する。\n3. **監査ログの保持期間はプラン依存** — 自分のプラン上限を確認する。\n4. **エンドポイントを保護する** — ダッシュボードエンドポイントは認証必須。操作者に適切な権限を割り当てる。\n\n---\n\n### Security プラグイン `sentinel()`\n\n認証システムへの**包括的な不正対策**を提供するプラグイン（**Pro プラン以上**）。クレデンシャルスタッフィング・不可能移動（impossible travel）・無料トライアル悪用などの攻撃ベクトルを検知・防御する。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { sentinel } from \"@better-auth/infra\";\n\nexport const auth = betterAuth({\n  plugins: [\n    sentinel({\n      security: {\n        // ここに各種セキュリティ機能を設定\n      },\n    }),\n  ],\n});\n```\n\n#### 設定オプション（SentinelOptions）\n\n| Option | Type | Description |\n|---|---|---|\n| `apiUrl` | `string` | Infrastructure API の URL |\n| `kvUrl` | `string` | レート制限データ用 KV ストアの URL |\n| `apiKey` | `string` | 認証用 API キー |\n| `apiTimeout` | `number` | Infra API への HTTP タイムアウト（ms）。既定 `3000` |\n| `kvTimeout` | `number` | KV への HTTP タイムアウト（ms）。既定 `1000` |\n| `security` | `SecurityOptions` | セキュリティ機能の設定 |\n\n`security` の構造（各機能は個別に有効化できる）。アクションは `\"log\"`（記録のみ）・`\"challenge\"`（PoW チャレンジ）・`\"block\"`（遮断）の 3 段階。\n\n```ts\ninterface SecurityOptions {\n  unknownDeviceNotification?: boolean;\n  credentialStuffing?: CredentialStuffingConfig;\n  impossibleTravel?: ImpossibleTravelConfig;\n  geoBlocking?: GeoBlockingConfig;\n  botBlocking?: boolean | { action: SecurityAction };\n  suspiciousIpBlocking?: boolean | { action: SecurityAction };\n  velocity?: VelocityConfig;\n  freeTrialAbuse?: FreeTrialAbuseConfig;\n  compromisedPassword?: CompromisedPasswordConfig;\n  emailValidation?: EmailValidationConfig;\n  emailNormalization?: { enabled?: boolean };\n  staleUsers?: StaleUsersConfig;\n  challengeDifficulty?: number;\n}\n\ntype SecurityAction = \"log\" | \"challenge\" | \"block\";\n```\n\n#### クレデンシャルスタッフィング対策\n\nビジターごとにログイン失敗回数を追跡し、しきい値超過でチャレンジ→遮断する。\n\n```ts\nsentinel({\n  apiKey: process.env.BETTER_AUTH_API_KEY,\n  security: {\n    credentialStuffing: {\n      enabled: true,\n      thresholds: {\n        challenge: 3, // 3 回失敗で PoW チャレンジ\n        block: 5,     // 5 回失敗で遮断\n      },\n      windowSeconds: 3600,  // 1 時間ウィンドウ\n      cooldownSeconds: 900, // 遮断後 15 分のクールダウン\n    },\n  },\n}),\n```\n\n動作: ビジター ID ごとに失敗回数を追跡 → チャレンジしきい値で PoW を発行 → 遮断しきい値でビジターを遮断 → ログイン成功で失敗カウントを自動クリア。\n\n#### 不可能移動（impossible travel）検知\n\n地理的に離れた地点からの、物理的にあり得ない短時間でのログインを検知する。\n\n```ts\nsentinel({\n  apiKey: process.env.BETTER_AUTH_API_KEY,\n  security: {\n    impossibleTravel: {\n      enabled: true,\n      maxSpeedKmh: 1000,   // 現実的な最大移動速度\n      action: \"challenge\",\n    },\n  },\n}),\n```\n\n例: ニューヨークでログインした 30 分後に東京からログインすると、1000 km/h を超える移動が必要なため不可能移動としてフラグが立つ。\n\n#### 無料トライアル悪用防止\n\nデバイスフィンガープリントを使い、複数アカウント作成によるトライアル乱用を防ぐ。\n\n```ts\nsentinel({\n  apiKey: process.env.BETTER_AUTH_API_KEY,\n  security: {\n    freeTrialAbuse: {\n      enabled: true,\n      thresholds: { challenge: 2, block: 3 },\n      maxAccountsPerVisitor: 3,\n      action: \"block\",\n    },\n  },\n}),\n```\n\n#### 漏洩パスワード検知\n\nHaveIBeenPwned データベースと照合して漏洩済みパスワードを検知する。**k-匿名性**を用い、パスワードハッシュの先頭 5 文字のみを送信する（フルパスワードは送らない）。\n\n```ts\nsentinel({\n  apiKey: process.env.BETTER_AUTH_API_KEY,\n  security: {\n    compromisedPassword: {\n      enabled: true,\n      action: \"block\",\n      minBreachCount: 1, // 検知に必要な最小漏洩回数\n    },\n  },\n}),\n```\n\n#### 休眠アカウント監視\n\n長期休眠していたアカウントが突然アクティブ化したのを検知する（アカウント乗っ取りの兆候）。ユーザー・管理者へのメール通知を出せる（通知には時刻・場所・休眠日数・デバイス情報を含む）。\n\n```ts\nsentinel({\n  apiKey: process.env.BETTER_AUTH_API_KEY,\n  security: {\n    staleUsers: {\n      enabled: true,\n      staleDays: 90,\n      action: \"log\",\n      notifyUser: true,\n      notifyAdmin: true,\n      adminEmail: \"admin@yourapp.com\",\n    },\n  },\n}),\n```\n\n#### その他の検知機能\n\n- **ジオブロッキング** — `allowList`（許可国）または `denyList`（遮断国）で国単位の許可/遮断。ISO 3166-1 alpha-2 の国コードを使う。\n- **ボットブロッキング** — `botBlocking: true`、または `{ action: \"challenge\" }` 等で自動化トラフィックを検知・遮断。\n- **不審 IP 検知** — `suspiciousIpBlocking` で既知の悪性 IP からのリクエストを遮断。\n- **ベロシティ / レート制限** — `velocity` で各種操作の速度を制限（`maxSignupsPerVisitor` / `maxPasswordResetsPerIp` / `maxSignInsPerIp` / `windowSeconds` など）。\n- **メール検証** — `emailValidation` で使い捨てメールを遮断。`strictness` は `low`（既知の使い捨てドメインのみ）/ `medium`（MX レコード確認も）/ `high`（追加のヒューリスティック）。\n- **メール正規化** — `emailNormalization` で小文字化・プラスタグ除去（`user+tag@gmail.com` → `user@gmail.com`）・Gmail のドット除去・`googlemail.com` → `gmail.com` を行い、エイリアスによる重複アカウントを防ぐ。`emailValidation` と独立して制御できる。\n\n```ts\nsentinel({\n  apiKey: process.env.BETTER_AUTH_API_KEY,\n  security: {\n    velocity: {\n      enabled: true,\n      thresholds: { challenge: 10, block: 20 },\n      maxSignupsPerVisitor: 5,\n      maxPasswordResetsPerIp: 10,\n      maxSignInsPerIp: 50,\n      windowSeconds: 3600,\n      action: \"challenge\",\n    },\n    emailValidation: {\n      enabled: true,\n      strictness: \"medium\",\n      action: \"block\",\n    },\n  },\n}),\n```\n\n#### Proof-of-Work（PoW）チャレンジ\n\nアクションが `\"challenge\"` のとき、Sentinel はクライアントが解くべき PoW チャレンジを発行する。サーバーが暗号学的チャレンジを出し、クライアントが難易度条件を満たす解を探す。**計算は重いが検証は速い**ため、自動攻撃を抑えつつ正規ユーザーは通過できる。難易度は `challengeDifficulty`（既定 `18`）で調整し、高いほど攻撃者の計算コストが上がる。\n\n```ts\nsentinel({\n  apiKey: process.env.BETTER_AUTH_API_KEY,\n  security: {\n    challengeDifficulty: 18,\n  },\n}),\n```\n\n#### クライアント統合（sentinelClient）\n\nクライアントプラグインがデバイスフィンガープリントと PoW 自動解決を担う。`X-Visitor-Id` ヘッダでビジター ID を付与し（クレデンシャルスタッフィング検知・無料トライアル悪用防止・デバイス追跡に使用）、解いたチャレンジは `X-PoW-Solution` ヘッダで送る。\n\n| Option | Type | Default | Description |\n|---|---|---|---|\n| `autoSolveChallenge` | `boolean` | `true` | PoW チャレンジを自動で解く |\n| `kvTimeout` | `number` | `1000` | KV identify 等の HTTP タイムアウト（ms） |\n\nExpo / React Native では `@better-auth/infra/native` の `sentinelNativeClient` を使う。`onChallengeReceived` / `onChallengeSolved` / `onChallengeFailed` のコールバックや、永続的なビジター ID 用の `storage`（Async Storage 等）を指定できる。\n\n#### セキュリティイベント\n\nSentinel が検知すると、監査ログに以下の `security_*` イベントが記録され Security ダッシュボードに表示される。\n\n| Event Type | Description |\n|---|---|\n| `security_blocked` | リクエストを遮断 |\n| `security_allowed` | チャレンジ通過後に許可 |\n| `security_credential_stuffing` | クレデンシャルスタッフィング検知 |\n| `security_impossible_travel` | 不可能移動検知 |\n| `security_geo_blocked` | ジオブロッキング発動 |\n| `security_bot_blocked` | ボット検知・遮断 |\n| `security_suspicious_ip` | 不審 IP 検知 |\n| `security_velocity_exceeded` | レート制限超過 |\n| `security_free_trial_abuse` | 無料トライアル悪用検知 |\n| `security_compromised_password` | 漏洩パスワード検知 |\n| `security_stale_account` | 休眠アカウント再活性化 |\n\n#### ベストプラクティス\n\n1. **まず `log` から始める** — いきなり遮断せず、トラフィックパターンを把握する。\n2. **しきい値を調整する** — アプリごとに最適値は違う。誤検知を監視して調整する。\n3. **遮断より先にチャレンジ** — 正規ユーザーを通しつつ自動攻撃を止める。\n4. **クライアント自動解決を有効化** — `autoSolveChallenge: true` を使う。\n5. **セキュリティイベントを定期レビュー** — 攻撃パターンを把握する。\n6. **重大イベントは管理者通知** — 休眠アカウント再活性化などで `notifyAdmin` を有効化する。\n\n---\n\n### Audit Logs — 認証イベントの追跡と照会\n\n`dash()` を入れた時点で、認証イベントは**追加設定なしに自動収集**される。`dash()` が Better Auth インスタンスのフックに接続し、サインアップ・サインイン・パスワード変更などをイベント発生と同時に記録する。手動の計装は不要。\n\n#### 追跡されるイベント（全カタログ）\n\n**ユーザー / セッション / アカウント / 検証**\n\n| Event | Trigger |\n|---|---|\n| `user_signed_up` | 新規登録 |\n| `user_profile_updated` | プロフィール更新 |\n| `user_profile_image_updated` | アバター変更 |\n| `user_email_verified` | メール検証完了 |\n| `user_banned` / `user_unbanned` | BAN / BAN 解除 |\n| `user_deleted` | アカウント削除 |\n| `user_signed_in` / `user_signed_out` | サインイン / サインアウト |\n| `session_created` / `session_revoked` | セッション作成 / 単一失効 |\n| `sessions_revoked_all` | 全セッション失効 |\n| `user_impersonated` / `user_impersonation_stopped` | なりすまし開始 / 終了 |\n| `account_linked` / `account_unlinked` | ソーシャル連携 / 解除 |\n| `password_changed` | パスワード更新 |\n| `password_reset_requested` / `password_reset_completed` | リセット開始 / 完了 |\n| `email_verification_sent` | 検証メール送信 |\n\n**組織（organization プラグイン使用時）**\n\n| Event | Trigger |\n|---|---|\n| `organization_created` / `organization_updated` | 組織の作成 / 更新 |\n| `member_added` / `member_removed` | メンバー追加 / 削除 |\n| `member_role_updated` | ロール変更 |\n| `member_invited` | 招待送信 |\n| `invite_accepted` / `invite_rejected` / `invite_cancelled` | 招待の承諾 / 拒否 / 取消 |\n| `team_created` / `team_updated` / `team_deleted` | チームの作成 / 更新 / 削除 |\n| `team_member_added` / `team_member_removed` | チームメンバー追加 / 削除 |\n\n\u003e セキュリティイベント（`security_*`）は `sentinel()` 使用時に追加される（前掲の表）。\n\n#### クライアントからの照会\n\n`dashClient()` を追加すると 2 つの照会 API が使える。\n\n- **`getAuditLogs`** — **現在のユーザー**の監査イベントを返す（組織のメンバーとして `organizationId` を渡せば組織スコープに絞れる）。一般メンバーのアクティビティ表示向け。\n- **`getAllAuditLogs`** — 呼び出しユーザーが **admin / owner** 権限を持つ組織の全監査イベントを返す。ロール評価に [organization プラグイン](https://www.better-auth.com/docs/plugins/organization)が必須。管理者ダッシュボード向け。\n\n```ts\nconst session = await authClient.getSession();\n\nconst logs = await authClient.dash.getAuditLogs({\n  session: session.data,\n  limit: 50,\n  offset: 0,\n});\n\nlogs.data?.events; // 監査ログイベントの配列\nlogs.data?.total;  // 総件数\nlogs.data?.limit;  // ページサイズ\nlogs.data?.offset; // 現在のオフセット\n```\n\n主なクエリパラメータ。`limit` は最大 `100`・既定 `50`、`offset` 既定 `0`。`eventType` / `organizationId` / `userId` / `identifier`（メール等の一意値）で絞り込めて、組み合わせも可能。\n\n| Parameter | Type | Description |\n|---|---|---|\n| `limit` | `number` | 1 ページの件数（最大 100、既定 50） |\n| `offset` | `number` | ページングのオフセット（既定 0） |\n| `organizationId` | `string` | 組織で絞り込み |\n| `userId` | `string` | ユーザー ID で絞り込み |\n| `eventType` | `string` | イベント種別で絞り込み |\n| `identifier` | `string` | 識別子（メール等）で絞り込み |\n| `session` | `object` | user を含むセッションオブジェクト |\n\nイベント種別での絞り込み例。\n\n```ts\nconst signIns = await authClient.dash.getAuditLogs({\n  session: session.data,\n  eventType: \"user_signed_in\",\n});\n```\n\nページネーションは `limit` / `offset` のループで全件取得できる。\n\n```ts\nasync function fetchAllUserAuditLogEvents(session: unknown) {\n  const limit = 100;\n  let offset = 0;\n  const allEvents = [];\n\n  while (true) {\n    const result = await authClient.dash.getAuditLogs({\n      session: session.data,\n      limit,\n      offset,\n    });\n\n    const events = result.data?.events ?? [];\n    allEvents.push(...events);\n\n    if (events.length \u003c limit) break;\n    offset += limit;\n  }\n\n  return allEvents;\n}\n```\n\n\u003e 監査ログの**保持期間はプラン依存**。エンタープライズ層ではログドレイン（`/dash/organization/log-drain`）で SIEM へ転送し、長期保管・相関分析に回せる。\n\n---\n\n### Email Service — マネージドなトランザクションメール配信\n\n検証・リセット・招待などの認証メールを、メール基盤を自前で運用せずに送れるマネージドサービス。**プロ仕様の組み込みテンプレート**、複数プロバイダ対応（AWS SES / SendGrid / Resend）、型安全なテンプレート変数、配信最適化を提供する。\n\n#### 送信 API\n\n`@better-auth/infra` に同梱。単発送信の `sendEmail` と、設定を固定した再利用センダーを作る `createEmailSender` がある。\n\n```ts\nimport { sendEmail, createEmailSender } from \"@better-auth/infra\";\n\n// 単発送信\nawait sendEmail({\n  template: \"verify-email\",\n  to: \"user@example.com\",\n  variables: {\n    verificationUrl: \"https://yourapp.com/verify?token=abc123\",\n    userEmail: \"user@example.com\",\n    userName: \"John\",\n    appName: \"Your App\",\n  },\n});\n\n// 再利用センダー\nconst emailSender = createEmailSender({\n  apiKey: process.env.BETTER_AUTH_API_KEY,\n  apiUrl: process.env.BETTER_AUTH_API_URL,\n});\n\nawait emailSender.send({\n  template: \"reset-password\",\n  to: \"user@example.com\",\n  variables: {\n    resetLink: \"https://yourapp.com/reset?token=xyz\",\n    userEmail: \"user@example.com\",\n  },\n});\n```\n\nAPI キー・URL は環境変数（`BETTER_AUTH_API_KEY` / 任意で `BETTER_AUTH_API_URL`）から自動で読まれる。戻り値は `{ success, messageId?, error? }` の `SendEmailResult`。\n\n#### 利用可能なテンプレート\n\n| Template | 用途 |\n|---|---|\n| `verify-email` | 新規ユーザーへのメール検証リンク |\n| `reset-password` | パスワードリセットリンク |\n| `change-email` | メールアドレス変更の確認 |\n| `sign-in-otp` | パスワードレスサインイン用 OTP |\n| `verify-email-otp` | メール検証用 OTP コード |\n| `reset-password-otp` | パスワードリセット用 OTP コード |\n| `magic-link` | パスワードレス認証のマジックリンク |\n| `two-factor` | 二要素認証コード |\n| `invitation` | 組織への招待 |\n| `application-invite` | アプリ（プラットフォーム）への招待 |\n| `delete-account` | アカウント削除の確認 |\n| `stale-account-user` | 休眠アカウントへのアクセス通知（ユーザー向け） |\n| `stale-account-admin` | 休眠アカウント再活性化の通知（管理者向け） |\n\n各テンプレートは型安全な `variables` を受け取る。例えば `invitation` は招待リンク・招待者名/メール・組織名・ロール等を渡す。\n\n```ts\nawait sendEmail({\n  template: \"invitation\",\n  to: \"newmember@example.com\",\n  variables: {\n    inviteLink: \"https://yourapp.com/invite?token=abc\",\n    inviterName: \"John Smith\",\n    inviterEmail: \"john@company.com\",\n    organizationName: \"Acme Corp\",\n    role: \"Member\",\n    appName: \"Your App\",   // 任意\n    expirationDays: \"7\",   // 任意\n  },\n});\n```\n\n#### Better Auth の認証フローとの統合\n\nBetter Auth 側のコールバック（`sendResetPassword` / `sendVerificationEmail` / `organization` プラグインの `sendInvitationEmail`）から `sendEmail` を呼ぶだけで、認証フローに自然に組み込める。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { organization } from \"better-auth/plugins\";\nimport { sendEmail } from \"@better-auth/infra\";\n\nexport const auth = betterAuth({\n  emailAndPassword: {\n    enabled: true,\n    async sendResetPassword({ user, url }) {\n      await sendEmail({\n        template: \"reset-password\",\n        to: user.email,\n        variables: { resetLink: url, userEmail: user.email, userName: user.name, appName: \"Your App\" },\n      });\n    },\n  },\n  emailVerification: {\n    sendOnSignUp: true,\n    async sendVerificationEmail({ user, url }) {\n      await sendEmail({\n        template: \"verify-email\",\n        to: user.email,\n        variables: { verificationUrl: url, userEmail: user.email, userName: user.name, appName: \"Your App\" },\n      });\n    },\n  },\n  plugins: [\n    organization({\n      async sendInvitationEmail(data) {\n        const inviteLink = `https://yourapp.com/accept-invitation/${data.id}`;\n        await sendEmail({\n          template: \"invitation\",\n          to: data.email,\n          variables: {\n            inviteLink,\n            inviterName: data.inviter.user.name,\n            inviterEmail: data.inviter.user.email,\n            organizationName: data.organization.name,\n            role: data.role,\n            appName: \"Your App\",\n          },\n        });\n      },\n    }),\n  ],\n});\n```\n\n\u003e **本番では送信を `await` で待たない**ことが推奨される（タイミング攻撃の回避）。サーバーレスでは `waitUntil` 等を使い、レスポンスをブロックせずに送信を完了させる。トランザクションメールは **Pro プラン以上**で利用可能。\n\n---\n\n## ビジネスモデル — OSS コア + Infrastructure = Supabase 型\n\nBetter Auth の収益構造は **Supabase 型**だ。\n\n- **OSS コア（無料）で普及を取る** — `better-auth` 本体とプラグインは OSS。学習コストの低さと型安全・網羅性で開発者に広く使われ、エコシステムを育てる。\n- **Infrastructure（有料）で収益化する** — その上で「自前運用すると重い領域」（管理 GUI・不正検知・メール配信・SSO/SCIM・ログドレイン）をマネージドサービスとして売る。普及した OSS が**販売チャネル**そのものになる。\n\nこれは Auth0 / Clerk の「全部ホスト」モデルとは思想が違う。\n\n| 観点 | Auth0 / Clerk（全部ホスト） | Better Auth + Infrastructure |\n|---|---|---|\n| 認証コア | ベンダーがホスト | **自前ホスト（OSS・無料）** |\n| ユーザーデータ | ベンダー側 | **自前 DB に所有** |\n| 課金対象 | 認証そのもの（MAU 等） | 運用知能（分析・不正対策・配信） |\n| 採用の起点 | 営業・サインアップ | OSS の普及 |\n| ロックイン | 強い（移行が重い） | 弱い（コアは手元、有料層は着脱式） |\n\nポイントは「**コアは自前、運用知能だけ買う**」という分離だ。認証ロジックとユーザーデータの主権を手放さないまま、ダッシュボードや不正検知だけを Infra に委譲できる。\n\nただし利便性ゆえに**寄せすぎるとロックインの芽が生まれる**点には注意が必要だ（[§08 デメリット](08-cons.html) でも触れたとおり、有料層への依存はロックインの芽になる）。どこまでを有料層に委ねるかは設計段階で線引きし、「自前ホストだから自由」という当初の利点を保てるバランスを保つのがよい。\n\n---\n\n## 一次情報\n\n- Introduction: \u003chttps://www.better-auth.com/docs/infrastructure/introduction\u003e\n- Getting Started: \u003chttps://www.better-auth.com/docs/infrastructure/getting-started\u003e\n- Dashboard プラグイン（dash）: \u003chttps://www.better-auth.com/docs/infrastructure/plugins/dash\u003e\n- Security プラグイン（sentinel）: \u003chttps://www.better-auth.com/docs/infrastructure/plugins/sentinel\u003e\n- Audit Logs: \u003chttps://www.better-auth.com/docs/infrastructure/plugins/audit-logs\u003e\n- Email Service: \u003chttps://www.better-auth.com/docs/infrastructure/services/email\u003e\n";</script>
+<script>(function () {
+  "use strict";
+  var src = (typeof SRC === "string") ? SRC : "";
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // inline formatting. input is already HTML-escaped.
+  function inline(s) {
+    var codes = [];
+    s = s.replace(/`([^`]+)`/g, function (_, c) {
+      codes.push(c);
+      return "@@CODE" + (codes.length - 1) + "@@";
+    });
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/&lt;(https?:\/\/[^\s&]+)&gt;/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/@@CODE(\d+)@@/g, function (_, i) {
+      return "<code>" + codes[+i] + "</code>";
+    });
+    return s;
+  }
+
+  function isTableSep(line) {
+    return /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(line) && line.indexOf("-") !== -1;
+  }
+  function splitRow(line) {
+    var t = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+    return t.split("|").map(function (c) { return c.trim(); });
+  }
+
+  function render(md) {
+    var lines = md.replace(/\r\n/g, "\n").split("\n");
+    var out = [];
+    var i = 0;
+    while (i < lines.length) {
+      var line = lines[i];
+
+      var fence = line.match(/^```(\w*)\s*$/);
+      if (fence) {
+        var buf = [];
+        i++;
+        while (i < lines.length && !/^```\s*$/.test(lines[i])) { buf.push(lines[i]); i++; }
+        i++;
+        out.push("<pre><code>" + esc(buf.join("\n")) + "</code></pre>");
+        continue;
+      }
+
+      if (/^\s*$/.test(line)) { i++; continue; }
+
+      if (/^---+\s*$/.test(line)) { out.push("<hr>"); i++; continue; }
+
+      var h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) {
+        var lv = h[1].length;
+        out.push("<h" + lv + ">" + inline(esc(h[2])) + "</h" + lv + ">");
+        i++; continue;
+      }
+
+      if (line.indexOf("|") !== -1 && i + 1 < lines.length && isTableSep(lines[i + 1])) {
+        var header = splitRow(line);
+        i += 2;
+        var rows = [];
+        while (i < lines.length && lines[i].indexOf("|") !== -1 && !/^\s*$/.test(lines[i])) {
+          rows.push(splitRow(lines[i])); i++;
+        }
+        var t = "<table><thead><tr>";
+        header.forEach(function (c) { t += "<th>" + inline(esc(c)) + "</th>"; });
+        t += "</tr></thead><tbody>";
+        rows.forEach(function (r) {
+          t += "<tr>";
+          r.forEach(function (c) { t += "<td>" + inline(esc(c)) + "</td>"; });
+          t += "</tr>";
+        });
+        t += "</tbody></table>";
+        out.push(t);
+        continue;
+      }
+
+      if (/^>\s?/.test(line)) {
+        var qbuf = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])) {
+          qbuf.push(lines[i].replace(/^>\s?/, "")); i++;
+        }
+        out.push("<blockquote>" + render(qbuf.join("\n")) + "</blockquote>");
+        continue;
+      }
+
+      if (/^(\s*)([-*]|\d+\.)\s+/.test(line)) {
+        var items = [];
+        while (i < lines.length && /^(\s*)([-*]|\d+\.)\s+/.test(lines[i])) {
+          var m = lines[i].match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
+          items.push({ indent: m[1].length, ordered: /\d/.test(m[2]), num: parseInt(m[2], 10), text: m[3] });
+          i++;
+        }
+        out.push(buildList(items));
+        continue;
+      }
+
+      var pbuf = [];
+      while (i < lines.length && !/^\s*$/.test(lines[i]) &&
+             !/^(#{1,6})\s/.test(lines[i]) && !/^```/.test(lines[i]) &&
+             !/^>\s?/.test(lines[i]) && !/^---+\s*$/.test(lines[i]) &&
+             !/^(\s*)([-*]|\d+\.)\s+/.test(lines[i]) &&
+             !(lines[i].indexOf("|") !== -1 && i + 1 < lines.length && isTableSep(lines[i + 1]))) {
+        pbuf.push(lines[i]); i++;
+      }
+      out.push("<p>" + inline(esc(pbuf.join(" "))) + "</p>");
+    }
+    return out.join("\n");
+  }
+
+  function buildList(items) {
+    var ordered = items[0].ordered;
+    var tag = ordered ? "ol" : "ul";
+    var start = ordered && items[0].num !== 1 ? ' start="' + items[0].num + '"' : "";
+    var html = "<" + tag + start + ">";
+    var n = 0;
+    while (n < items.length) {
+      var it = items[n];
+      var li = "<li>" + inline(esc(it.text));
+      var children = [];
+      var k = n + 1;
+      while (k < items.length && items[k].indent > it.indent) { children.push(items[k]); k++; }
+      if (children.length) li += buildList(children);
+      li += "</li>";
+      html += li;
+      n = k;
+    }
+    html += "</" + tag + ">";
+    return html;
+  }
+
+  var viewRead = document.getElementById("view-read");
+  if (viewRead) viewRead.innerHTML = render(src);
+  var rawEl = document.getElementById("raw");
+  if (rawEl) rawEl.textContent = src;
+
+  var tabRead = document.getElementById("tab-read");
+  var tabRaw = document.getElementById("tab-raw");
+  var viewRaw = document.getElementById("view-raw");
+  function select(which) {
+    var read = which === "read";
+    if (tabRead) tabRead.setAttribute("aria-selected", read ? "true" : "false");
+    if (tabRaw) tabRaw.setAttribute("aria-selected", read ? "false" : "true");
+    if (viewRead) viewRead.hidden = !read;
+    if (viewRaw) viewRaw.hidden = read;
+  }
+  if (tabRead) tabRead.addEventListener("click", function () { select("read"); });
+  if (tabRaw) tabRaw.addEventListener("click", function () { select("raw"); });
+
+  var copyBtn = document.getElementById("copy");
+  if (copyBtn) copyBtn.addEventListener("click", function () {
+    var btn = this;
+    navigator.clipboard.writeText(src).then(function () {
+      var prev = btn.textContent;
+      btn.textContent = "コピーしました ✓";
+      setTimeout(function () { btn.textContent = prev; }, 1500);
+    });
+  });
+})();
+</script>
+<footer style="margin-top:64px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:12px">調査日 2026-06-24・Better Auth は更新の速いライブラリ。最終的な裏取りは一次情報で確認すること。</footer>
+</main>
+</body>
+</html>

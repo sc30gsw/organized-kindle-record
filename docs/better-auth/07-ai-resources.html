@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Resources — AI が認証を書く / AI が認証する | Better Auth 詳細リファレンス</title>
+<style>
+  :root{--bg:#0f1115;--panel:#161a22;--text:#e6e9ef;--muted:#9aa4b2;--accent:#7c9cff;--accent2:#58e0c0;--border:#2a3140;--code-bg:#0b0d12;--th-bg:#222838;--max:920px}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  .topbar{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .topbar-inner{max-width:var(--max);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand{font-weight:700;font-size:13px;color:var(--muted);letter-spacing:.02em;text-decoration:none}
+  .brand:hover{color:var(--text)}
+  .nav{display:flex;gap:10px;font-size:12px}
+  .nav a{color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:5px 10px;border-radius:7px}
+  .nav a:hover{color:var(--text);border-color:var(--accent)}
+  .spacer{margin-left:auto}
+  .tabs{display:flex;gap:6px}
+  .tab{appearance:none;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;transition:all .15s}
+  .tab:hover{color:var(--text);border-color:var(--accent)}
+  .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b0d12;border-color:transparent}
+  .copy-btn{appearance:none;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600}
+  .copy-btn:hover{color:var(--text);border-color:var(--accent2)}
+  main{max-width:var(--max);margin:0 auto;padding:32px 20px 120px}
+  .view[hidden]{display:none}
+  .pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:13px}
+  .pager a{color:var(--accent);text-decoration:none;max-width:48%}
+  .md h1{font-size:1.9rem;line-height:1.3;margin:0 0 .6em;letter-spacing:.01em}
+  .md h2{font-size:1.4rem;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--border);color:#fff}
+  .md h3{font-size:1.12rem;margin:1.6em 0 .5em;color:var(--accent2)}
+  .md h4{font-size:1rem;margin:1.2em 0 .4em;color:var(--accent)}
+  .md p{margin:.7em 0}
+  .md a{text-decoration:none;border-bottom:1px solid rgba(124,156,255,.35)}
+  .md a:hover{border-bottom-color:var(--accent)}
+  .md strong{color:#fff;font-weight:700}
+  .md ul,.md ol{margin:.6em 0;padding-left:1.5em}
+  .md li{margin:.3em 0}
+  .md ul ul,.md ul ol{margin:.25em 0}
+  .md code{background:var(--code-bg);border:1px solid var(--border);padding:.12em .42em;border-radius:5px;font-size:.86em;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;color:#ffd9a8}
+  .md pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;margin:1em 0}
+  .md pre code{background:none;border:none;padding:0;color:#d6e2ff;font-size:.85rem;line-height:1.6}
+  .md blockquote{margin:1.1em 0;padding:.6em 1.1em;border-left:3px solid var(--accent2);background:var(--panel);border-radius:0 8px 8px 0;color:#d7deea}
+  .md blockquote p{margin:.3em 0}
+  .md hr{border:none;border-top:1px solid var(--border);margin:2.2em 0}
+  .md table{border-collapse:collapse;width:100%;margin:1.1em 0;font-size:.92rem;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+  .md th{background:var(--th-bg);color:#fff;font-weight:700;white-space:nowrap}
+  .md tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+  .raw{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;white-space:pre;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:.82rem;line-height:1.6;color:#cdd6e6}
+  .note{color:var(--muted);font-size:12px;margin:0 0 14px}
+  .toc{list-style:none;padding:0;margin:24px 0}
+  .toc li{margin:0 0 10px;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
+  .toc a{display:block;padding:16px 18px;text-decoration:none;color:var(--text)}
+  .toc a:hover{border-color:var(--accent)}
+  .toc .num{color:var(--accent2);font-weight:700;margin-right:10px}
+  .toc .desc{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+  .lead{color:#d7deea;font-size:1.02rem}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-inner"><a class="brand" href="index.html">← 目次</a><span class="nav"><a href="06-infrastructure.html">‹ Infrastructure — 公</a><a href="08-cons.html">デメリット・注意点（正直ベース） ›</a></span><span class="spacer"></span><div class="tabs" role="tablist"><button class="tab" id="tab-read" role="tab" aria-selected="true">📖 読む</button><button class="tab" id="tab-raw" role="tab" aria-selected="false">📝 Markdown</button></div><button class="copy-btn" id="copy">Markdown をコピー</button></div></div>
+<main>
+<section class="view md" id="view-read" role="tabpanel"></section><section class="view" id="view-raw" role="tabpanel" hidden><p class="note">そのまま .md として保存・コピーできます。</p><div class="raw" id="raw"></div></section><div class="pager"><a href="06-infrastructure.html">‹ Infrastructure — 公式の有料運用レイヤー</a><a href="08-cons.html">デメリット・注意点（正直ベース） ›</a></div>
+<script>var SRC="# AI Resources — AI が認証を書く / AI が認証する\n\n\u003e 本資料の **山場**。Better Auth は「AI と一緒に書く」ことを前提に設計された認証ライブラリであり、さらに「AI が認証主体になる」時代にも最初に手を打っている。本章は **AI が認証を書く（開発体験）** と **AI が認証する（エージェント認証）** の2軸で、Better Auth がなぜ「AI ネイティブな認証基盤」と呼べるのかを仕様レベルまで掘り下げる。後半は **Agent Auth Protocol（v1.0-draft）** と **WorkOS auth.md** をフロー図つきで詳説する。\n\u003e 締めの整理: **`llms.txt` がドキュメントを、`auth.md` が認証フローを、Agent Auth Protocol がエージェントの身元を、それぞれ AI に読める/扱える形へ変換する。**\n\n### 🎤 登壇メモ\n\n- **つかみ**: 「認証を *書く* AI と、認証 *される* AI — その両方に最初に手を打ったのが Better Auth」。\n- **強調（ここが山場）**: 軸②。エージェントを「誰かの identity の影」から固有の principal へ引き上げる話。版は **Agent Auth Protocol（v1.0-draft）**、auth.md の核は **ID-JAG**（IETF ドラフト `draft-ietf-oauth-identity-assertion-authz-grant`）、`agent-auth` は **Better Auth 公式プラグイン** — この3点は一次ソース確認済みなので事実として断言してよい。それ以外の細部（承認方式の網羅性など）は「資料参照」に留め、断定しすぎない。\n- **10分なら**: 軸②のフロー詳細（ID-JAG シーケンス図など）は概念だけ口頭で伝え、ASCII 図は「詳しくは資料」に逃がす。代わりに軸① CLI の **スキーマ自動生成** を実演1枚に絞ると刺さる。\n\n---\n\n## 0. この章の主張（2軸で読む）\n\n「AI と認証」と言うとき、向きが2つある。混同すると話がぼやけるので、最初に分けておく。\n\n| 軸 | 問い | 主役 | Better Auth の答え |\n|---|---|---|---|\n| 軸① AI が認証を書く | AI に認証コードを実装させられるか | 開発者 + コーディングAI | CLI / ドキュメント MCP / Skills / llms.txt / Ask AI |\n| 軸② AI が認証する | AI エージェント自身を認証できるか | AI エージェント | Agent Auth（公式プラグイン + プロトコル）/ auth.md |\n\n\u003e 一言で: **軸①は「実装の自動化」、軸②は「認証される主体の追加」。** クラウド認証 SaaS は軸①でブラックボックス化しがちで、軸②はまだこれから。Better Auth は **コードベース型 OSS** という性質を武器に、両軸を同時に押さえにいっている。\n\n---\n\n## 1. 軸①「AI が認証を書く」— AI ネイティブな開発体験\n\n### 1.1 なぜ「コードベース型」だと AI と相性がいいのか\n\nBetter Auth は自分のサーバー・自分の DB で動く **ライブラリ**であり、認証ロジックもスキーマも **すべて自分のリポジトリ内のコードとして存在する**。これは AI コーディングにとって決定的に有利だ。\n\n- **AI がコードを読める** — 設定（`auth.ts`）・スキーマ・呼び出し箇所がリポジトリ内にあるので、AI は実際の構成を読んで文脈に沿った実装ができる。\n- **AI がスキーマを生成できる** — 設定からテーブル定義を機械的に導出できる（後述の CLI）。\n- **AI が規約に沿える** — 公式が配布する Skills / ドキュメントを参照させれば、ライブラリの作法どおりに書かせられる。\n\n\u003e 主張: **クラウド認証 SaaS は管理画面とダッシュボードの「外」に実装の実体を持つため、AI に渡せる手掛かりが少ない。** Better Auth は逆で、認証が「AI に読ませ・書かせられるコード」として手元にある。これが AI ネイティブの本質。\n\nBetter Auth は公式に4つの AI 向けリソースを束ねて提供している（`/docs/ai-resources`）。\n\n| リソース | 何か | いつ使うか |\n|---|---|---|\n| Ask AI in docs | ドキュメント内で AI に直接質問する UI | 仕様をその場で確認したいとき |\n| llms.txt | ドキュメント全体を LLM 向けに構造化したテキスト | AI に文脈をまとめて渡したいとき |\n| ドキュメント MCP サーバー | ドキュメント検索・例・セットアップ補助を MCP で提供 | エディタ/エージェントから最新ドキュメントを引きたいとき |\n| Skills | 規約・安全なパターンを教えるエージェントスキル | AI に作法どおり実装させたいとき |\n\n### 1.2 CLI — 人間がスキーマを手書きしない\n\nBetter Auth は **初期からビルトイン CLI を持つ**。これが「AI ネイティブ」を支える土台で、認証テーブルを人間が手で書かないための仕組みだ。\n\n\u003e 関連: 基本概念とスキーマ生成の全体像は [§01 コンセプト](01-concepts.html) を参照。\n\n主要コマンド（`npx @better-auth/cli@latest \u003ccommand\u003e`）:\n\n| コマンド | 役割 |\n|---|---|\n| `generate` | 設定とプラグインから DB スキーマ（ORM 定義 / SQL）を生成する |\n| `migrate` | スキーマを DB に直接適用する（ビルトインの Kysely アダプタ向け） |\n| `init` | プロジェクトに Better Auth を初期セットアップする |\n| `secret` | アプリ用のシークレットキーを生成する |\n| `info` | 環境・設定の診断情報を集める |\n\n`generate` の出力先は使っている DB レイヤで変わる。\n\n- **Prisma** → `prisma/schema.prisma` に書き出す。\n- **Drizzle** → プロジェクトルートの `schema.ts` に書き出す。\n- **Kysely** → `schema.sql` として書き出す。\n\n主なフラグ:\n\n- `--output` — 生成スキーマの保存先を指定する。\n- `--config` — `auth.ts` の場所を指定する。デフォルトは `./`・`./utils`・`./lib`（および `src` 配下の同名ディレクトリ）を探索する。\n- `--yes` — 確認プロンプトを飛ばして直接生成する。\n\n最小の流れはこうなる。\n\n```ts\n// auth.ts — プラグインを足すだけ。テーブル定義は書かない\nimport { betterAuth } from \"better-auth\";\nimport { organization, twoFactor } from \"better-auth/plugins\";\n\nexport const auth = betterAuth({\n  database: /* adapter */,\n  emailAndPassword: { enabled: true },\n  plugins: [organization(), twoFactor()],\n});\n```\n\n```bash\n# 設定とプラグインからスキーマを生成 → DB に適用\nnpx @better-auth/cli@latest generate\nnpx @better-auth/cli@latest migrate\n```\n\n\u003e 肝: **プラグインを追加するたびに、必要なテーブル・カラムが自動で追従する。** `organization` を足せば組織/メンバー/招待のテーブルが、`twoFactor` を足せば 2FA 用のカラムが、`generate` の出力に現れる。人間（や AI）が認証スキーマを手書きする必要がない。Prisma/Drizzle 利用時は `generate` 後にそれぞれの migration ツールで適用する運用になる。\n\n### 1.3 ドキュメント MCP サーバー — AI に「最新の正解」を引かせる\n\nBetter Auth は **リモート MCP サーバー** をホストしており、ドキュメント検索・コード例・セットアップ補助を、任意の MCP 対応クライアント（Cursor / Claude Code / Open Code ほか）に公開している。\n\n- **エンドポイント**: `https://mcp.better-auth.com/mcp`\n- これは認証機能としての [MCP プラグイン](https://www.better-auth.com/docs/plugins/mcp)（自前で MCP サーバーに OAuth を付けるもの）とは **別物**。こちらは「ドキュメントを引くための MCP」。\n\nCLI から各クライアントへ一発で追加できる（フラグ無しなら対応ターゲット一覧を表示）。\n\n```bash\nnpx auth@latest mcp --cursor       # Cursor に追加\nnpx auth@latest mcp --claude-code  # Claude Code に追加\nnpx auth@latest mcp --open-code    # Open Code に追加\nnpx auth@latest mcp               # フラグ無し → 対応ターゲットを一覧表示\n```\n\n\u003e 補足: CLI 本体は `@better-auth/cli`。`npx auth@latest mcp --cursor` はその短縮エイリアス経由の呼び出しで、資料によっては `npx @better-auth/cli mcp --cursor` と表記される。狙いは同じ — **AI に古い記憶ではなく公式ドキュメントの最新を引かせる**こと。\n\n### 1.4 公式 Skills — AI に「作法」を守らせる\n\n[Agent skills](https://agentskills.io) は、コーディングエージェントにプロジェクトの規約・安全なパターン・「ドキュメントのどこを見るか」を教える、ポータブルな指示ファイル（例: `SKILL.md`）。Better Auth の **公式スキルパック**は [`better-auth/skills`](https://github.com/better-auth/skills) リポジトリにある。\n\n`skills` CLI で導入する（`npx` 経由なのでグローバルインストール不要）。\n\n```bash\nnpx skills add better-auth\n```\n\n\u003e 効果: AI が「それっぽいが間違っている」認証コードを書く事故を減らせる。**規約をプロンプトに毎回書く代わりに、スキルとして固定し、エージェントに常時参照させる。** 認証はミスがそのまま脆弱性になる領域なので、この「型を強制する」仕組みの価値は大きい。\n\n### 1.5 llms.txt — ドキュメントを丸ごと LLM に読ませる\n\nBetter Auth はドキュメント全体を LLM 向けの構造化テキストとして公開している。\n\n- 索引: \u003chttps://www.better-auth.com/llms.txt\u003e\n- 各ページの素のテキストは `/llms.txt/docs/\u003cpath\u003e.md` で取得できる（例: `/llms.txt/docs/ai-resources.md`）。\n\nこれにより、AI は HTML をスクレイピングせずに **ページ単位の Markdown を直接コンテキストへ流し込める**。「ドキュメントを AI が読める形で配る」という設計思想が、サイト構造そのものに組み込まれている。\n\n### 1.6 Ask AI in docs\n\nドキュメントサイト上で **AI に直接質問できる** UI を備える。仕様の確認や「この設定はどう書くか」を、ページを横断して探さずにその場で解決できる。軸①の中では最も軽量な入口。\n\n### 1.7 軸①のまとめ\n\n- **CLI** がスキーマ生成を自動化し、**MCP / llms.txt** が AI に最新ドキュメントを供給し、**Skills** が実装の作法を矯正し、**Ask AI** がその場の疑問を埋める。\n- これらは互いに補完的で、合わせると「**AI が、正しい文脈で、規約どおりに、認証コードを書ける**」状態が作れる。\n- 繰り返すが、これが成り立つ前提は **認証がコードとして手元にあること**。コードベース型 OSS の強みが、そのまま AI ネイティブの強みになっている。\n\n---\n\n## 2. 軸②「AI が認証する」— エージェント認証の最前線\n\nここからは向きが変わる。**「AI エージェント自身を、どう認証するか」** という、まさに今立ち上がりつつある領域。Better Auth はここでも先手を打っている。ここを仕様レベルまで掘る。\n\n### 2.1 出発点: 既存の認証は「人間 + 静的アプリ」しか想定していない\n\nAgent Auth の問題提起は鋭い。\n\n\u003e Web 向けに作られてきた認証モデル（OAuth・セッション・API キー）は、すべて **2種類のアクター**を前提にしている — **人間のユーザー**と、**事前定義されたスコープを持つ静的なアプリ**。エージェントはそのどちらでもない。\n\nエージェントは、\n\n- **一度きりの短命タスク**から、**常駐のバックグラウンドワーカー**、**多段の自律システム**まで幅がある。\n- **人間が常時介在しないまま**外部サービスを呼ぶ。\n- **ユーザーの代理**で動くこともあれば、**完全に自分の判断**で動くこともある。\n\nつまり、エージェントは「人間でも静的アプリでもない第3のアクター」であり、既存の認証モデルにそのまま当てはまらない。ここが軸②の根本。\n\n### 2.2 問題: Delegated agents（継承された identity）\n\nエージェントがユーザーの代理で動くとき、従来は **アプリかユーザーの identity をそのまま継承**してしまう。既存の資格情報の下で動くため、エージェントを独立した principal（主体）として識別できない。エージェントが「誰か別人の identity に溶け込んで」しまうのだ。これが3つの欠落を生む。\n\n- **可視性なし（No visibility）** — サーバーは、どのエージェントがリクエストしたのか判別できない。\n- **スコープなし（No scoping）** — エージェントごとに権限を絞れない。資格情報を共有する全エージェントが同じ権限を持つ。\n- **分離なし（No isolation）** — 1つのエージェントだけを失効できない。止めるなら全部を止めるしかない。\n\n\u003e つまり「ユーザーの鍵をそのままエージェントに渡している」状態。監査もできず、最小権限も効かず、事故時の封じ込めもできない。エージェントが本格的に外部サービスを操作し始めると、これは致命的になる。\n\n---\n\n### 2.3 Agent Auth Protocol（v1.0-draft）\n\n**Agent Auth** は、AI エージェントの認証・**capability ベースの認可**・サービス発見のための **オープンソース標準 + 実装**。サイト上の表記は **v1.0-draft**（仕様策定途上）。\n\n#### 2.3.1 何を与えるか — 独立した principal 化\n\nアプリやユーザーの identity を継承する代わりに、**各エージェントが固有の以下4点を持つ**。\n\n| 要素 | 内容 |\n|---|---|\n| identity | エージェント固有の身元。どのエージェントかをサーバーが識別できる |\n| 暗号鍵ペア | エージェント自身の鍵。リクエストへの署名に使う |\n| scoped capabilities | 付与された範囲の権限（能力）。最小権限で絞れる |\n| 独立したライフサイクル | そのエージェントだけを発行・更新・失効できる |\n\nこれにより 2.2 の3欠落が、それぞれ次のように解消される。\n\n| 従来（Delegated）の欠落 | Agent Auth による解消 |\n|---|---|\n| 可視性なし | 固有 identity で「どのエージェントか」を明確に帰属（clear attribution） |\n| スコープなし | エージェントごとに capability を付与（scoped permissions / least privilege） |\n| 分離なし | 独立したライフサイクルで、そのエージェントだけを失効できる |\n\n結果として、Claude / ChatGPT / Cursor のような AI アプリが、外部サービス（銀行・API・デプロイパイプライン・コミュニケーションツール）へ接続し、**clear attribution（誰がやったか明確）+ scoped permissions（最小権限）** でタスクを実行できる。\n\n#### 2.3.2 仕様がカバーする範囲\n\nフル仕様（`/specification`）は次を定義する。\n\n- **identity** — エージェントの身元\n- **registration** — サーバーへの登録\n- **authentication** — 認証\n- **capabilities** — 能力（スコープ付き権限）\n- **approval** — ユーザー承認\n- **discovery** — サービス/プロバイダの発見\n- **lifecycle** — 発行から失効までのライフサイクル\n\n概念は3つの役割に整理される。\n\n- **Servers** — 認可と capability 管理を行う側\n- **Client** — エージェントとサーバーをつなぐブリッジ\n- **Agents** — 実行時の AI アクター本体\n\n#### 2.3.3 フロー: discovery → registration → capability authorization\n\nBetter Auth の `agent-auth` プラグインが実装する標準フローは次の5段階。ユーザー承認は **`device_authorization`（ユーザーコードによるブラウザ承認）** か **`ciba`（バックチャネル承認）** で行う。\n\n```text\n[Agent]                              [Server / Provider]            [User]\n  |  1. GET /.well-known/agent-configuration  ───────▶                |\n  |     ◀── 提供している capabilities 一覧                             |\n  |                                                                    |\n  |  2. capabilities を見て「何が必要か」を判断                        |\n  |                                                                    |\n  |  3. register + capability grant をリクエスト ───▶                  |\n  |                                                                    |\n  |  4. 承認要求 (device_authorization / CIBA) ───────────────────▶  承認\n  |     ◀── capability grant 発行 ◀───────────────────────────────  |\n  |                                                                    |\n  |  5. 短命JWT(aud=呼び先URL)に署名し、付与された capability を       |\n  |     default_location（または capability 個別の location）で実行 ─▶ |\n```\n\n\u003e 発見ルートは **`/.well-known/agent-configuration`** に置く（Better Auth の base path が `/api/auth` でも、発見ルートはここ）。各 capability は共通の **`default_location`** か、capability 固有の **`location`** で呼び出す。\n\n#### 2.3.4 従来手法との違い（比較表）\n\nAgent Auth は OAuth の置き換えではない。**エージェントの identity・登録・capability・発見に特化した単一プロトコル**。\n\n| 観点 | OAuth | API キー | Delegated（継承） | Agent Auth |\n|---|---|---|---|---|\n| 主目的 | ユーザーが3rdパーティアプリに権限委譲 | アプリ単位の静的認証 | ユーザー/アプリの身元を流用 | エージェント固有の身元・認可・発見 |\n| エージェント識別 | 不可（アプリ単位） | 不可（キー単位） | 不可（誰かに溶け込む） | 可（principal ごと） |\n| 権限の粒度 | 事前定義スコープ | キーに紐づく固定 | 共有 = 同一権限 | capability で個別付与 |\n| 個別失効 | 困難 | キー失効で全停止 | 不可 | 可（独立ライフサイクル） |\n| ライフサイクル概念 | 弱い | なし | なし | あり（仕様の一部） |\n\n\u003e 公式 FAQ: **「OAuth の置き換えか?」→ No。** OAuth は「ユーザーが3rdパーティアプリにリソースアクセスを許可する」別問題を解く。Agent Auth だけを使うなら OAuth サーバーは不要だが、サーバーは「ユーザーがアプリを認可する」ために OAuth を併存させてもよい。\n\n#### 2.3.5 MCP との関係\n\n\u003e 公式 FAQ: **「MCP の auth を使えばいい?」→ No。** MCP は OAuth 2.1 を使うが、**per-agent identity・capability ベース認可・エージェントのライフサイクルという概念を持たない**。3つのエージェントが同じ MCP サーバーを OAuth 経由で使うと、サーバーには **3つのエージェントではなく1つのクライアント**にしか見えない。\n\n棲み分けは明快。**Agent Auth は MCP と併存できる** — サービスは capability を MCP ツールとして公開しつつ、**identity と認可のレイヤだけ Agent Auth に任せる**。MCP（ツール提供）と Agent Auth（誰が・何を許されているか）は層が違う。\n\n#### 2.3.6 エコシステムと立ち位置\n\n- **仕様/実装の保守は Better Auth チーム**。ただし **Better Auth には依存しない**。実装・利用に Better Auth は不要で、任意のプラットフォーム/プロバイダが独立に採用できるオープン標準。\n- **SDK** — 公式実装あり（`/docs/sdks`）。\n- **Directory** — 対応サーバーを登録・一覧できる（\u003chttps://agent-auth.directory\u003e）。\n- **Community** — Discord コミュニティあり。\n- **Demo** — 動作デモあり（`/demo`）。\n- ソース: \u003chttps://agentauthprotocol.com/\u003e / GitHub `better-auth/agent-auth-protocol`。\n\n#### 2.3.7 Better Auth の `agent-auth` プラグインが実装するもの\n\nプロトコルは Better Auth 非依存だが、**Better Auth 側には `agent-auth` 公式プラグインとして既に組み込まれている**。プラグインの守備範囲は「**エージェントの identity・registration・discovery・capability ベース認可**」。\n\n\u003e 関連: プラグイン体系の全体像は [§03 プラグイン大全](03-plugins.html) を参照。\n\n- **発見ルート** `/.well-known/agent-configuration` を生やす。\n- **capability** を定義し、共通 `default_location` または個別 `location` で実行させる。\n- 承認方式として **`device_authorization`** と **`ciba`** をサポート。\n- エージェントは **短命 JWT（`aud` が呼び先 URL に一致）** に署名して各 capability を呼ぶ。\n\n発見ルートの実装はこのくらい薄い（Next.js の例）。\n\n```ts\n// app/.well-known/agent-configuration/route.ts\nimport { auth } from \"@/lib/auth\";\nimport { NextResponse } from \"next/server\";\n\nexport async function GET() {\n  // プラグインが組み立てた agent-configuration を返すだけ\n  const config = await auth.api.getAgentConfiguration();\n  return NextResponse.json(config);\n}\n```\n\n\u003e ここで2軸が交差する: **「AI が認証を書く（軸①の CLI/プラグイン体験）」仕組みの上に、「AI が認証される（軸②の Agent Auth）」機能が、ひとつのプラグインとして乗る。** 同じライブラリ・同じワークフローで両方扱える点が Better Auth の構造的な強み。\n\n---\n\n### 2.4 auth.md（WorkOS）— ドメインに置く1枚の Markdown\n\n軸②のもう一つの潮流が、WorkOS が提案する **auth.md**。狙いは **「サインアップフォーム（人間の UI）なしで、エージェントがユーザーを登録する」** こと。GitHub の `workos/auth.md` は、これを **agentic registration（エージェントによる登録）の参照実装**と位置づけている。\n\n#### 2.4.1 ファイルの構造と置き場所\n\nauth.md は、アプリが自分のドメインに置く **小さな Markdown ファイル1枚**（典型的には `https://service.example.com/auth.md`）。記述するのは次の4点。\n\n- そのサービスが **どの登録フローに対応しているか**\n- 公開する **スコープ（権限）**\n- **どう登録するか**の手順\n- **登録後に何をするか**\n\n肝は **Markdown がプレーンテキストである**こと。同じ1ファイルが、\n\n- **人間の統合担当者向けドキュメント**であると同時に、\n- **エージェントが実行時に発見して読めるランタイム成果物（discoverable runtime artifact）**にもなる。\n\n\u003e 発想の転換: **「サインアップフォーム（人間の UI）」を用意する代わりに、「エージェントが読める登録の契約書」をドメインに置く。** 認証フローが、画面ではなく機械可読なテキストとして公開される。\n\n代表的な auth.md の形（illustrative。実フィールド名はサービス/仕様により異なる）:\n\n```md\n# auth.md — Notes App\n\nエージェントがユーザーの代理で登録するための手順を記述する。\n\n## Supported flows\n- agent-verified   # エージェントの IdP が保証する\n- user-claimed     # ユーザーがコードで確認する\n\n## Scopes\n- notes:read   ノートの閲覧\n- notes:write  ノートの作成・編集\n\n## Registration\n- discovery:        https://notes.example.com/.well-known/oauth-authorization-server\n- identity endpoint: POST /agent/identity\n- token endpoint:    POST /oauth2/token  (grant_type=jwt-bearer)\n\n## After registration\n- 発行された access_token を Authorization: Bearer で各 API に付与する\n- トークンは短命・失効可能。失効イベントを受けたら再登録する\n```\n\n#### 2.4.2 3つの役割と ID-JAG\n\nauth.md は3つの役割で動く。\n\n| 役割 | 担当 |\n|---|---|\n| Agent | ユーザーの代理で動くエージェント |\n| Agent Provider（IdP） | identity assertion（**ID-JAG**）を発行するエージェントの身元プロバイダ |\n| Service | その assertion を受理し、scoped なアクセスを発行するサービス |\n\n**ID-JAG** = Identity Assertion JWT Authorization Grant。IETF の OAuth ドラフト（`draft-ietf-oauth-identity-assertion-authz-grant`）に基づく、身元アサーションを認可グラントとして使う仕組み。\n\n#### 2.4.3 Agent verified flow（エージェント検証フロー）\n\nエージェントの IdP がユーザーを保証する **agent-attested** なフロー。人間がループに入らない。**このフローだけはエージェント側の統合実装が必要**。ID-JAG を使った流れは次のとおり（`workos/auth.md` のシーケンス図を ASCII 化）。\n\n```text\nUser      Agent                         Service                        Provider(IdP)\n  |   1. GET /api/resource ───────────────▶ |                               |\n  |      ◀── 401 WWW-Authenticate:                                          |\n  |          Bearer resource_metadata=\"...\" |                               |\n  |   2. GET /.well-known/oauth-protected-resource ─▶                       |\n  |      ◀── 200 PRM (authorization_servers)|                               |\n  |   3. GET /.well-known/oauth-authorization-server ─▶                     |\n  |      ◀── 200 AS metadata (agent_auth ブロック)                          |\n  | ◀─ 4. 「この audience に identity を主張してよい?」(consent)             |\n  | ─▶    consent granted                   |                               |\n  |   5. audience 固有の ID-JAG を要求 ───────────────────────────────────▶ |\n  |      ◀── 200 ID-JAG ◀──────────────────────────────────────────────── |\n  |   6. POST /agent/identity                |                              |\n  |      { type: identity_assertion, assertion: ID-JAG } ─▶                 |\n  |          7. Service ─▶ Provider: GET /.well-known/jwks.json             |\n  |             ◀── 200 JWKS（署名検証）                                    |\n  |      ◀── 200 identity_assertion          |                              |\n  |   8. POST /oauth2/token                  |                              |\n  |      grant_type=jwt-bearer&assertion=... ─▶                             |\n  |      ◀── 200 access_token (scoped / short-lived / revocable)           |\n```\n\n要点:\n\n- サービスは標準の **`.well-known/oauth-protected-resource` / `.well-known/oauth-authorization-server`** で発見可能。後者に **`agent_auth` ブロック**を載せる。\n- サービスは **Provider の JWKS** を取りに行き、ID-JAG の署名を検証する。\n- 最後は **`grant_type=jwt-bearer`** で access_token に交換する。既存の OAuth トークンエンドポイントを再利用できる。\n\n#### 2.4.4 User claimed flow（ユーザー確認フロー）\n\nIdP（プロバイダ）が不要なフロー。**エージェントがユーザーにコードを見せ、ユーザーがアプリにサインインして確認（claim）する**。アプリが auth.md に書いた情報だけで、**エージェントが自分で発見・自己ナビゲートできる**よう設計されている（=エージェント側の特別な統合が不要）。手順の骨子:\n\n1. エージェントが `auth.md` を取得し、user-claimed フローを選ぶ。\n2. エージェントがサービスに登録を要求し、**確認コード**を受け取る。\n3. エージェントがユーザーに **コード + サインイン URL** を提示する。\n4. ユーザーがアプリにサインインし、そのコードを **claim（確認）** する。\n5. 確認が取れたら、エージェントが **scoped access_token に交換**する。\n6. 以降はトークンで API を呼び、**失効（revoke）を受けたら再登録**する。\n\n#### 2.4.5 エージェントはどう発見・解析・実行するか\n\n`workos/auth.md` リポジトリは、**エージェントが読む手続きマニフェスト**として `AUTH.md`（skill manifest）を置いている。その手続きレシピはこの6段階。\n\n```text\ndiscover → register → claim → exchange → use → handle revoke\n（発見）   （登録）    （確認）  （トークン交換） （利用） （失効対応）\n```\n\n- **discover** — ドメインの `auth.md` と `.well-known/...` を取得して、対応フロー・スコープ・エンドポイントを把握する。\n- **register / claim** — 選んだフロー（verified or claimed）で登録・確認する。\n- **exchange** — assertion / 確認結果を **scoped access_token** に交換する。\n- **use** — トークンを Bearer で付けて API を呼ぶ。\n- **handle revoke** — 失効を受け取ったら停止/再登録する。\n\n#### 2.4.6 信頼 / セキュリティモデル\n\n- 発行される資格情報は、**ユーザーに紐づく scoped access token**。**短命かつ失効可能**で、**標準の OAuth** で発行される（既存の API 認証をそのまま再利用できる）。\n- verified フローでは、サービスが **Provider の JWKS で ID-JAG の署名を検証**する。アサーションは **audience（audience 固有）** に紐づくため、別サービスへ使い回せない。\n- **ユーザー consent** が明示的に挟まる（「この audience に identity を主張してよいか」）。\n- Provider は **失効イベント（revocation events）** を送れる。アプリ/エージェントはそれに従う。\n- **アプリがどのフローを受け付けるかを決める**。verified だけ、claimed だけ、両対応、いずれも選べる。発行する資格情報も含めてアプリ側が主導権を持つ。\n\n#### 2.4.7 `github.com/workos/auth.md` の位置づけ\n\n仕様本体 + **参照実装**。リポジトリ構成（Layout）は次のとおり。\n\n```text\n.\n├── AUTH.md            ← エージェントが読む skill manifest（手続きレシピ）\n├── agent-services/    ← サンプルの resource server + authorization server\n├── agent-providers/   ← ID-JAG を発行するサンプル agent IdP\n└── shared/            ← 共有ワークスペースパッケージ（ports, types）\n```\n\n読み手別の入口も用意されている。\n\n- **エージェント実装者 / テンプレートが欲しい人** → `AUTH.md`（discover → register → claim → exchange → use → handle revoke の手続きレシピ）\n- **サービス実装者** → `agent-services/README.md`（実装ガイド・シーケンス図・エラー表）\n- **IdP 実装者** → `agent-providers/README.md`（ID-JAG の発行、JWKS の公開、失効イベントの送信）\n\nauth.md は WorkOS 製だが **仕様はオープン**。整備の方向は「**apps 向け**（登録を有効化する）」「**agent providers 向け**（検証済み identity を付与する）」の2系統のガイドに分かれている。\n\n---\n\n### 2.5 Agent Auth と auth.md の関係（棲み分け）\n\n両者は競合というより、層が違う。\n\n| 観点 | Agent Auth（Better Auth/AAP） | auth.md（WorkOS） |\n|---|---|---|\n| 主な問い | エージェントに固有 identity をどう与えるか | エージェントにどう登録/発見させるか |\n| 焦点 | identity・capability・lifecycle | registration（サインアップ無しの登録） |\n| 形 | プロトコル + SDK + 公式プラグイン | ドメインに置く1枚の Markdown + 参照実装 |\n| 発見ルート | `/.well-known/agent-configuration` | `auth.md` + `/.well-known/oauth-*` |\n| 著者/保守 | Better Auth チーム | WorkOS |\n| 開放性 | オープン（Better Auth 非依存） | オープン（WorkOS 著） |\n| 資格情報 | 暗号鍵ペア + scoped capabilities | OAuth の scoped・短命・失効可能トークン |\n| 共通言語 | OAuth/JWT 系の標準に乗る | OAuth/JWT 系の標準に乗る（ID-JAG, JWKS, jwt-bearer） |\n\n\u003e どちらも共通して目指すのは、**エージェントを「誰かの identity の影」から、固有 identity を持つ独立した主体へ引き上げる**こと。アプローチは違えど方向は同じで、いずれも既存の OAuth/JWT/`.well-known` 標準の上に乗っているのが現実的な点。\n\n---\n\n## 3. まとめ — 認証は「人間の UI」から「機械が読む契約」へ\n\n- **軸①（AI が認証を書く）**: CLI のスキーマ自動生成、ドキュメント MCP、公式 Skills、llms.txt、Ask AI。**コードベース型だからこそ、AI がコードを読み・スキーマを生成し・規約に沿って実装できる。** クラウド SaaS のブラックボックスには出しにくい強み。\n- **軸②（AI が認証する）**: Agent Auth がエージェントに固有 identity と capability を与え、auth.md が登録フローを機械可読化する。**Better Auth はこの両輪を、同じライブラリ・同じワークフローの中に持つ。**\n- 三題噺でまとめる:\n\n| 何を | 何が | AI にとって |\n|---|---|---|\n| ドキュメント | `llms.txt` | 読める構造化テキストになる |\n| 認証フロー | `auth.md` | 発見・実行できるランタイム成果物になる |\n| エージェントの身元 | Agent Auth Protocol | 識別・認可・失効できる principal になる |\n\n\u003e 着地: **AI が認証し、AI が認証を書く。** 認証は「人間が操作する UI」から「**機械が読む契約（machine-readable contract）**」へと拡張されつつある。その最前線を、コードベース型 OSS という土台の上で同時に押さえているのが Better Auth。これが本資料で最も伝えたい一点。\n\n---\n\n## 付録: 一次情報リンク\n\n- Better Auth / AI Resources: \u003chttps://www.better-auth.com/docs/ai-resources\u003e\n- Better Auth / ドキュメント MCP: \u003chttps://www.better-auth.com/docs/ai-resources/mcp\u003e\n- Better Auth / Skills: \u003chttps://www.better-auth.com/docs/ai-resources/skills\u003e\n- Better Auth / CLI: \u003chttps://www.better-auth.com/docs/concepts/cli\u003e\n- Better Auth / agent-auth プラグイン: \u003chttps://www.better-auth.com/docs/plugins/agent-auth\u003e\n- Better Auth / llms.txt: \u003chttps://www.better-auth.com/llms.txt\u003e\n- Agent Auth Protocol（v1.0-draft）: \u003chttps://agentauthprotocol.com/\u003e\n- Agent Auth Protocol / Introduction: \u003chttps://agentauthprotocol.com/docs/introduction\u003e\n- Agent Auth Protocol / Specification: \u003chttps://agentauthprotocol.com/specification\u003e\n- Agent Auth Directory: \u003chttps://agent-auth.directory\u003e\n- WorkOS auth.md: \u003chttps://workos.com/auth-md\u003e\n- WorkOS auth.md / Docs: \u003chttps://workos.com/auth-md/docs\u003e\n- auth.md 仕様/参照実装（GitHub）: \u003chttps://github.com/workos/auth.md\u003e\n- ID-JAG（IETF draft）: \u003chttps://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/\u003e\n";</script>
+<script>(function () {
+  "use strict";
+  var src = (typeof SRC === "string") ? SRC : "";
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // inline formatting. input is already HTML-escaped.
+  function inline(s) {
+    var codes = [];
+    s = s.replace(/`([^`]+)`/g, function (_, c) {
+      codes.push(c);
+      return "@@CODE" + (codes.length - 1) + "@@";
+    });
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/&lt;(https?:\/\/[^\s&]+)&gt;/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/@@CODE(\d+)@@/g, function (_, i) {
+      return "<code>" + codes[+i] + "</code>";
+    });
+    return s;
+  }
+
+  function isTableSep(line) {
+    return /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(line) && line.indexOf("-") !== -1;
+  }
+  function splitRow(line) {
+    var t = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+    return t.split("|").map(function (c) { return c.trim(); });
+  }
+
+  function render(md) {
+    var lines = md.replace(/\r\n/g, "\n").split("\n");
+    var out = [];
+    var i = 0;
+    while (i < lines.length) {
+      var line = lines[i];
+
+      var fence = line.match(/^```(\w*)\s*$/);
+      if (fence) {
+        var buf = [];
+        i++;
+        while (i < lines.length && !/^```\s*$/.test(lines[i])) { buf.push(lines[i]); i++; }
+        i++;
+        out.push("<pre><code>" + esc(buf.join("\n")) + "</code></pre>");
+        continue;
+      }
+
+      if (/^\s*$/.test(line)) { i++; continue; }
+
+      if (/^---+\s*$/.test(line)) { out.push("<hr>"); i++; continue; }
+
+      var h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) {
+        var lv = h[1].length;
+        out.push("<h" + lv + ">" + inline(esc(h[2])) + "</h" + lv + ">");
+        i++; continue;
+      }
+
+      if (line.indexOf("|") !== -1 && i + 1 < lines.length && isTableSep(lines[i + 1])) {
+        var header = splitRow(line);
+        i += 2;
+        var rows = [];
+        while (i < lines.length && lines[i].indexOf("|") !== -1 && !/^\s*$/.test(lines[i])) {
+          rows.push(splitRow(lines[i])); i++;
+        }
+        var t = "<table><thead><tr>";
+        header.forEach(function (c) { t += "<th>" + inline(esc(c)) + "</th>"; });
+        t += "</tr></thead><tbody>";
+        rows.forEach(function (r) {
+          t += "<tr>";
+          r.forEach(function (c) { t += "<td>" + inline(esc(c)) + "</td>"; });
+          t += "</tr>";
+        });
+        t += "</tbody></table>";
+        out.push(t);
+        continue;
+      }
+
+      if (/^>\s?/.test(line)) {
+        var qbuf = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])) {
+          qbuf.push(lines[i].replace(/^>\s?/, "")); i++;
+        }
+        out.push("<blockquote>" + render(qbuf.join("\n")) + "</blockquote>");
+        continue;
+      }
+
+      if (/^(\s*)([-*]|\d+\.)\s+/.test(line)) {
+        var items = [];
+        while (i < lines.length && /^(\s*)([-*]|\d+\.)\s+/.test(lines[i])) {
+          var m = lines[i].match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
+          items.push({ indent: m[1].length, ordered: /\d/.test(m[2]), num: parseInt(m[2], 10), text: m[3] });
+          i++;
+        }
+        out.push(buildList(items));
+        continue;
+      }
+
+      var pbuf = [];
+      while (i < lines.length && !/^\s*$/.test(lines[i]) &&
+             !/^(#{1,6})\s/.test(lines[i]) && !/^```/.test(lines[i]) &&
+             !/^>\s?/.test(lines[i]) && !/^---+\s*$/.test(lines[i]) &&
+             !/^(\s*)([-*]|\d+\.)\s+/.test(lines[i]) &&
+             !(lines[i].indexOf("|") !== -1 && i + 1 < lines.length && isTableSep(lines[i + 1]))) {
+        pbuf.push(lines[i]); i++;
+      }
+      out.push("<p>" + inline(esc(pbuf.join(" "))) + "</p>");
+    }
+    return out.join("\n");
+  }
+
+  function buildList(items) {
+    var ordered = items[0].ordered;
+    var tag = ordered ? "ol" : "ul";
+    var start = ordered && items[0].num !== 1 ? ' start="' + items[0].num + '"' : "";
+    var html = "<" + tag + start + ">";
+    var n = 0;
+    while (n < items.length) {
+      var it = items[n];
+      var li = "<li>" + inline(esc(it.text));
+      var children = [];
+      var k = n + 1;
+      while (k < items.length && items[k].indent > it.indent) { children.push(items[k]); k++; }
+      if (children.length) li += buildList(children);
+      li += "</li>";
+      html += li;
+      n = k;
+    }
+    html += "</" + tag + ">";
+    return html;
+  }
+
+  var viewRead = document.getElementById("view-read");
+  if (viewRead) viewRead.innerHTML = render(src);
+  var rawEl = document.getElementById("raw");
+  if (rawEl) rawEl.textContent = src;
+
+  var tabRead = document.getElementById("tab-read");
+  var tabRaw = document.getElementById("tab-raw");
+  var viewRaw = document.getElementById("view-raw");
+  function select(which) {
+    var read = which === "read";
+    if (tabRead) tabRead.setAttribute("aria-selected", read ? "true" : "false");
+    if (tabRaw) tabRaw.setAttribute("aria-selected", read ? "false" : "true");
+    if (viewRead) viewRead.hidden = !read;
+    if (viewRaw) viewRaw.hidden = read;
+  }
+  if (tabRead) tabRead.addEventListener("click", function () { select("read"); });
+  if (tabRaw) tabRaw.addEventListener("click", function () { select("raw"); });
+
+  var copyBtn = document.getElementById("copy");
+  if (copyBtn) copyBtn.addEventListener("click", function () {
+    var btn = this;
+    navigator.clipboard.writeText(src).then(function () {
+      var prev = btn.textContent;
+      btn.textContent = "コピーしました ✓";
+      setTimeout(function () { btn.textContent = prev; }, 1500);
+    });
+  });
+})();
+</script>
+<footer style="margin-top:64px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:12px">調査日 2026-06-24・Better Auth は更新の速いライブラリ。最終的な裏取りは一次情報で確認すること。</footer>
+</main>
+</body>
+</html>

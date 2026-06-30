@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Database — 対応DB網羅 + アダプタ | Better Auth 詳細リファレンス</title>
+<style>
+  :root{--bg:#0f1115;--panel:#161a22;--text:#e6e9ef;--muted:#9aa4b2;--accent:#7c9cff;--accent2:#58e0c0;--border:#2a3140;--code-bg:#0b0d12;--th-bg:#222838;--max:920px}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text)}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",Meiryo,sans-serif;line-height:1.75;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent)}
+  .topbar{position:sticky;top:0;z-index:10;background:rgba(15,17,21,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+  .topbar-inner{max-width:var(--max);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .brand{font-weight:700;font-size:13px;color:var(--muted);letter-spacing:.02em;text-decoration:none}
+  .brand:hover{color:var(--text)}
+  .nav{display:flex;gap:10px;font-size:12px}
+  .nav a{color:var(--muted);text-decoration:none;border:1px solid var(--border);padding:5px 10px;border-radius:7px}
+  .nav a:hover{color:var(--text);border-color:var(--accent)}
+  .spacer{margin-left:auto}
+  .tabs{display:flex;gap:6px}
+  .tab{appearance:none;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:600;transition:all .15s}
+  .tab:hover{color:var(--text);border-color:var(--accent)}
+  .tab[aria-selected="true"]{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0b0d12;border-color:transparent}
+  .copy-btn{appearance:none;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--muted);padding:7px 12px;border-radius:8px;font-size:12px;font-weight:600}
+  .copy-btn:hover{color:var(--text);border-color:var(--accent2)}
+  main{max-width:var(--max);margin:0 auto;padding:32px 20px 120px}
+  .view[hidden]{display:none}
+  .pager{display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:20px;border-top:1px solid var(--border);font-size:13px}
+  .pager a{color:var(--accent);text-decoration:none;max-width:48%}
+  .md h1{font-size:1.9rem;line-height:1.3;margin:0 0 .6em;letter-spacing:.01em}
+  .md h2{font-size:1.4rem;margin:2.2em 0 .7em;padding-top:.6em;border-top:1px solid var(--border);color:#fff}
+  .md h3{font-size:1.12rem;margin:1.6em 0 .5em;color:var(--accent2)}
+  .md h4{font-size:1rem;margin:1.2em 0 .4em;color:var(--accent)}
+  .md p{margin:.7em 0}
+  .md a{text-decoration:none;border-bottom:1px solid rgba(124,156,255,.35)}
+  .md a:hover{border-bottom-color:var(--accent)}
+  .md strong{color:#fff;font-weight:700}
+  .md ul,.md ol{margin:.6em 0;padding-left:1.5em}
+  .md li{margin:.3em 0}
+  .md ul ul,.md ul ol{margin:.25em 0}
+  .md code{background:var(--code-bg);border:1px solid var(--border);padding:.12em .42em;border-radius:5px;font-size:.86em;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;color:#ffd9a8}
+  .md pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;margin:1em 0}
+  .md pre code{background:none;border:none;padding:0;color:#d6e2ff;font-size:.85rem;line-height:1.6}
+  .md blockquote{margin:1.1em 0;padding:.6em 1.1em;border-left:3px solid var(--accent2);background:var(--panel);border-radius:0 8px 8px 0;color:#d7deea}
+  .md blockquote p{margin:.3em 0}
+  .md hr{border:none;border-top:1px solid var(--border);margin:2.2em 0}
+  .md table{border-collapse:collapse;width:100%;margin:1.1em 0;font-size:.92rem;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--border);padding:8px 12px;text-align:left;vertical-align:top}
+  .md th{background:var(--th-bg);color:#fff;font-weight:700;white-space:nowrap}
+  .md tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+  .raw{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:20px;overflow-x:auto;white-space:pre;font-family:"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;font-size:.82rem;line-height:1.6;color:#cdd6e6}
+  .note{color:var(--muted);font-size:12px;margin:0 0 14px}
+  .toc{list-style:none;padding:0;margin:24px 0}
+  .toc li{margin:0 0 10px;border:1px solid var(--border);border-radius:10px;background:var(--panel)}
+  .toc a{display:block;padding:16px 18px;text-decoration:none;color:var(--text)}
+  .toc a:hover{border-color:var(--accent)}
+  .toc .num{color:var(--accent2);font-weight:700;margin-right:10px}
+  .toc .desc{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+  .lead{color:#d7deea;font-size:1.02rem}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="topbar-inner"><a class="brand" href="index.html">← 目次</a><span class="nav"><a href="04-integrations.html">‹ Integration — 対応フレ</a><a href="06-infrastructure.html">Infrastructure — 公 ›</a></span><span class="spacer"></span><div class="tabs" role="tablist"><button class="tab" id="tab-read" role="tab" aria-selected="true">📖 読む</button><button class="tab" id="tab-raw" role="tab" aria-selected="false">📝 Markdown</button></div><button class="copy-btn" id="copy">Markdown をコピー</button></div></div>
+<main>
+<section class="view md" id="view-read" role="tabpanel"></section><section class="view" id="view-raw" role="tabpanel" hidden><p class="note">そのまま .md として保存・コピーできます。</p><div class="raw" id="raw"></div></section><div class="pager"><a href="04-integrations.html">‹ Integration — 対応フレームワーク網羅</a><a href="06-infrastructure.html">Infrastructure — 公式の有料運用レイヤー ›</a></div>
+<script>var SRC="# Database — 対応DB網羅 + アダプタ\n\n\u003e Better Auth は内部で **Kysely**（型安全な SQL クエリビルダ）を使うため、リレーショナル DB なら基本的にそのまま動く。RDB は組み込みアダプタで直結、ORM を使うなら Drizzle / Prisma アダプタ、NoSQL なら MongoDB アダプタを噛ませる。この章では各 DB / プロバイダを「種別・際立つ特徴・運用形態・認証ストアとしての向き不向き・いつ選ぶか」の観点で掘り下げ、アダプタの選び分け、`modelName` の意味、CLI の使い分け、そして最後に**選び方早見表**を置く。\n\n### 🎤 登壇メモ\n\n- **つかみ**: 「DB はどれに対応してる？」と聞かれたら一言で返す ——「**内部で Kysely を使ってるから、リレーショナル DB ならだいたい動く**」。対応表の暗記は要らない、という掴み。\n- **強調**: ① アダプタは実質4系統だけ（組み込み Kysely / Drizzle / Prisma / MongoDB）。② `modelName` は **DB のテーブル名ではなくアダプタのモデル名** —— ここだけは毎回ハマる。③ プラグインを足すたびに `migrate` / `generate` を再実行。\n- **10分なら**: 「Kysely 前提」の一言 → `pg.Pool` 直結のコード1枚 → 選び方早見表（サーバーレス / エッジ / エンプラ）→ `modelName` の落とし穴、で締める。詳細な DB 一覧は飛ばして早見表に逃がす。\n- **関連章**: 認証連携・OAuth など同テーマは [§04 Integration](04-integrations.html)、Database 概念・コアスキーマ・`modelName` の前提は [§01 Concepts](01-concepts.html)。\n\n---\n\n## 基本方針: 内部は Kysely\n\nBetter Auth は DB に接続して `user` / `session` / `account` / `verification` などのコアデータを保存する。プラグインを足すと、そのプラグイン専用テーブルも増える。\n\n最大のポイントは **内部実装が Kysely 依存** だということ。公式ドキュメントも次のように明言している。\n\n\u003e PostgreSQL is supported under the hood via the Kysely adapter, any database supported by Kysely would also be supported.\n\nつまり **Kysely がサポートする DB は Better Auth でもサポートされる**。RDB を選ぶ限り「対応しているか」で悩むことはほぼなく、接続インスタンス（`pg.Pool` など）を `database` に渡すだけで組み込み Kysely アダプタが面倒を見る。Kysely を経由することで得られるのは次の3点。\n\n- **方言（dialect）の差を吸収**: PostgreSQL / MySQL / SQLite / MS SQL の SQL 差異を Better Auth 側が意識しなくて済む。\n- **スキーマ生成・マイグレーション**: 組み込みアダプタなら CLI から DDL を直接生成・適用できる（後述）。\n- **ORM 非依存**: ORM を入れたくないプロジェクトでも、ドライバのプール一個で完結する。\n\n\u003e DB なしでも動く: ステートレスセッション（JWT ベース）を使えば DB を持たない構成も可能。詳細は session-management のドキュメントを参照。\n\n---\n\n## 各DB / プロバイダ詳細\n\n観点は各項目で統一する: **種別 / 際立つ特徴 / 運用形態 / 認証ストア適性 / いつ選ぶか**。\n\n### 直接接続 / RDB（組み込み Kysely）\n\nドライバのインスタンスを `database` に直接渡せる王道カテゴリ。CLI の `migrate` がそのまま使えるのもこの層の特権。\n\n#### PostgreSQL\n\n- **種別**: RDB（組み込み）\n- **際立つ特徴**: 高機能で堅牢な定番 OSS RDB。JSONB・全文検索・豊富な拡張・厳密なトランザクション。\n- **運用形態**: 自前ホスト / 各種マネージド（後述の Supabase・Neon・RDS など実体はこれ）。\n- **認証ストア適性**: ◎。Better Auth の事実上の第一候補で、ドキュメント・実績が最も厚い。\n- **いつ選ぶか**: 迷ったらこれ。将来プラグインで機能拡張する前提なら堅実。\n\n#### MySQL\n\n- **種別**: RDB（組み込み）\n- **際立つ特徴**: 世界的に普及した OSS RDB。エコシステム・ホスティング選択肢が広い。\n- **運用形態**: 自前 / マネージド（PlanetScale は MySQL 互換）。`mysql2/promise` の `createPool()` を渡す。\n- **認証ストア適性**: ◎。PostgreSQL に次ぐ定番。\n- **いつ選ぶか**: 既存スタックが MySQL、または MySQL マネージド（PlanetScale 等）に乗せたいとき。\n\n#### SQLite\n\n- **種別**: RDB（組み込み・単一ファイル）\n- **際立つ特徴**: サーバープロセス不要の組込み DB。単一ファイルで完結、セットアップゼロ。\n- **運用形態**: アプリと同居（`better-sqlite3` が推奨ドライバ。`node:sqlite` / `bun:sqlite` 等も選べる）。\n- **認証ストア適性**: ○（小〜中規模）。高並行な書き込みには不向きだが、個人〜小規模なら十分。\n- **いつ選ぶか**: ローカル開発・プロトタイプ・小規模アプリ・エッジ（libSQL/D1 系の素地）。\n\n#### MS SQL\n\n- **種別**: RDB（組み込み・Kysely `MssqlDialect`）\n- **際立つ特徴**: Microsoft のエンタープライズ RDB。堅牢なセキュリティ・スケーラビリティ・周辺ツール。\n- **運用形態**: `tedious`（ドライバ）+ `tarn`（プール）で Kysely の `MssqlDialect` を構成して渡す。\n- **認証ストア適性**: ○。動作はするが設定はやや重め（接続・型マッピングの調整が要る）。\n- **いつ選ぶか**: 既存資産が Microsoft / Windows エンタープライズ環境のとき。\n\n#### その他 RDB\n\n- **種別**: RDB（Kysely の任意 dialect）\n- **際立つ特徴**: Kysely が対応する dialect なら何でも繋がる。CLI でのスキーマ生成・マイグレーションも効く。\n- **運用形態**: 対応する Kysely dialect を自前で組み込む。\n- **認証ストア適性**: dialect の成熟度次第。\n- **いつ選ぶか**: 上記4種以外の RDB を使う必要があるとき。other-relational-databases ドキュメントを参照。\n\n### マネージド / サーバーレス\n\n実体は上記 RDB のホスティング形態。接続文字列・ドライバが違うだけで、Better Auth から見れば「PostgreSQL / MySQL / SQLite」として扱える。差は**運用特性**（スケール・接続管理・ブランチング）に出る。\n\n#### Supabase\n\n- **種別**: サーバーレス / BaaS（PostgreSQL ベース）\n- **際立つ特徴**: Postgres を核に Auth・Storage・Realtime・Edge Functions を同梱した BaaS。\n- **運用形態**: **Better Auth では「ただの Postgres」として使う**。Supabase 自身の Auth(GoTrue) は使わず、接続文字列を `pg.Pool` に渡す。サーバーレス環境では Supavisor/PgBouncer 系のプーラ用エンドポイントを使う。\n- **認証ストア適性**: ◎（Postgres そのもの）。\n- **いつ選ぶか**: Postgres マネージド + ストレージ/リアルタイム等も一緒に欲しいが、認証ロジックは Better Auth で握りたいとき。\n\n#### Neon\n\n- **種別**: サーバーレス（PostgreSQL）\n- **際立つ特徴**: ストレージとコンピュートを分離したサーバーレス Postgres。**DB ブランチング**（git のようにコピーオンライトで分岐）と **scale-to-zero**（無アクセス時に停止して課金抑制）。\n- **運用形態**: 通常の Postgres 接続に加え、エッジ向けの serverless ドライバ（HTTP/WebSocket）も提供。\n- **認証ストア適性**: ◎。サーバーレス関数からの大量接続にも強い。\n- **いつ選ぶか**: プレビュー環境ごとに DB を分岐したい / Lambda・サーバーレスで接続枯渇を避けたい / アイドル課金を抑えたいとき。\n\n#### Turso (libSQL)\n\n- **種別**: エッジ / 分散（SQLite 派生 = libSQL）\n- **際立つ特徴**: SQLite を fork した libSQL の分散版。**エッジレプリカ**で低レイテンシ読み取り、**多数の DB**（テナントごとに DB を分ける運用）が得意。\n- **運用形態**: `@libsql/client` 経由。組込みレプリカでローカル読み取りも可能。\n- **認証ストア適性**: ○。読み取りはエッジで速いが、SQLite 由来の書き込み特性は理解しておく。\n- **いつ選ぶか**: エッジ配信・マルチテナント（DB-per-tenant）・SQLite の手軽さを分散で活かしたいとき。\n\n#### PlanetScale\n\n- **種別**: サーバーレス（MySQL 互換、**Vitess** ベース）\n- **際立つ特徴**: YouTube 由来の Vitess による**水平スケール**。**ブランチング + 非ブロッキングなオンラインスキーマ変更**（deploy request ワークフロー）。\n- **運用形態**: MySQL 互換接続。スキーマ変更はブランチを切ってデプロイリクエストで本番へ。歴史的に外部キー制約の扱いに癖があるため、利用前に FK ポリシーを確認。\n- **認証ストア適性**: ◎（大規模 MySQL）。\n- **いつ選ぶか**: 大規模・高トラフィックの MySQL を無停止スキーマ変更で運用したいとき。\n\n#### Cloudflare D1\n\n- **種別**: エッジ（SQLite 互換）\n- **際立つ特徴**: Cloudflare のネットワーク上で動くエッジ SQLite。**Workers とネイティブ統合**。\n- **運用形態**: Workers の D1 バインディング（Kysely の D1 dialect 等）で接続。Workers ランタイム前提。\n- **認証ストア適性**: ○（Workers アプリ向け）。グローバル書き込み一貫性は SQLite 系の制約を踏まえる。\n- **いつ選ぶか**: アプリ全体を Cloudflare Workers で完結させているとき。\n\n#### Prisma Postgres\n\n- **種別**: サーバーレス（PostgreSQL、Prisma マネージド）\n- **際立つ特徴**: Prisma が提供するマネージド Postgres。Prisma エコシステム（Accelerate 等）と一体運用。\n- **運用形態**: **Prisma アダプタ**経由で接続するのが前提。\n- **認証ストア適性**: ◎（Postgres + Prisma 運用に最適化）。\n- **いつ選ぶか**: 既に Prisma を使っていて、DB ホスティングも Prisma に寄せたいとき。\n\n#### AWS RDS Data API\n\n- **種別**: サーバーレス（Aurora/RDS への HTTP アクセス）\n- **際立つ特徴**: HTTP 経由で RDS/Aurora を叩く。**永続コネクション不要 = コネクションプール不要**。\n- **運用形態**: Lambda 等のサーバーレスから、接続数枯渇問題を避けて利用。\n- **認証ストア適性**: ○。1リクエストあたりのオーバーヘッドは増えるが、サーバーレスの接続問題が消える。\n- **いつ選ぶか**: Lambda + Aurora 構成で、接続プールの枯渇を根本から避けたいとき。\n\n### エッジ / 組込みランタイム\n\nランタイム同梱・組込みの SQLite 実装。実体は SQLite なので扱いは SQLite に準ずるが、**どのランタイムで動かすか**で実装（ドライバ）が変わる。\n\n#### Deno SQLite\n\n- **種別**: エッジ / 組込み（SQLite）\n- **際立つ特徴**: Deno ランタイム向けの SQLite 実装。\n- **いつ選ぶか**: Deno でサーバーを書いていて、軽量に組込み DB を持ちたいとき。\n\n#### SQLite WASM\n\n- **種別**: エッジ / 組込み（WASM 版 SQLite）\n- **際立つ特徴**: SQLite を WebAssembly にコンパイルしたもの。ネイティブバインディング不要でブラウザ/エッジ/Workers でも動く。\n- **いつ選ぶか**: ネイティブモジュールが使えない実行環境（ブラウザ・一部エッジ）で SQLite を使いたいとき。\n\n#### Bun SQLite\n\n- **種別**: エッジ / 組込み（`bun:sqlite`）\n- **際立つ特徴**: Bun ランタイム標準の高速ネイティブ SQLite。追加依存なしで使える。\n- **いつ選ぶか**: Bun でアプリを書いていて、最速の組込み SQLite が欲しいとき。\n\n### 分析系（用途限定）\n\nOLAP（分析）DB。**認証ストアのメインには非典型・用途限定**で、本番の主データストアにはしない。理由を明記しておく。\n\n#### BigQuery\n\n- **種別**: 分析（サーバーレス OLAP データウェアハウス）\n- **なぜ認証ストアに向かないか**: 列指向・追記前提でクエリ単位課金。セッションのような**単一行の点参照・頻繁な更新/削除**が苦手で、レイテンシ・コスト面でトランザクショナルな認証に不向き。\n- **いつ使うか**: 認証イベントの**分析・集計**用途に限る。主ストアは別 RDB。\n\n#### ClickHouse\n\n- **種別**: 分析（列指向 OLAP）\n- **なぜ認証ストアに向かないか**: 集計は爆速だが、**単一行の更新/削除が弱い**。セッションの作成・失効・更新が頻発する認証ワークロードとは相性が悪い。\n- **いつ使うか**: ログイン履歴などの**分析基盤**として。認証本体のストアにはしない。\n\n---\n\n## アダプタの選び分け\n\nBetter Auth の `database` に渡すものは大きく4系統。**内部はどれも Kysely か、各 ORM/ドライバ越しに DB へ到達する**。\n\n| アダプタ | 性質 | スキーマ管理 | 向いているケース |\n|---|---|---|---|\n| 組み込み Kysely | ドライバ直結・最軽量 | CLI `migrate` で直接適用 | ORM を入れたくない |\n| Drizzle | 型安全・軽量・SQL 寄り | `generate` 後は自前(drizzle-kit) | 既に Drizzle 採用 |\n| Prisma | スキーマ駆動・ツール充実 | `generate` で Prisma スキーマ生成 | 既に Prisma 採用 / 広範な DB |\n| MongoDB | NoSQL ドキュメント | スキーマレス（生成不要） | ドキュメント指向 / 既存 Mongo |\n\n### 組み込み Kysely（ドライバ直結）\n\nORM を使わず、ドライバのインスタンスをそのまま渡す最短ルート。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { Pool } from \"pg\";\n\nexport const auth = betterAuth({\n  database: new Pool({\n    connectionString: \"postgres://user:password@localhost:5432/database\",\n  }),\n});\n```\n\nMySQL は `mysql2/promise` のプールを渡す。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { createPool } from \"mysql2/promise\";\n\nexport const auth = betterAuth({\n  database: createPool({\n    uri: \"mysql://user:password@localhost:3306/database\",\n  }),\n});\n```\n\nMS SQL は Kysely の `MssqlDialect` を `tedious` + `tarn` で組んで渡す。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { MssqlDialect } from \"kysely\";\nimport * as Tedious from \"tedious\";\nimport * as Tarn from \"tarn\";\n\nconst dialect = new MssqlDialect({\n  tarn: { ...Tarn, options: { min: 0, max: 10 } },\n  tedious: {\n    ...Tedious,\n    connectionFactory: () =\u003e\n      new Tedious.Connection({\n        authentication: {\n          options: { password: \"password\", userName: \"username\" },\n          type: \"default\",\n        },\n        options: { database: \"some_db\", port: 1433, trustServerCertificate: true },\n        server: \"localhost\",\n      }),\n  },\n});\n\nexport const auth = betterAuth({ database: { dialect, type: \"mssql\" } });\n```\n\n### Drizzle（型安全・軽量・SQL 寄り）\n\n型安全で軽量、生成される SQL が読みやすい。マイグレーションは drizzle-kit など**自前運用寄り**。`drizzleAdapter(db, ...)` に Drizzle インスタンスと `provider` を渡す。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { drizzleAdapter } from \"better-auth/adapters/drizzle\";\nimport { db } from \"./database\";\n\nexport const auth = betterAuth({\n  database: drizzleAdapter(db, {\n    provider: \"sqlite\", // \"pg\" / \"mysql\" も指定可\n  }),\n});\n```\n\nDrizzle アダプタは **スキーマのキー名がテーブル名と一致している前提**で動く。`user` テーブルを `users` という名で定義しているなら、明示的にマッピングする。\n\n```ts\nexport const auth = betterAuth({\n  database: drizzleAdapter(db, {\n    provider: \"sqlite\",\n    schema: {\n      ...schema,\n      user: schema.users,\n    },\n  }),\n});\n```\n\n複数形で統一しているなら `usePlural: true` でまとめて寄せられる。\n\n```ts\nexport const auth = betterAuth({\n  database: drizzleAdapter(db, {\n    provider: \"sqlite\",\n    usePlural: true,\n  }),\n});\n```\n\n### Prisma（スキーマ駆動・広範な DB・ツール充実）\n\nスキーマファースト。対応 DB が広く、Prisma Studio などツールが充実。クライアントは Drizzle より重め。`prismaAdapter(prisma, ...)` に `PrismaClient` と `provider` を渡す。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { prismaAdapter } from \"better-auth/adapters/prisma\";\nimport { PrismaClient } from \"@prisma/client\";\n\nconst prisma = new PrismaClient();\n\nexport const auth = betterAuth({\n  database: prismaAdapter(prisma, {\n    provider: \"sqlite\", // \"postgresql\" / \"mysql\" など\n  }),\n});\n```\n\n\u003e Prisma 7 以降は `schema.prisma` の `output` パスが必須。カスタム出力先（例: `output = \"../src/generated/prisma\"`）を設定しているなら、`@prisma/client` ではなくそのパスから client を import すること。\n\n### MongoDB（NoSQL ドキュメント）\n\n唯一の非リレーショナル公式アダプタ。RDB 前提の機能（join 等）とは挙動が異なる点に注意。`MongoClient` から取り出した `db` を `mongodbAdapter(db)` に渡す。\n\n```ts\nimport { betterAuth } from \"better-auth\";\nimport { MongoClient } from \"mongodb\";\nimport { mongodbAdapter } from \"better-auth/adapters/mongodb\";\n\nconst client = new MongoClient(\"mongodb://localhost:27017/database\");\nconst db = client.db();\n\nexport const auth = betterAuth({\n  database: mongodbAdapter(db),\n});\n```\n\n\u003e MongoDB はスキーマレスなので、後述の `migrate` / `generate` は不要（コレクションは自動で扱われる）。join はバージョン `1.4.0` 以降 `experimental.joins: true` でサポート。RDB を前提にしたプラグインの一部機能は挙動が異なりうるため、組み合わせは個別に確認する。\n\n### コミュニティアダプタ\n\n\u003e Better Auth connects to a database through adapters. Beyond the official adapters we maintain, the community has built many more to support additional databases.\n\n公式（Kysely 系・Drizzle・Prisma・MongoDB）以外にも、コミュニティ製アダプタで対応 DB を広げられる（分析系などコア外の DB を繋ぐケース）。標準アダプタで要件を満たせない場合の選択肢として community-adapters ドキュメントを参照する。\n\n---\n\n## 重要: modelName はテーブル名ではない\n\nハマりやすいので明示する。**`modelName` は「アダプタが認識するモデル名」であって、物理 DB のテーブル名ではない。**\n\n- 組み込み Kysely や Drizzle / Prisma などのアダプタは、それぞれの世界の「モデル名」で `user` などを参照する。\n- 物理テーブル名へのマッピングは ORM 側の責務（Prisma の `@@map`、Drizzle のテーブル定義名など）。\n\n例えば Prisma で `model User { ... }` と定義していても、Better Auth から見たモデル名は **`modelName: \"user\"`**（小文字・単数のデフォルト）になる。「Prisma のモデルは `User` なのに、なぜ設定は `user` なのか」という混乱はここから生まれる。\n\nコアスキーマのモデル名・カラム名を変えたい場合は `modelName` と `fields` で上書きする。\n\n```ts\nexport const auth = betterAuth({\n  user: {\n    modelName: \"users\",\n    fields: {\n      name: \"full_name\",\n      email: \"email_address\",\n    },\n  },\n  session: {\n    modelName: \"user_sessions\",\n    fields: {\n      userId: \"user_id\",\n    },\n  },\n});\n```\n\n\u003e ここで指定する `modelName` も「アダプタに対する論理名」。実テーブル名は最終的に ORM の設定が決める。\n\nコアスキーマ（`user` / `session` / `account` / `verification`）の構造と `modelName` の前提は [§01 Concepts](01-concepts.html) で詳説している。\n\n---\n\n## CLI: migrate と generate\n\nBetter Auth には DB スキーマを扱う CLI が付属する。**どちらを使うかはアダプタで決まる。**\n\n| コマンド | 対象 | 動作 |\n|---|---|---|\n| `npx auth migrate` | 組み込み Kysely アダプタのみ | スキーマを DB に直接適用 |\n| `npx auth generate` | Prisma / Drizzle など ORM | ORM 用スキーマ / SQL ファイルを生成 |\n\n- **`migrate`** は組み込み Kysely アダプタを使っているときだけ動く。DB に直接 DDL を流し込む。\n- **`generate`** は Prisma / Drizzle を使っているとき。ORM のスキーマ（`schema.prisma` など）を生成するので、その後は **ORM 標準のマイグレーションツール**で適用する。組み込み Kysely の場合は手動実行用の SQL ファイルを出す。\n\n```bash\n# 組み込み Kysely アダプタ: そのまま DB へ適用\nnpx auth migrate\n\n# Prisma / Drizzle: スキーマを生成 → 各 ORM のマイグレーションで適用\nnpx auth generate\n```\n\n\u003e **プラグインを足すたびに再実行する。** プラグインは独自テーブル / カラムを定義するため、追加・有効化のたびに `migrate` または `generate` をかけ直さないとスキーマが追いつかない。\n\n---\n\n## 選び方早見表\n\n要件（軸）から逆引きで候補を引く指針。第一候補に迷ったら一番下の行を見る。\n\n| 要件 / 軸 | おすすめ | 理由 |\n|---|---|---|\n| サーバーレスで接続枯渇を避けたい | Neon / AWS RDS Data API | scale-to-zero・サーバーレスドライバ / HTTP 接続でプール不要 |\n| エッジ（Workers 等）で動かす | Cloudflare D1 / Turso | ランタイム統合・エッジレプリカで低レイテンシ |\n| git ライクな DB ブランチ（プレビュー環境） | Neon / PlanetScale | コピーオンライトの分岐 / ブランチ + deploy request |\n| 大規模・水平スケールの MySQL | PlanetScale | Vitess による水平スケールと無停止スキーマ変更 |\n| エンタープライズ / Windows 資産 | MS SQL | Microsoft エコシステムとの統合 |\n| ローカル / 小規模 / 組込み | SQLite（better-sqlite3 / Bun SQLite） | サーバー不要・単一ファイルで完結 |\n| 既に ORM を使っている | その ORM のアダプタ（Drizzle / Prisma） | 既存スキーマ・マイグレ運用に合わせる |\n| ORM を入れたくない / 最軽量 | 組み込み Kysely（pg.Pool 等） | ドライバ一個で完結 |\n| ドキュメント指向 / 既存 Mongo | MongoDB | 唯一の公式 NoSQL アダプタ |\n| 認証イベントの分析・集計 | BigQuery / ClickHouse（主ストアとは別に） | OLAP は分析特化。認証本体は RDB に置く |\n| とりあえず堅実な第一候補 | PostgreSQL | 実績・ドキュメント・拡張性が最も厚い |\n\n---\n\n## 一次情報\n\n### Better Auth 公式\n\n- Database（コンセプト全体・コアスキーマ・CLI・セカンダリストレージ）: \u003chttps://www.better-auth.com/docs/concepts/database\u003e\n- PostgreSQL アダプタ: \u003chttps://www.better-auth.com/docs/adapters/postgresql\u003e\n- MySQL アダプタ: \u003chttps://www.better-auth.com/docs/adapters/mysql\u003e\n- SQLite アダプタ: \u003chttps://www.better-auth.com/docs/adapters/sqlite\u003e\n- MS SQL アダプタ: \u003chttps://www.better-auth.com/docs/adapters/mssql\u003e\n- その他のリレーショナル DB: \u003chttps://www.better-auth.com/docs/adapters/other-relational-databases\u003e\n- Drizzle ORM アダプタ: \u003chttps://www.better-auth.com/docs/adapters/drizzle\u003e\n- Prisma アダプタ: \u003chttps://www.better-auth.com/docs/adapters/prisma\u003e\n- MongoDB アダプタ: \u003chttps://www.better-auth.com/docs/adapters/mongo\u003e\n- コミュニティアダプタ: \u003chttps://www.better-auth.com/docs/adapters/community-adapters\u003e\n- CLI（migrate / generate）: \u003chttps://www.better-auth.com/docs/concepts/cli\u003e\n\n### 各プロバイダ公式\n\n- Kysely: \u003chttps://kysely.dev/\u003e\n- Supabase: \u003chttps://supabase.com/docs\u003e\n- Neon（ブランチング）: \u003chttps://neon.tech/docs/introduction/branching\u003e\n- Turso / libSQL: \u003chttps://docs.turso.tech/\u003e\n- PlanetScale（非ブロッキングスキーマ変更）: \u003chttps://planetscale.com/docs\u003e\n- Cloudflare D1: \u003chttps://developers.cloudflare.com/d1/\u003e\n- Prisma Postgres: \u003chttps://www.prisma.io/postgres\u003e\n- AWS RDS Data API: \u003chttps://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/data-api.html\u003e\n";</script>
+<script>(function () {
+  "use strict";
+  var src = (typeof SRC === "string") ? SRC : "";
+
+  function esc(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // inline formatting. input is already HTML-escaped.
+  function inline(s) {
+    var codes = [];
+    s = s.replace(/`([^`]+)`/g, function (_, c) {
+      codes.push(c);
+      return "@@CODE" + (codes.length - 1) + "@@";
+    });
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/&lt;(https?:\/\/[^\s&]+)&gt;/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    s = s.replace(/@@CODE(\d+)@@/g, function (_, i) {
+      return "<code>" + codes[+i] + "</code>";
+    });
+    return s;
+  }
+
+  function isTableSep(line) {
+    return /^\s*\|?[\s:|-]+\|[\s:|-]*$/.test(line) && line.indexOf("-") !== -1;
+  }
+  function splitRow(line) {
+    var t = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+    return t.split("|").map(function (c) { return c.trim(); });
+  }
+
+  function render(md) {
+    var lines = md.replace(/\r\n/g, "\n").split("\n");
+    var out = [];
+    var i = 0;
+    while (i < lines.length) {
+      var line = lines[i];
+
+      var fence = line.match(/^```(\w*)\s*$/);
+      if (fence) {
+        var buf = [];
+        i++;
+        while (i < lines.length && !/^```\s*$/.test(lines[i])) { buf.push(lines[i]); i++; }
+        i++;
+        out.push("<pre><code>" + esc(buf.join("\n")) + "</code></pre>");
+        continue;
+      }
+
+      if (/^\s*$/.test(line)) { i++; continue; }
+
+      if (/^---+\s*$/.test(line)) { out.push("<hr>"); i++; continue; }
+
+      var h = line.match(/^(#{1,6})\s+(.*)$/);
+      if (h) {
+        var lv = h[1].length;
+        out.push("<h" + lv + ">" + inline(esc(h[2])) + "</h" + lv + ">");
+        i++; continue;
+      }
+
+      if (line.indexOf("|") !== -1 && i + 1 < lines.length && isTableSep(lines[i + 1])) {
+        var header = splitRow(line);
+        i += 2;
+        var rows = [];
+        while (i < lines.length && lines[i].indexOf("|") !== -1 && !/^\s*$/.test(lines[i])) {
+          rows.push(splitRow(lines[i])); i++;
+        }
+        var t = "<table><thead><tr>";
+        header.forEach(function (c) { t += "<th>" + inline(esc(c)) + "</th>"; });
+        t += "</tr></thead><tbody>";
+        rows.forEach(function (r) {
+          t += "<tr>";
+          r.forEach(function (c) { t += "<td>" + inline(esc(c)) + "</td>"; });
+          t += "</tr>";
+        });
+        t += "</tbody></table>";
+        out.push(t);
+        continue;
+      }
+
+      if (/^>\s?/.test(line)) {
+        var qbuf = [];
+        while (i < lines.length && /^>\s?/.test(lines[i])) {
+          qbuf.push(lines[i].replace(/^>\s?/, "")); i++;
+        }
+        out.push("<blockquote>" + render(qbuf.join("\n")) + "</blockquote>");
+        continue;
+      }
+
+      if (/^(\s*)([-*]|\d+\.)\s+/.test(line)) {
+        var items = [];
+        while (i < lines.length && /^(\s*)([-*]|\d+\.)\s+/.test(lines[i])) {
+          var m = lines[i].match(/^(\s*)([-*]|\d+\.)\s+(.*)$/);
+          items.push({ indent: m[1].length, ordered: /\d/.test(m[2]), num: parseInt(m[2], 10), text: m[3] });
+          i++;
+        }
+        out.push(buildList(items));
+        continue;
+      }
+
+      var pbuf = [];
+      while (i < lines.length && !/^\s*$/.test(lines[i]) &&
+             !/^(#{1,6})\s/.test(lines[i]) && !/^```/.test(lines[i]) &&
+             !/^>\s?/.test(lines[i]) && !/^---+\s*$/.test(lines[i]) &&
+             !/^(\s*)([-*]|\d+\.)\s+/.test(lines[i]) &&
+             !(lines[i].indexOf("|") !== -1 && i + 1 < lines.length && isTableSep(lines[i + 1]))) {
+        pbuf.push(lines[i]); i++;
+      }
+      out.push("<p>" + inline(esc(pbuf.join(" "))) + "</p>");
+    }
+    return out.join("\n");
+  }
+
+  function buildList(items) {
+    var ordered = items[0].ordered;
+    var tag = ordered ? "ol" : "ul";
+    var start = ordered && items[0].num !== 1 ? ' start="' + items[0].num + '"' : "";
+    var html = "<" + tag + start + ">";
+    var n = 0;
+    while (n < items.length) {
+      var it = items[n];
+      var li = "<li>" + inline(esc(it.text));
+      var children = [];
+      var k = n + 1;
+      while (k < items.length && items[k].indent > it.indent) { children.push(items[k]); k++; }
+      if (children.length) li += buildList(children);
+      li += "</li>";
+      html += li;
+      n = k;
+    }
+    html += "</" + tag + ">";
+    return html;
+  }
+
+  var viewRead = document.getElementById("view-read");
+  if (viewRead) viewRead.innerHTML = render(src);
+  var rawEl = document.getElementById("raw");
+  if (rawEl) rawEl.textContent = src;
+
+  var tabRead = document.getElementById("tab-read");
+  var tabRaw = document.getElementById("tab-raw");
+  var viewRaw = document.getElementById("view-raw");
+  function select(which) {
+    var read = which === "read";
+    if (tabRead) tabRead.setAttribute("aria-selected", read ? "true" : "false");
+    if (tabRaw) tabRaw.setAttribute("aria-selected", read ? "false" : "true");
+    if (viewRead) viewRead.hidden = !read;
+    if (viewRaw) viewRaw.hidden = read;
+  }
+  if (tabRead) tabRead.addEventListener("click", function () { select("read"); });
+  if (tabRaw) tabRaw.addEventListener("click", function () { select("raw"); });
+
+  var copyBtn = document.getElementById("copy");
+  if (copyBtn) copyBtn.addEventListener("click", function () {
+    var btn = this;
+    navigator.clipboard.writeText(src).then(function () {
+      var prev = btn.textContent;
+      btn.textContent = "コピーしました ✓";
+      setTimeout(function () { btn.textContent = prev; }, 1500);
+    });
+  });
+})();
+</script>
+<footer style="margin-top:64px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:12px">調査日 2026-06-24・Better Auth は更新の速いライブラリ。最終的な裏取りは一次情報で確認すること。</footer>
+</main>
+</body>
+</html>

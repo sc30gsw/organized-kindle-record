@@ -1,9 +1,7 @@
-import { assertNotionEnv, notion, TARGET_PAGE_ID, DB_TITLE, withRetry } from '~/notion-client';
+import { notion, TARGET_PAGE_ID, DB_TITLE, withRetry } from '~/notion-client';
 import { createKindleDatabase, KINDLE_DB_PROPERTIES } from '~/lib/notion-data-source';
 
 export async function findOrCreateDatabase() {
-  assertNotionEnv();
-
   const children = await withRetry(() =>
     notion.blocks.children.list({ block_id: TARGET_PAGE_ID, page_size: 50 }),
   );

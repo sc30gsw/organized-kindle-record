@@ -1,31 +1,28 @@
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { dash } from '@better-auth/infra';
-import { betterAuth, User } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { APIError } from 'better-auth/api';
-import { tanstackStartCookies } from 'better-auth/tanstack-start';
-import dotenv from 'dotenv';
-import { db } from '@/lib/db';
-import { account, session, user, verification } from '@/lib/db/auth-schema';
+import { dash } from "@better-auth/infra";
+import { betterAuth, User } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { APIError } from "better-auth/api";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
+import { db } from "@/lib/db";
+import { account, session, user, verification } from "@/lib/db/auth-schema";
+import { env } from "@/lib/env";
 
-dotenv.config({ path: resolve(dirname(fileURLToPath(import.meta.url)), '../../../.env') });
+// env モジュールが空文字を弾いているため、ここでの長さチェックは不要
+const allowedEmail = env.ALLOWED_NOTION_EMAIL.toLowerCase();
 
-const allowedEmail = (process.env['ALLOWED_NOTION_EMAIL'] ?? '').trim().toLowerCase();
-
-export function isAllowedEmail(email: User['email']) {
-  return allowedEmail.length > 0 && (email ?? '').trim().toLowerCase() === allowedEmail;
+export function isAllowedEmail(email: User["email"]) {
+  return (email ?? "").trim().toLowerCase() === allowedEmail;
 }
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: 'sqlite',
+    provider: "sqlite",
     schema: { account, session, user, verification },
   }),
   socialProviders: {
     notion: {
-      clientId: process.env['NOTION_CLIENT_ID'] ?? '',
-      clientSecret: process.env['NOTION_CLIENT_SECRET'] ?? '',
+      clientId: env.NOTION_CLIENT_ID,
+      clientSecret: env.NOTION_CLIENT_SECRET,
     },
   },
   databaseHooks: {
@@ -33,9 +30,9 @@ export const auth = betterAuth({
       create: {
         before: async ({ email }) => {
           if (!isAllowedEmail(email)) {
-            throw new APIError('FORBIDDEN', {
+            throw new APIError("FORBIDDEN", {
               message:
-                'このアプリは単一ユーザー専用です。許可されたアカウントでログインしてください。',
+                "このアプリは単一ユーザー専用です。許可されたアカウントでログインしてください。",
             });
           }
           return { data: user };
@@ -43,5 +40,5 @@ export const auth = betterAuth({
       },
     },
   },
-  plugins: [tanstackStartCookies(), dash({ apiKey: process.env['BETTER_AUTH_API_KEY'] ?? '' })],
+  plugins: [tanstackStartCookies(), dash({ apiKey: env.BETTER_AUTH_API_KEY })],
 });

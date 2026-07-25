@@ -1,4 +1,5 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { AppHeader } from "@/components/app-header";
 import { getSession } from "@/lib/auth-functions";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -14,5 +15,12 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedLayout() {
-  return <Outlet />;
+  const { user } = Route.useRouteContext();
+
+  return (
+    <>
+      <AppHeader email={user.email} />
+      <Outlet />
+    </>
+  );
 }

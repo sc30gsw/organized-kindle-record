@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { Result, TaggedError } from "better-result";
 import * as v from "valibot";
-import { ensureSession } from "@/lib/auth-functions";
+import { authMiddleware } from "@/lib/auth-middleware";
 import { db } from "@/lib/db";
 import { mindMap } from "@/lib/db/schema";
 import { mindMapGraphSchema } from "@/features/mind-map/schemas/mind-map-schema";
@@ -18,9 +18,9 @@ const saveInput = v.object({
 
 /** 1 冊分のマインドマップを upsert する。userId / updatedAt はサーバー側で確定。 */
 export const saveMindMapFn = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
   .inputValidator(saveInput)
-  .handler(async ({ data }) => {
-    const session = await ensureSession();
+  .handler(async ({ context, data }) => {
     const now = Date.now();
 
     const saved = await Result.tryPromise({
@@ -29,13 +29,13 @@ export const saveMindMapFn = createServerFn({ method: "POST" })
           .insert(mindMap)
           .values({
             bookId: data.bookId,
-            userId: session.user.id,
+            userId: context.session.user.id,
             graph: data.graph,
             updatedAt: now,
           })
           .onConflictDoUpdate({
             target: mindMap.bookId,
-            set: { graph: data.graph, updatedAt: now, userId: session.user.id },
+            set: { graph: data.graph, updatedAt: now, userId: context.session.user.id },
           }),
       catch: (cause) =>
         new MindMapSaveError({

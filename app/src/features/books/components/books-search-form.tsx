@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Group, Select, TextInput } from "@mantine/core";
 import { useDebouncedCallback } from "@mantine/hooks";
-import { getRouteApi } from "@tanstack/react-router";
+import { booksRouteApi } from "@/features/books/route-api";
 import {
   searchSchema,
   STATUS_OPTIONS,
@@ -9,12 +9,10 @@ import {
   type BooksSearchInput,
 } from "@/features/books/schemas/search-schema";
 
-const routeApi = getRouteApi("/_authenticated/");
-
 /** 検索フォーム。値は URL search params が真実。text は debounce、status は即時。 */
 export function BooksSearchForm() {
-  const navigate = routeApi.useNavigate();
-  const search = routeApi.useSearch();
+  const navigate = booksRouteApi.useNavigate();
+  const search = booksRouteApi.useSearch();
 
   const debouncedQ = useDebouncedCallback(
     (q: BooksSearchInput["q"]) => navigate({ search: (prev) => ({ ...prev, q }) }),

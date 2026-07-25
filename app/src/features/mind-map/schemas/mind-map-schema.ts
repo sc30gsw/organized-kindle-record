@@ -63,7 +63,6 @@ export type MindMapGraph = v.InferOutput<typeof mindMapGraphSchema>;
 /** collection 行（getMindMapFn の戻り = drizzle 行）。 */
 export const mindMapRowSchema = v.object({
   bookId: v.string(),
-  userId: v.string(),
   graph: mindMapGraphSchema,
   updatedAt: v.number(),
 });

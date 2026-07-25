@@ -20,22 +20,17 @@ const saveInput = v.object({
 export const saveMindMapFn = createServerFn({ method: "POST" })
   .middleware([authMiddleware])
   .inputValidator(saveInput)
-  .handler(async ({ context, data }) => {
+  .handler(async ({ data }) => {
     const now = Date.now();
 
     const saved = await Result.tryPromise({
       try: () =>
         db
           .insert(mindMap)
-          .values({
-            bookId: data.bookId,
-            userId: context.session.user.id,
-            graph: data.graph,
-            updatedAt: now,
-          })
+          .values({ bookId: data.bookId, graph: data.graph, updatedAt: now })
           .onConflictDoUpdate({
             target: mindMap.bookId,
-            set: { graph: data.graph, updatedAt: now, userId: context.session.user.id },
+            set: { graph: data.graph, updatedAt: now },
           }),
       catch: (cause) =>
         new MindMapSaveError({

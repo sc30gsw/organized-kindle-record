@@ -52,7 +52,7 @@ export function useMindMapAutosave({
       }
 
       existsRef.current = true;
-      mindMapCollection.insert({ bookId, userId: "", graph, updatedAt });
+      mindMapCollection.insert({ bookId, graph, updatedAt });
     }, AUTOSAVE_DEBOUNCE_MS);
 
     return () => clearTimeout(timer);

@@ -3,8 +3,10 @@ import { ClientOnly, createFileRoute, Link, stripSearchParams } from "@tanstack/
 import { valibotValidator } from "@tanstack/valibot-adapter";
 import { eq } from "@tanstack/db";
 import { useLiveSuspenseQuery } from "@tanstack/react-db";
-import { Alert, Button, Center, Container, Group, Loader } from "@mantine/core";
+import { Alert, Button, Group } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
+import { PageLoader } from "@/components/page-loader";
+import { RouteError } from "@/components/route-error";
 import { booksCollection } from "@/features/books/collections";
 import { HighlightPanel } from "@/features/books/components/highlight-panel";
 import { mindMapCollection } from "@/features/mind-map/collections";
@@ -23,30 +25,13 @@ export const Route = createFileRoute("/_authenticated/books/$bookId")({
     middlewares: [stripSearchParams(defaultBookDetailSearchParams)],
   },
   component: BookDetailPage,
-  errorComponent: BookDetailError,
+  errorComponent: RouteError,
 });
-
-function PageLoader() {
-  return (
-    <Center h="100%">
-      <Loader />
-    </Center>
-  );
-}
-
-function BookDetailError({ error }: Record<"error", Error>) {
-  return (
-    <Container size="xl" py="md">
-      <Alert color="red" title="読み込みエラー">
-        {error.message}
-      </Alert>
-    </Container>
-  );
-}
 
 function BookDetailPage() {
   return (
-    <div className="flex h-[calc(100vh-16px)] flex-col p-2">
+    // 高さはレイアウト（ヘッダーを除いた残り）から決まる
+    <div className="flex h-full flex-col p-2">
       <Group mb="xs">
         <Button
           leftSection={<IconArrowLeft size={16} />}

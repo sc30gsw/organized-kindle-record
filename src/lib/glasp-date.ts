@@ -1,5 +1,5 @@
 import { format, parse } from '@formkit/tempo';
-import { Book } from '~/types';
+import type { Book } from '~/types';
 
 const GLASP_LAST_UPDATED_RE = /- Last Updated on: .*?(\d{4})年(\d{1,2})月(\d{1,2})日/;
 

@@ -11,8 +11,8 @@ import {
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { format } from "@formkit/tempo";
-import { STATUS_COLOR, StatusBadge } from "@/features/books/components/status-badge";
-import { BookRowValues } from "@/features/books/schemas/book-schema";
+import { StatusBadge, type STATUS_COLOR } from "@/features/books/components/status-badge";
+import type { BookRowValues } from "@/features/books/schemas/book-schema";
 
 const col = createColumnHelper<BookRowValues>();
 

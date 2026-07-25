@@ -3,10 +3,10 @@ import { Group, Select, TextInput } from "@mantine/core";
 import { useDebouncedCallback } from "@mantine/hooks";
 import { getRouteApi } from "@tanstack/react-router";
 import {
-  BooksSearch,
-  BooksSearchInput,
   searchSchema,
   STATUS_OPTIONS,
+  type BooksSearch,
+  type BooksSearchInput,
 } from "@/features/books/schemas/search-schema";
 
 const routeApi = getRouteApi("/_authenticated/");

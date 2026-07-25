@@ -3,13 +3,13 @@ import { useDisclosure } from "@mantine/hooks";
 import { Anchor, Badge, Box, Button, Group, Image, Stack, Text, Title } from "@mantine/core";
 import { bookHighlightsQueryOptions } from "@/features/books/api/book-highlights-query";
 import { MentalMapModal } from "@/features/books/components/mental-map-modal";
-import { STATUS_COLOR, StatusBadge } from "@/features/books/components/status-badge";
+import { StatusBadge, type STATUS_COLOR } from "@/features/books/components/status-badge";
 import type { BookRowValues } from "@/features/books/schemas/book-schema";
-import { useMindMap } from "@/features/mind-map/hooks/use-mind-map";
 
 type HighlightPanelProps = {
   book: BookRowValues;
-  onQuoteToNode: ReturnType<typeof useMindMap>["addNode"];
+  // mind-map feature の型を借りると feature 間依存になるため、ここで平坦に宣言する
+  onQuoteToNode: (label: string) => void;
 };
 
 /** container 内でテキスト選択中ならその文字列、なければ fallback（引用全文）を返す */

@@ -1,12 +1,12 @@
-import { HighlightPanel } from "@/features/books/components/highlight-panel";
 import { Box, Button, Group, Modal, Stack, Text } from "@mantine/core";
 import type { UseDisclosureReturnValue } from "@mantine/hooks";
-import { getBookHighlights } from "~/get-book-highlights";
+import type { MentalMapItemValues } from "@/features/books/schemas/book-detail-schema";
 
 type MentalMapModalProps = {
-  items: Awaited<ReturnType<typeof getBookHighlights>>["mentalMap"];
+  items: MentalMapItemValues[];
   onClose: UseDisclosureReturnValue[1]["close"];
-  onQuoteToNode: Parameters<typeof HighlightPanel>[0]["onQuoteToNode"];
+  // HighlightPanel から型を借りると相互 import で循環するため、ここで平坦に宣言する
+  onQuoteToNode: (label: string) => void;
   opened: UseDisclosureReturnValue[0];
 };
 

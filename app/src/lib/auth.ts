@@ -1,5 +1,5 @@
 import { dash } from "@better-auth/infra";
-import { betterAuth, User } from "better-auth";
+import { betterAuth, type User } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { APIError } from "better-auth/api";
 import { tanstackStartCookies } from "better-auth/tanstack-start";

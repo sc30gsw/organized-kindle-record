@@ -1,6 +1,6 @@
-import { BlockObjectResponse } from '@notionhq/client';
+import type { BlockObjectResponse } from '@notionhq/client';
 import { notion, withRetry } from '~/notion-client';
-import { Highlight, PageId } from '~/types';
+import type { Highlight, PageId } from '~/types';
 
 /** 1 ハイライト分の表示用データ（引用 + メモ群）。Notion の quote ブロックと子 bullet から復元。 */
 export type BookHighlight = {

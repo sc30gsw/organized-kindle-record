@@ -50,12 +50,38 @@ export const KINDLE_DB_PROPERTIES = {
   'Cover URL': { url: {} },
 } satisfies KindleDbProperties;
 
-export async function getPrimaryDataSourceId(databaseId: DatabaseId) {
+async function resolvePrimaryDataSourceId(databaseId: DatabaseId) {
   const db = await withRetry(() => notion.databases.retrieve({ database_id: databaseId }));
   if (!('data_sources' in db) || db.data_sources.length === 0) {
     throw new Error(`DB ${databaseId} に data source がありません`);
   }
   return db.data_sources[0]!.id;
+}
+
+/** databaseId → primary data source id のプロセス内キャッシュ。 */
+const dataSourceIdCache = new Map<DatabaseId, Promise<DataSourceId>>();
+
+/**
+ * data source 構成は DB 単位で固定なので、databaseId をキーに保持する。
+ * findOrCreateDatabase と同じくプロセス生存期間のキャッシュで、
+ * Notion 側で data source を張り替えた場合はプロセス再起動まで古い ID を掴む。
+ */
+export function getPrimaryDataSourceId(databaseId: DatabaseId) {
+  const cached = dataSourceIdCache.get(databaseId);
+
+  if (cached) {
+    return cached;
+  }
+
+  const pending = resolvePrimaryDataSourceId(databaseId).catch((err: unknown) => {
+    // 失敗はキャッシュしない
+    dataSourceIdCache.delete(databaseId);
+    throw err;
+  });
+
+  dataSourceIdCache.set(databaseId, pending);
+
+  return pending;
 }
 
 export async function queryDataSourcePages(

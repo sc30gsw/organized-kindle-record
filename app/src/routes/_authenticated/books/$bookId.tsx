@@ -6,7 +6,6 @@ import { useLiveSuspenseQuery } from "@tanstack/react-db";
 import { Alert, Button, Center, Container, Group, Loader } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
 import { booksCollection } from "@/features/books/collections";
-import { bookHighlightsQueryOptions } from "@/features/books/api/book-highlights-query";
 import { HighlightPanel } from "@/features/books/components/highlight-panel";
 import { mindMapCollection } from "@/features/mind-map/collections";
 import { MindMapCanvas } from "@/features/mind-map/components/mind-map-canvas";
@@ -16,18 +15,13 @@ import {
   defaultBookDetailSearchParams,
 } from "@/features/mind-map/schemas/wheel-mode-schema";
 import { SplitView } from "@/components/split-view";
-import { queryClient } from "@/lib/query-client";
 import type { MindMapGraph } from "@/lib/db/schema";
 
+// 一覧ページと同じく CSR 明示。loader での先読みは ClientOnly 配下の取得と二重になる。
 export const Route = createFileRoute("/_authenticated/books/$bookId")({
   validateSearch: valibotValidator(bookDetailSearchSchema),
   search: {
     middlewares: [stripSearchParams(defaultBookDetailSearchParams)],
-  },
-  loader: async ({ params }) => {
-    await booksCollection.preload();
-    await mindMapCollection.preload();
-    await queryClient.ensureQueryData(bookHighlightsQueryOptions(params.bookId));
   },
   component: BookDetailPage,
   errorComponent: BookDetailError,

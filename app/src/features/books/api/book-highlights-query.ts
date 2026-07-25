@@ -2,7 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import { getBookDetailFn } from "@/features/books/server/get-book-detail-fn";
 import type { RegisteredRouter, RouteById } from "@tanstack/react-router";
 
-/** 詳細ページのハイライト取得用 queryOptions。route loader の ensureQueryData と Suspense 双方で使う。 */
+/** 詳細ページのハイライト取得用 queryOptions。CSR 明示のため Suspense からのみ使う。 */
 export function bookHighlightsQueryOptions(
   bookId: RouteById<
     RegisteredRouter["routeTree"],

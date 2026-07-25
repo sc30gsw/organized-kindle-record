@@ -4,14 +4,24 @@ import type { Highlight, PageId } from '~/types';
 
 /** 1 ハイライト分の表示用データ（引用 + メモ群）。Notion の quote ブロックと子 bullet から復元。 */
 export type BookHighlight = {
+  /** 由来の quote ブロック id。UI の安定キーに使う */
+  id: string;
   quote: string;
   notes: Highlight['notes'];
 };
 
+/** メンタルマップの答え 1 つ。由来ブロック id を UI の安定キーに使う。 */
+export type MentalMapAnswer = {
+  id: string;
+  text: string;
+};
+
 /** メンタルマップの 1 問分。質問（H3 見出し）とその配下の答え群。 */
 export type MentalMapItem = {
+  /** 由来の H3 ブロック id（見出し無しで始まった項目は最初の本文ブロック id） */
+  id: string;
   question: string;
-  answers: string[];
+  answers: MentalMapAnswer[];
 };
 
 /** ページ詳細の取得結果。ハイライトと「メンタルマップ」(H2 セクション) の構造化データ。 */
@@ -91,12 +101,12 @@ export async function getBookHighlights(pageId: PageId): Promise<BookDetail> {
   let currentItem: MentalMapItem | null = null;
 
   /** メンタルマップ収集中の本文を、現在の質問の答えとして追加する（質問が無ければ作る）。 */
-  function pushAnswer(text: string) {
+  function pushAnswer(blockId: string, text: string) {
     if (!currentItem) {
-      currentItem = { question: '', answers: [] };
+      currentItem = { id: blockId, question: '', answers: [] };
       mentalMap.push(currentItem);
     }
-    currentItem.answers.push(text);
+    currentItem.answers.push({ id: blockId, text });
   }
 
   for (const block of topBlocks) {
@@ -117,7 +127,7 @@ export async function getBookHighlights(pageId: PageId): Promise<BookDetail> {
     if (block.type === 'heading_3') {
       const h3 = richTextToPlain(block.heading_3.rich_text).trim();
       if (inMentalMap && !SECTION_BOUNDARY_LABELS.has(h3)) {
-        currentItem = { question: h3, answers: [] };
+        currentItem = { id: block.id, question: h3, answers: [] };
         mentalMap.push(currentItem);
       } else {
         inMentalMap = false;
@@ -136,7 +146,7 @@ export async function getBookHighlights(pageId: PageId): Promise<BookDetail> {
         currentItem = null;
       } else {
         if (text) {
-          pushAnswer(text);
+          pushAnswer(block.id, text);
         }
 
         if (block.has_children) {
@@ -145,7 +155,7 @@ export async function getBookHighlights(pageId: PageId): Promise<BookDetail> {
           for (const child of children) {
             const childText = blockText(child);
             if (childText) {
-              pushAnswer(childText);
+              pushAnswer(child.id, childText);
             }
           }
         }
@@ -167,7 +177,7 @@ export async function getBookHighlights(pageId: PageId): Promise<BookDetail> {
       }
     }
 
-    highlights.push({ quote, notes });
+    highlights.push({ id: block.id, quote, notes });
   }
 
   return { highlights, mentalMap };

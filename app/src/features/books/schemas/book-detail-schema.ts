@@ -1,9 +1,10 @@
 import * as v from "valibot";
 
-/** メンタルマップの 1 問（H3 見出しの質問とその配下の答え群）。 */
+/** メンタルマップの 1 問（H3 見出しの質問とその配下の答え群）。id は由来ブロック id。 */
 const mentalMapItemSchema = v.object({
+  id: v.string(),
   question: v.string(),
-  answers: v.array(v.string()),
+  answers: v.array(v.object({ id: v.string(), text: v.string() })),
 });
 
 /**
@@ -12,7 +13,7 @@ const mentalMapItemSchema = v.object({
  */
 export const bookDetailSchema = v.object({
   // Notion の quote ブロック + 子 bullet から復元した 1 ハイライト
-  highlights: v.array(v.object({ quote: v.string(), notes: v.array(v.string()) })),
+  highlights: v.array(v.object({ id: v.string(), quote: v.string(), notes: v.array(v.string()) })),
   mentalMap: v.array(mentalMapItemSchema),
 });
 

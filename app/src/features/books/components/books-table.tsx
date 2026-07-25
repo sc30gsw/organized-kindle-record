@@ -11,7 +11,7 @@ import {
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { format } from "@formkit/tempo";
-import { StatusBadge, type STATUS_COLOR } from "@/features/books/components/status-badge";
+import { StatusBadge } from "@/features/books/components/status-badge";
 import type { BookRowValues } from "@/features/books/schemas/book-schema";
 
 const col = createColumnHelper<BookRowValues>();
@@ -63,7 +63,7 @@ const columns = [
   col.accessor("status", {
     header: "ステータス",
     size: 120,
-    cell: (c) => <StatusBadge status={c.getValue() as keyof typeof STATUS_COLOR} />,
+    cell: (c) => <StatusBadge status={c.getValue()} />,
   }),
   col.accessor("amazonUrl", {
     header: "Amazon",

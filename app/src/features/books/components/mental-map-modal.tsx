@@ -15,8 +15,12 @@ export function MentalMapModal({ items, onClose, onQuoteToNode, opened }: Mental
   return (
     <Modal onClose={onClose} opened={opened} size="lg" title="メンタルマップ">
       <Stack gap="lg">
-        {items.map((item, i) => (
-          <Box key={i} style={{ borderLeft: "3px solid var(--mantine-color-teal-4)" }} pl="sm">
+        {items.map((item) => (
+          <Box
+            key={item.id}
+            style={{ borderLeft: "3px solid var(--mantine-color-teal-4)" }}
+            pl="sm"
+          >
             <Group align="flex-start" gap="xs" justify="space-between" wrap="nowrap">
               <Text fw={600} size="sm">
                 {item.question}
@@ -30,10 +34,20 @@ export function MentalMapModal({ items, onClose, onQuoteToNode, opened }: Mental
               </Button>
             </Group>
             <Stack gap={4} mt="xs">
-              {item.answers.map((answer, j) => (
-                <Group key={j} align="flex-start" gap="xs" justify="space-between" wrap="nowrap">
-                  <Text size="sm">・{answer}</Text>
-                  <Button onClick={() => onQuoteToNode(answer)} size="compact-xs" variant="subtle">
+              {item.answers.map((answer) => (
+                <Group
+                  key={answer.id}
+                  align="flex-start"
+                  gap="xs"
+                  justify="space-between"
+                  wrap="nowrap"
+                >
+                  <Text size="sm">・{answer.text}</Text>
+                  <Button
+                    onClick={() => onQuoteToNode(answer.text)}
+                    size="compact-xs"
+                    variant="subtle"
+                  >
                     ノード化
                   </Button>
                 </Group>

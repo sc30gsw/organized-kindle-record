@@ -37,4 +37,9 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  test: {
+    // root src/ の CLI コード（app が `~/` 経由で使う純ロジック）もここで実行する。
+    // root 側にはテストランナーを入れていないため、app のランナーに寄せている。
+    include: ["src/**/*.test.{ts,tsx}", "../src/**/*.test.ts"],
+  },
 });

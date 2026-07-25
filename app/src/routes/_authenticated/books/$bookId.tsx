@@ -15,7 +15,6 @@ import {
   defaultBookDetailSearchParams,
 } from "@/features/mind-map/schemas/wheel-mode-schema";
 import { SplitView } from "@/components/split-view";
-import type { MindMapGraph } from "@/lib/db/schema";
 
 // 一覧ページと同じく CSR 明示。loader での先読みは ClientOnly 配下の取得と二重になる。
 export const Route = createFileRoute("/_authenticated/books/$bookId")({
@@ -84,8 +83,11 @@ function BookDetail() {
   );
 
   const book = books[0];
-  const initialGraph = (maps[0]?.graph ?? null) as MindMapGraph | null;
-  const mm = useMindMap({ bookId, bookTitle: book?.title ?? "", initialGraph });
+  const mm = useMindMap({
+    bookId,
+    bookTitle: book?.title ?? "",
+    initialGraph: maps[0]?.graph ?? null,
+  });
 
   if (!book) {
     return (

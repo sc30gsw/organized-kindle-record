@@ -7,8 +7,6 @@ import {
   ReactFlowProvider,
   type Connection,
   type NodeTypes,
-  type Edge,
-  type Node,
   type OnConnect,
   type OnEdgesChange,
   type OnNodeDrag,
@@ -19,21 +17,22 @@ import { Stack } from "@mantine/core";
 import { TitleNode } from "@/features/mind-map/components/nodes/title-node";
 import { TextNode } from "@/features/mind-map/components/nodes/text-node";
 import { MindMapToolbar } from "@/features/mind-map/components/mind-map-toolbar";
+import type { MindMapEdge, MindMapNode } from "@/features/mind-map/schemas/mind-map-schema";
 import type { WheelMode } from "@/features/mind-map/schemas/wheel-mode-schema";
 
 const nodeTypes = { title: TitleNode, text: TextNode } as const satisfies NodeTypes;
 
 type MindMapCanvasProps = {
   exportFileName: string;
-  nodes: Node[];
-  edges: Edge[];
-  onNodesChange: OnNodesChange;
-  onEdgesChange: OnEdgesChange;
+  nodes: MindMapNode[];
+  edges: MindMapEdge[];
+  onNodesChange: OnNodesChange<MindMapNode>;
+  onEdgesChange: OnEdgesChange<MindMapEdge>;
   onConnect: OnConnect;
-  onReconnect: (oldEdge: Edge, newConnection: Connection) => void;
-  onNodeDragStart: OnNodeDrag<Node>;
-  onNodeDragStop: OnNodeDrag<Node>;
-  onInit: (rf: ReactFlowInstance<Node, Edge>) => void;
+  onReconnect: (oldEdge: MindMapEdge, newConnection: Connection) => void;
+  onNodeDragStart: OnNodeDrag<MindMapNode>;
+  onNodeDragStop: OnNodeDrag<MindMapNode>;
+  onInit: (rf: ReactFlowInstance<MindMapNode, MindMapEdge>) => void;
   onAddNode: () => void;
   onWheelModeChange: (mode: WheelMode) => void;
   wheelMode: WheelMode;

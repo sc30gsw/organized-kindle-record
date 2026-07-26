@@ -16,7 +16,8 @@
     "fmt": "oxfmt src/",
     "fmt:check": "oxfmt --check src/",
     "fix": "oxfmt src/ && oxlint --fix .",
-    "check": "aube run lint && aube run fmt:check"
+    "check": "aube run lint && aube run fmt:check",
+    "doctor": "npx react-doctor@latest"
   },
   "dependencies": {
     "@formkit/tempo": "^1.1.0",
@@ -29,6 +30,7 @@
     "@types/node": "^25.9.1",
     "oxfmt": "^0.52.0",
     "oxlint": "^1.66.0",
+    "react-doctor": "^0.9.1",
     "tsx": "^4.19.2",
     "typescript": "^6.0.3"
   }

@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-`kindle-to-notion` — a one-maintainer TypeScript importer that ingests Glasp-exported Kindle highlight markdown files from `Glasp Kindle Highlights/` and writes them as pages into a Notion database. Not a git repository; not versioned for distribution.
+`kindle-to-notion` — a one-maintainer TypeScript importer that ingests Glasp-exported Kindle highlight markdown files from `Glasp Kindle Highlights/` and writes them as pages into a Notion database.
+
+`app/` is a TanStack Start web UI over the same Notion database (see **Web app (`app/`)** below). The two share the root `src/` code through the `~/` alias.
+
+> The directory name in code is `Glasp Kindle Highlights` (`src/import-all.ts` / `src/update-highlights.ts` resolve it from `process.cwd()`). `.gitignore` covers both that and the lowercase `glasp-kindle-highlights/` so the export is ignored on case-sensitive filesystems too.
 
 ## Runtime & tools
 
@@ -15,10 +19,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Required env
 
-Loaded by `dotenv` from `.env` at the project root:
+**`dotenv.config` is called in exactly one place: `src/lib/env.ts`.** It walks up from `process.cwd()` to find `.env`, so it resolves the same file whether you start from the repo root (CLI) or from `app/` (vite). Never add another `dotenv.config` call and never read `process.env` outside an env module.
 
-- `NOTION_TOKEN` — Notion integration token with insert + update access to the target page.
-- `NOTION_TARGET_PAGE_ID` — Parent page where `create-db` provisions the database. The created database ID is written to `db-id.txt` (gitignored) and read back by subsequent runs.
+Two env modules, both validating at import time (a missing **or empty** value throws with the key name):
+
+- `src/lib/env.ts` — CLI: `NOTION_TOKEN`, `NOTION_TARGET_PAGE_ID`
+- `app/src/lib/env.ts` — web app: the 8 keys below **plus** the 2 above (valibot, `v.minLength(1)`)
+
+| Key | Used for |
+| --- | --- |
+| `NOTION_TOKEN` | Notion integration token (insert + update on the target page) |
+| `NOTION_TARGET_PAGE_ID` | Parent page where `create-db` provisions the database |
+| `TURSO_DATABASE_URL` / `TURSO_AUTH_TOKEN` | Turso: better-auth tables + `mind_map` |
+| `NOTION_CLIENT_ID` / `NOTION_CLIENT_SECRET` | Notion **OAuth** for app login (distinct from `NOTION_TOKEN`) |
+| `ALLOWED_NOTION_EMAIL` | The single account allowed to log in |
+| `BETTER_AUTH_SECRET` / `BETTER_AUTH_URL` / `BETTER_AUTH_API_KEY` | better-auth + the `dash` plugin |
+
+`.env.example` lists all 10 with one-line comments. `create-db` writes the database ID to `db-id.txt` (gitignored) for subsequent runs.
 
 `.env`, `db-id.txt`, `done.log`, `failed.json`, `parsed.json`, `node_modules/`, and `dist/` are all gitignored.
 
@@ -54,6 +71,7 @@ These are baked into `src/notion-client.ts` and `src/import-book.ts`. Don't undo
 - **100-block limit**: A `pages.create` call accepts ≤100 children blocks. Highlights beyond 100 are appended in follow-up `blocks.children.append` batches of 100.
 - **2000-char rich text limit**: `chunkText()` splits long highlights across multiple rich-text objects within a single block.
 - **ASIN deduplication**: The importer queries the database by ASIN before creating a page. Removing this check will duplicate every book on the next run.
+- **Process-lifetime memoisation**: `findOrCreateDatabase()` and `getPrimaryDataSourceId()` cache their resolved ids (the promise, so concurrent callers share one round trip). Without this the web app re-ran `blocks.children.list` + `databases.retrieve` on every request. Rejections are *not* cached. If you recreate the Notion database, restart the server — a long-lived process keeps the stale id.
 
 ## Markdown parser is strict
 
@@ -65,13 +83,59 @@ These are baked into `src/notion-client.ts` and `src/import-book.ts`. Don't undo
 - Treat data as immutable — return new objects instead of mutating. `Book` / `Highlight` の canonical 定義は `ReturnType<typeof parseMd>` として `src/types/index.ts` から export される。関数引数は `Parameters<T>` や `Book['field']` で SSoT を参照し、ローカルに再宣言しない。
 - Prefer `Result`-style returns over `try`/`catch` in new code (per user's global rules). `withRetry()` in `notion-client.ts` is the existing exception — leave it alone.
 - Comments and user-facing log strings are Japanese throughout; keep new strings consistent with the surrounding file.
-- No test framework is configured. If you add one, propose it to the user first.
+- Root `src/` is formatted with single quotes (`.oxfmtrc.json`); `app/` uses vite-plus defaults (double quotes). Match the package you are in.
+
+## Tests
+
+There is no separate runner for the root package. Tests run through the app's vitest:
+
+```
+cd app && vp test
+```
+
+`app/vite.config.ts` sets `test.include` to `["src/**/*.test.{ts,tsx}", "../src/**/*.test.ts"]`, so a
+test placed next to root CLI code (e.g. `src/parse-md.test.ts`) is picked up too. Import test
+utilities from `vite-plus/test`, never from `vitest` directly. Root `tsconfig.json` excludes
+`src/**/*.test.ts` (the root package has no vite-plus); `app/tsconfig.json` type-checks them instead.
+
+Covered today: `computeCollapseState`, the mind-map graph schema boundary, `selectedTextWithin`, and
+`parseMdContent`. Component/route tests are deliberately absent — see the "今回やらないこと" note in
+the refactor plan.
 
 ## Outputs to know about
 
 - `done.log` — append-only list of successfully imported markdown file paths (one per line). Re-runs skip files already listed.
 - `failed.json` — JSONL of `{file, error}` for files that exhausted retries. Inspect after every full `import`.
 - `parsed.json` — large (~5MB) snapshot from `aube run parse`; safe to delete and regenerate.
+
+## Web app (`app/`)
+
+TanStack Start + React 19 + Mantine 9, deployed on Vercel. Commands go through `vp` (Vite+):
+`vp dev` / `vp check` / `vp test` / `vp build`. Never call `pnpm` / `npm` directly.
+
+Four decisions are load-bearing — changing them means changing more than one file:
+
+- **Single user by design.** `ALLOWED_NOTION_EMAIL` gates login, and `mind_map` has **no `user_id`
+  column**. A column would imply a "always filter by user" promise nobody enforces (and `getMindMapFn`
+  did not). Multi-user is blocked at a deeper level anyway: `src/notion-client.ts` builds one module
+  level `new Client()`, so the Notion token is global to the process.
+- **CSR is explicit.** Routes have no `loader`; data is fetched client-side under
+  `ClientOnly` + `Suspense`. Adding a loader that preloads a collection doubles the Notion round
+  trips (the client fetches again) and lets the server touch a module-singleton collection.
+- **Auth lives in server-fn middleware.** Every server fn is
+  `createServerFn(...).middleware([authMiddleware])`; the session arrives via `context.session`.
+  Route `beforeLoad` only guards page navigation — server fns are plain HTTP endpoints and it cannot
+  protect them. The allowed-account check exists once, in `getAllowedSession()` (`app/src/lib/auth.ts`).
+- **`app/src/start.ts` must keep the CSRF middleware.** TanStack Start auto-applies a default CSRF
+  request middleware *only while no start entry exists*. Now that `start.ts` exists, removing
+  `csrfMiddleware` from `requestMiddleware` silently unprotects every server fn.
+
+Other things worth knowing:
+
+- `verbatimModuleSyntax` is on and `typescript/consistent-type-imports` is an error. Type-only
+  imports must say `import type` — this is what keeps the Notion CLI stack out of the client bundle.
+- DB migrations: `cd app && pnpm exec drizzle-kit generate` (schema in `app/src/lib/db/`).
+  Back up `mind_map` before running `migrate` against the live Turso database.
 
 ## `.claude/`
 

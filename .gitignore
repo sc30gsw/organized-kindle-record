@@ -1,6 +1,10 @@
 node_modules/
 
+# Glasp のエクスポート置き場（import-all.ts が参照する実名は "Glasp Kindle Highlights"。
+# 大文字小文字を区別するファイルシステムでも取りこぼさないよう両方を書く）
+Glasp Kindle Highlights/
 glasp-kindle-highlights/
+
 .fallow/cache.bin
 
 .env
@@ -9,7 +13,6 @@ done.log
 failed.json
 parsed.json
 db-id.txt
-done.log
 
 # build outputs / caches (app/ included via no-slash patterns)
 .output/
@@ -17,4 +20,3 @@ done.log
 .vite/
 .nitro/
 .DS_Store
-.vercel

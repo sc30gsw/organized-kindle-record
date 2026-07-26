@@ -12,6 +12,11 @@ export default defineConfig({
   },
   lint: {
     ignorePatterns: ["**/routeTree.gen.ts"],
+    rules: {
+      // 型を値 import すると、サーバー専用モジュール（Notion CLI スタック）が
+      // クライアントバンドルへ引き込まれる。verbatimModuleSyntax と対で再発を止める。
+      "typescript/consistent-type-imports": "error",
+    },
     overrides: [
       {
         files: ["src/routes/**", "src/router.tsx", "*.config.ts"],
@@ -31,5 +36,10 @@ export default defineConfig({
   ],
   resolve: {
     tsconfigPaths: true,
+  },
+  test: {
+    // root src/ の CLI コード（app が `~/` 経由で使う純ロジック）もここで実行する。
+    // root 側にはテストランナーを入れていないため、app のランナーに寄せている。
+    include: ["src/**/*.test.{ts,tsx}", "../src/**/*.test.ts"],
   },
 });

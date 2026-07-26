@@ -1,6 +1,6 @@
 import * as v from "valibot";
 
-export const WHEEL_MODES = ["pan", "zoom"] as const;
+const WHEEL_MODES = ["pan", "zoom"] as const;
 
 export type WheelMode = (typeof WHEEL_MODES)[number];
 
@@ -12,5 +12,3 @@ export const defaultBookDetailSearchParams = {
 export const bookDetailSearchSchema = v.object({
   wheel: v.optional(v.picklist(WHEEL_MODES), defaultBookDetailSearchParams.wheel),
 });
-
-export type BookDetailSearch = v.InferOutput<typeof bookDetailSearchSchema>;

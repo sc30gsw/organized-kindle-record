@@ -1,25 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeaders } from "@tanstack/react-start/server";
-import { auth, isAllowedEmail } from "@/lib/auth";
+import { getAllowedSession } from "@/lib/auth";
 
-export const getSession = createServerFn({ method: "GET" }).handler(async () => {
-  const headers = getRequestHeaders();
-  const session = await auth.api.getSession({ headers });
-
-  if (!session || !isAllowedEmail(session.user.email)) {
-    return null;
-  }
-
-  return session;
-});
-
-export const ensureSession = createServerFn({ method: "GET" }).handler(async () => {
-  const headers = getRequestHeaders();
-  const session = await auth.api.getSession({ headers });
-
-  if (!session || !isAllowedEmail(session.user.email)) {
-    throw new Error("Unauthorized");
-  }
-
-  return session;
-});
+/**
+ * route の beforeLoad 専用。未ログインを null で返し、呼び出し側が /login へ redirect する。
+ * server fn の認証は auth-middleware の authMiddleware が担う（こちらを呼んではいけない）。
+ */
+export const getSession = createServerFn({ method: "GET" }).handler(async () =>
+  getAllowedSession(getRequestHeaders()),
+);

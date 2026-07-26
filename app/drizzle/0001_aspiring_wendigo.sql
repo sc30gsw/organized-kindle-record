@@ -1,0 +1,1 @@
+ALTER TABLE `mind_map` DROP COLUMN `user_id`;

@@ -10,11 +10,17 @@
     "skipLibCheck": true,
     "noEmit": true,
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"],
-      "~/*": ["../src/*"]
+      "~/*": ["../src/*"],
+      // root src/ のテストは app の node_modules に解決させる
+      // （root 側から辿ると app/node_modules に届かないため）
+      "vite-plus/test": ["./node_modules/vite-plus/dist/test/index.d.ts"]
     }
   },
-  "include": ["src", "vite-env.d.ts"]
+  // root src/ のテストは app のランナーで動かすため、型検査もこちらで見る
+  // （root の tsconfig からは除外している。root には vite-plus が無いため）
+  "include": ["src", "vite-env.d.ts", "../src/**/*.test.ts"]
 }

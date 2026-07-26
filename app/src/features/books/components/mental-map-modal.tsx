@@ -18,6 +18,8 @@ export function MentalMapModal({ items, onClose, onQuoteToNode, opened }: Mental
         {items.map((item) => (
           <Box
             key={item.id}
+            // 見た目は既存デザインを維持する（Phase 0 は挙動も見た目も変えない方針）
+            // react-doctor-disable-next-line react-doctor/no-side-tab-border
             style={{ borderLeft: "3px solid var(--mantine-color-teal-4)" }}
             pl="sm"
           >

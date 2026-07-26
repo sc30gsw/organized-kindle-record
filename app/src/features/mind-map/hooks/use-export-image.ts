@@ -35,11 +35,11 @@ function withExportableEdgeSvgs<T>(
       cssText: svg.style.cssText,
     };
     svg.setAttribute("viewBox", `${rect.x} ${rect.y} ${rect.width} ${rect.height}`);
-    svg.style.position = "absolute";
-    svg.style.left = `${rect.x}px`;
-    svg.style.top = `${rect.y}px`;
-    svg.style.width = `${rect.width}px`;
-    svg.style.height = `${rect.height}px`;
+    // 1 回の cssText 書き込みでまとめる（reflow を 1 回に抑える）。
+    // 既存宣言を前置きして後ろで上書きする形にして、prev.cssText での復元と対称にしている
+    svg.style.cssText =
+      `${prev.cssText}position:absolute;` +
+      `left:${rect.x}px;top:${rect.y}px;width:${rect.width}px;height:${rect.height}px;`;
     return () => {
       if (prev.viewBox === null) {
         svg.removeAttribute("viewBox");

@@ -37,7 +37,7 @@ export function ImportResultPanel({ results }: Record<"results", ImportFileResul
       <List size="sm" spacing={4}>
         {results.map((r) => (
           <List.Item key={r.id}>
-            {LABEL[r.kind]} — {r.file}
+            {LABEL[r.kind]}: {r.file}
             {(r.kind === "created" || r.kind === "updated") && ` (+${r.added})`}
             {r.kind === "skipped" && ` (${r.reason})`}
             {r.kind === "failed" && ` (${r.error})`}

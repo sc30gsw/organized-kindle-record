@@ -7,6 +7,17 @@ import { StatusBadge } from "@/features/books/components/status-badge";
 import { selectedTextWithin } from "@/features/books/lib/selected-text";
 import type { BookRowValues } from "@/features/books/schemas/book-schema";
 
+/**
+ * notes は CLI 側と共有する `Highlight['notes']`（ただの string[]）でブロック id を持たない。
+ * key に添字をそのまま使わないよう、本文と並び順から安定キーを先に組み立てる。
+ */
+function keyedNotes(highlightId: string, notes: readonly string[]) {
+  return notes.map((text, index) => ({
+    key: `${highlightId}:${text.slice(0, 32)}#${index}`,
+    text,
+  }));
+}
+
 type HighlightPanelProps = {
   book: BookRowValues;
   // mind-map feature の型を借りると feature 間依存になるため、ここで平坦に宣言する
@@ -46,13 +57,17 @@ export function HighlightPanel({ book, onQuoteToNode }: HighlightPanelProps) {
 
       <Stack gap="sm">
         {highlights.map((h) => (
-          <Box key={h.id} p="sm" style={{ borderLeft: "3px solid var(--mantine-color-blue-4)" }}>
+          <Box
+            key={h.id}
+            p="sm"
+            // 見た目は既存デザインを維持する（Phase 0 は挙動も見た目も変えない方針）
+            // react-doctor-disable-next-line react-doctor/no-side-tab-border
+            style={{ borderLeft: "3px solid var(--mantine-color-blue-4)" }}
+          >
             <Text size="sm">{h.quote}</Text>
-            {/* notes は CLI 側と共有する Highlight['notes']（ただの string[]）でブロック id を持たないため、
-                安定キーは親ハイライトの id と並び順で作る */}
-            {h.notes.map((n, i) => (
-              <Text key={`${h.id}:${i}`} size="xs" c="dimmed" ml="sm">
-                ・{n}
+            {keyedNotes(h.id, h.notes).map((note) => (
+              <Text key={note.key} size="xs" c="dimmed" ml="sm">
+                ・{note.text}
               </Text>
             ))}
             <Button

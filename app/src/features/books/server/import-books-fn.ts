@@ -22,15 +22,23 @@ export const importBooksFn = createServerFn({ method: "POST" })
   .inputValidator(importInput)
   .handler(async ({ data }) => {
     const databaseId = await findOrCreateDatabase();
-    const dataSourceId = await getPrimaryDataSourceId(databaseId);
-    const asinPageMap = await getAsinPageMap(databaseId);
+    // 互いに独立。getAsinPageMap も内部で getPrimaryDataSourceId を呼ぶが、
+    // あちらは promise をメモ化しているので往復は増えない
+    const [dataSourceId, asinPageMap] = await Promise.all([
+      getPrimaryDataSourceId(databaseId),
+      getAsinPageMap(databaseId),
+    ]);
 
     const results: ImportFileResult[] = [];
     for (const [index, f] of data.files.entries()) {
       // 同名ファイルでも List のキーが衝突しないよう、並び順を id に混ぜる
       const identity = { id: `${index}:${f.name}`, file: f.name };
 
-      // 投げる Notion SDK / parse を境界で Result に包む
+      // 投げる Notion SDK / parse を境界で Result に包む。
+      // Promise.all で並列化しない: Notion の integration 単位のレート制限は同時実行を
+      // 強く罰するため、CLI 側（p-limit(3)）と同じ方針で直列に回す。
+      // root CLAUDE.md の "Notion API gotchas" 参照
+      // react-doctor-disable-next-line react-doctor/async-await-in-loop
       const synced = await Result.tryPromise({
         try: () => {
           const book = parseMdContent(f.content, f.name);

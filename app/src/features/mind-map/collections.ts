@@ -15,11 +15,17 @@ export const mindMapCollection = createCollection(
     schema: mindMapRowSchema,
     onInsert: async ({ transaction }) => {
       for (const m of transaction.mutations) {
+        // 直列のまま: 同一 Turso への upsert で、同じ bookId が 2 件含まれた場合に
+        // 並列化すると最終状態が非決定になる。1 トランザクションは実質 1 冊なので
+        // Promise.all にしても得るものが無い
+        // react-doctor-disable-next-line react-doctor/async-await-in-loop
         await saveMindMapFn({ data: { bookId: m.modified.bookId, graph: m.modified.graph } });
       }
     },
     onUpdate: async ({ transaction }) => {
       for (const m of transaction.mutations) {
+        // onInsert と同じ理由で直列
+        // react-doctor-disable-next-line react-doctor/async-await-in-loop
         await saveMindMapFn({ data: { bookId: m.modified.bookId, graph: m.modified.graph } });
       }
     },

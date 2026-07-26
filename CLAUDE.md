@@ -160,6 +160,35 @@ Other things worth knowing:
 - DB migrations: `cd app && pnpm exec drizzle-kit generate` (schema in `app/src/lib/db/`).
   Back up `mind_map` before running `migrate` against the live Turso database.
 
+## react-doctor
+
+`cd app && aube run doctor` (or `./node_modules/.bin/react-doctor . --verbose --yes`). A clean tree
+reports **no findings**. The numeric score needs `www.react.doctor/api/score`, so in a sandbox
+without outbound access the only checkable signal is the finding count.
+
+Config lives in **`app/react-doctor.config.json`**. v0.9.1 warns that the file should be renamed to
+`doctor.config.json`, but its loader still only reads the old name — verified by testing both, so
+don't rename until react-doctor is upgraded.
+
+The config turns off exactly one rule:
+
+- **`deslop/unused-dependency`** — react-doctor's dead-code pass does not follow the `~/` alias into
+  the root `src/`, so it reports `@notionhq/client` (used by 3 root modules the app bundles) as
+  unused. There is no per-package allowlist, so the whole rule is off. `deslop/unused-dev-dependency`
+  is still on. **When adding a dependency to `app/`, check by hand that it is actually used** —
+  nothing else will tell you.
+
+Everything else that fires is suppressed inline with a reason, never rule-wide. The recurring ones:
+
+| Rule | Where | Why it stays |
+| --- | --- | --- |
+| `only-export-components` | `src/routes/**` (5) | `createFileRoute` requires exporting `Route`, a non-component. See the Routes exception in `project-structure.md`. |
+| `no-prevent-default` | the two `<form>`s | `e.preventDefault()` + `form.handleSubmit()` is the TanStack Form v1 contract (`valibot-validation.md`); this UI is auth-gated CSR, so no-JS submit is out of scope. |
+| `async-await-in-loop` | `import-books-fn`, `mind-map/collections` | Notion's per-integration rate limit (see **Notion API gotchas**); the mind-map loop stays ordered so the last write wins deterministically. |
+| `no-loading-flag-reset-outside-finally` | `routes/login.tsx` | `finally` would clear the flag on success too, re-enabling the button while the OAuth redirect is in flight. Rejection is covered by `Result.tryPromise`. |
+| `incompatible-library` | `books-table.tsx` | `useReactTable` returns unmemoisable functions; React Compiler skips the component by design. No table values are passed to memoised children. |
+| `no-side-tab-border` | highlight / mental-map panels | Existing visual design; changing it is a design decision, not a cleanup. |
+
 ## `.claude/`
 
 - `.claude/skills/` contains symlinks to autoskills (nodejs-best-practices, typescript-advanced-types, nodejs-backend-patterns) tracked in `skills-lock.json`. Don't edit the symlink targets directly.

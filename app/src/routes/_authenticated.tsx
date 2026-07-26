@@ -14,6 +14,9 @@ export const Route = createFileRoute("/_authenticated")({
   component: AuthenticatedLayout,
 });
 
+// route ファイルは createFileRoute の Route（非 component）を export する規約のため構造上満たせない
+// （project-structure.md の Routes exception）
+// react-doctor-disable-next-line react-doctor/only-export-components
 function AuthenticatedLayout() {
   const { user } = Route.useRouteContext();
 

@@ -12,7 +12,7 @@ export const pastedContentSchema = v.object({
  * 取込先。Web Highlights の書き出しは ASIN を持たないので自動判定できず、
  * 「新規作成」か「どの既存ページへ追記するか」を必ず明示してもらう。
  */
-export const pasteTargetSchema = v.variant("kind", [
+const pasteTargetSchema = v.variant("kind", [
   v.object({ kind: v.literal("create") }),
   v.object({
     kind: v.literal("append"),
@@ -21,7 +21,7 @@ export const pasteTargetSchema = v.variant("kind", [
 ]);
 
 /** preview で編集した項目。書き出しが落とした項目を復元できる唯一の地点。 */
-export const pasteOverridesSchema = v.object({
+const pasteOverridesSchema = v.object({
   title: v.pipe(v.string(), v.trim(), v.minLength(1, "タイトルは必須です")),
   authors: v.array(v.pipe(v.string(), v.trim(), v.minLength(1))),
   asin: v.nullable(v.pipe(v.string(), v.trim())),

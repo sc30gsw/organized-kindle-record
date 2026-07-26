@@ -7,7 +7,14 @@ import {
   queryDataSourcePages,
   type DataSourceId,
 } from '~/lib/notion-data-source';
-import type { AppendHighlightsParams, Book, DatabaseId, Highlight, PageId } from '~/types';
+import type {
+  AppendHighlightsParams,
+  Book,
+  DatabaseId,
+  Highlight,
+  PageId,
+  ReadingStatusName,
+} from '~/types';
 
 export function normalizeQuoteText(s: Highlight['text']) {
   return s.replace(/\s+/g, ' ').trim();
@@ -98,22 +105,70 @@ export async function syncBook(
     return { kind: 'created', pageId, added: book.highlights.length };
   }
 
-  const existingTexts = await getExistingQuoteTexts(existingPageId);
+  return appendNewHighlights(book, existingPageId);
+}
+
+/**
+ * 既存ページへ未登録ハイライトのみ差分追記する（重複判定は引用テキストの正規化一致）。
+ * ASIN を使わないため、ファイル取込とペースト取込で共有できる。
+ */
+async function appendNewHighlights(book: Book, pageId: PageId): Promise<SyncBookResult> {
+  const existingTexts = await getExistingQuoteTexts(pageId);
   const newHighlights = book.highlights.filter(
     (h) => !existingTexts.has(normalizeQuoteText(h.text)),
   );
 
-  if (newHighlights.length === 0) return { kind: 'unchanged', pageId: existingPageId };
+  if (newHighlights.length === 0) return { kind: 'unchanged', pageId };
 
-  await appendHighlights(existingPageId, newHighlights);
+  await appendHighlights(pageId, newHighlights);
   await withRetry(() =>
     notion.pages.update({
-      page_id: existingPageId,
+      page_id: pageId,
       properties: {
         ハイライト件数: { number: book.highlights.length },
         ...(book.lastUpdated ? { 最終更新日: { date: { start: book.lastUpdated } } } : {}),
       },
     }),
   );
-  return { kind: 'updated', pageId: existingPageId, added: newHighlights.length };
+  return { kind: 'updated', pageId, added: newHighlights.length };
+}
+
+/**
+ * 取込先を明示して 1 冊を同期する（UI のペースト取込用）。
+ *
+ * Web Highlights の書き出しは ASIN を持たないので `syncBook` の ASIN 経路が使えない。
+ * create を ASIN 無しで許すのはこの経路だけの意図的な緩和で、取込先の判断は UI 側が持つ。
+ * append は引用テキスト一致で重複を弾くため、読み進めてから再ペーストすると差分だけ増える。
+ * 既存ページの著者 / cover / 読了ステータスは触らない（手編集の保護）。
+ */
+export async function syncBookToPage(
+  book: Book,
+  ctx: {
+    dataSourceId: DataSourceId;
+    target: { kind: 'create' } | { kind: 'append'; pageId: PageId };
+    status?: ReadingStatusName;
+  },
+): Promise<SyncBookResult> {
+  if (ctx.target.kind === 'create') {
+    const pageId = await importBook(book, ctx.dataSourceId, ctx.status);
+    return { kind: 'created', pageId, added: book.highlights.length };
+  }
+
+  const { pageId } = ctx.target;
+  const { asin, tags } = book;
+
+  // 明示入力された ASIN / タグだけ書き戻す。ASIN が入れば以降は正規キーとして効く
+  if (asin || tags.length > 0) {
+    await withRetry(() =>
+      notion.pages.update({
+        page_id: pageId,
+        properties: {
+          ...(asin ? { ASIN: { rich_text: [{ type: 'text', text: { content: asin } }] } } : {}),
+          ...(tags.length > 0 ? { タグ: { multi_select: tags.map((name) => ({ name })) } } : {}),
+        },
+      }),
+    );
+  }
+
+  return appendNewHighlights(book, pageId);
 }

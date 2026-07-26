@@ -7,6 +7,12 @@ export class BookSyncError extends TaggedError("BookSyncError")<{
   message: string;
 }>() {}
 
+/** ペーストされたテキストの parse 失敗。書式が想定と違う場合に preview へ理由を返す。 */
+export class PasteParseError extends TaggedError("PasteParseError")<{
+  cause?: unknown;
+  message: string;
+}>() {}
+
 /** アップロード RPC 全体の失敗（ネットワーク等）。 */
 export class ImportRequestError extends TaggedError("ImportRequestError")<{
   cause?: unknown;

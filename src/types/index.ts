@@ -27,3 +27,4 @@ export {
   READING_STATUS_DONE,
   READING_STATUS_OPTIONS,
 } from '~/types/constants';
+export type { ReadingStatusName } from '~/types/constants';

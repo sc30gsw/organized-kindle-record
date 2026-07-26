@@ -77,6 +77,28 @@ These are baked into `src/notion-client.ts` and `src/import-book.ts`. Don't undo
 
 `src/parse-md.ts` assumes the exact Glasp export shape: `# {title}`, `- Author: {authors}`, `### Highlights & Notes`, `> {quote}` blocks each optionally followed by `- {note}` bullets, with an ASIN-bearing Kindle link. New input formats need parser changes, not workarounds in the importer.
 
+## Two intakes, two parsers
+
+Glasp (the original producer) is gone — the maintainer moved to
+[Web Highlights](https://web-highlights.com/), whose export is pasted into the web app instead of
+dropped as a file. Both parsers return the same `Book`, so everything downstream is shared:
+
+| | `src/parse-md.ts` | `src/parse-web-highlights.ts` |
+| --- | --- | --- |
+| Input | Glasp `.md` file | pasted **Copy Markdown** or **HTML export** (auto-detected: leading `<` ⇒ HTML) |
+| Notes attach via | `- {note}` bullets | fenced ```` ``` ```` block (MD) / `div.notes` (HTML) |
+| **ASIN** | present | **absent** |
+| Notion sync | `syncBook()` — resolves the page by ASIN | `syncBookToPage()` — target passed in explicitly |
+
+**No ASIN means no automatic identity.** The paste flow is therefore two-step (paste → preview →
+confirm): the user picks 新規作成 vs an existing page and fills in title / authors / ASIN / tags /
+date that the export drops. `findBookCandidates()`
+(`app/src/features/books/lib/match-existing-book.ts`) pre-selects a target only when exactly one
+normalized-title match exists — it is what stands between a re-paste and a duplicate page.
+Append dedupes on normalized quote text, so re-pasting after reading further adds only the new
+highlights. `syncBookToPage`'s create path is the one place a page may be created without an ASIN;
+`syncBook` keeps the requirement for the file path.
+
 ## Code style
 
 - File names are `kebab-case.ts` (existing examples: `import-all.ts`, `notion-client.ts`).
@@ -98,9 +120,10 @@ test placed next to root CLI code (e.g. `src/parse-md.test.ts`) is picked up too
 utilities from `vite-plus/test`, never from `vitest` directly. Root `tsconfig.json` excludes
 `src/**/*.test.ts` (the root package has no vite-plus); `app/tsconfig.json` type-checks them instead.
 
-Covered today: `computeCollapseState`, the mind-map graph schema boundary, `selectedTextWithin`, and
-`parseMdContent`. Component/route tests are deliberately absent — see the "今回やらないこと" note in
-the refactor plan.
+Covered today: `computeCollapseState`, the mind-map graph schema boundary, `selectedTextWithin`,
+`parseMdContent`, `parseWebHighlights` / `detectPastedFormat` (both export formats), and
+`normalizeBookTitle` / `findBookCandidates`. Component/route tests are deliberately absent — see the
+"今回やらないこと" note in the refactor plan.
 
 ## Outputs to know about
 

@@ -3,7 +3,7 @@ import { chunkNotionChildren } from '~/lib/notion-batch';
 import { chunkText } from '~/lib/text';
 import { HIGHLIGHTS_SECTION_TITLE, READING_STATUS_DONE } from '~/types/constants';
 import type { DataSourceId } from '~/lib/notion-data-source';
-import type { Book, Highlight } from '~/types';
+import type { Book, Highlight, ReadingStatusName } from '~/types';
 
 type RichText = { type: 'text'; text: Record<'content', string> };
 type BulletBlock = {
@@ -58,8 +58,16 @@ function buildBlocks(book: Book) {
   return [heading, ...quotes] as const satisfies readonly AnyBlock[];
 }
 
+/**
+ * 1 冊を新規ページとして作成する。
+ * status は UI のペースト取込で選ばせるための任意引数で、CLI からは常に既定（読了）。
+ */
 export async function importBook(
-  ...[book, dataSourceId]: [book: Book, dataSourceId: DataSourceId]
+  ...[book, dataSourceId, status]: [
+    book: Book,
+    dataSourceId: DataSourceId,
+    status?: ReadingStatusName,
+  ]
 ) {
   const allBlocks = [...buildBlocks(book)];
   const [firstBatch = [], ...restBatches] = chunkNotionChildren(allBlocks);
@@ -79,7 +87,8 @@ export async function importBook(
         ...(book.kindleLink ? { 'Kindle Link': { url: book.kindleLink } } : {}),
         ...(book.lastUpdated ? { 最終更新日: { date: { start: book.lastUpdated } } } : {}),
         ハイライト件数: { number: book.highlights.length },
-        読了ステータス: { select: { name: READING_STATUS_DONE } },
+        読了ステータス: { select: { name: status ?? READING_STATUS_DONE } },
+        タグ: { multi_select: book.tags.map((name) => ({ name })) },
         ...(book.coverUrl ? { 'Cover URL': { url: book.coverUrl } } : {}),
       },
       children: firstBatch as NotionPageCreateChildren,

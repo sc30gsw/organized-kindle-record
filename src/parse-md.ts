@@ -51,6 +51,8 @@ export function parseMdContent(content: string, filePath = '') {
     kindleLink,
     asin,
     lastUpdated,
+    // Glasp エクスポートにタグ欄は無い。Book['tags'] を never[] に縮退させないため型を明示する
+    tags: [] as string[],
     highlights,
   };
 }

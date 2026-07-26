@@ -87,4 +87,8 @@ describe('parseMdContent', () => {
 
     expect(book.lastUpdated).toBeNull();
   });
+
+  test('Glasp にタグ欄は無いので tags は常に空（Book の共有項目を退化させない）', () => {
+    expect(parseMdContent(GLASP_MD).tags).toEqual([]);
+  });
 });

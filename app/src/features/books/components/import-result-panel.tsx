@@ -1,5 +1,5 @@
-import { ImportFileResult } from "@/features/books/server/import-books-fn";
 import { Alert, List, Stack, Text } from "@mantine/core";
+import type { ImportFileResult } from "@/features/books/server/import-books-fn";
 
 const LABEL = {
   created: "作成",

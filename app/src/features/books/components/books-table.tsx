@@ -11,43 +11,49 @@ import {
 } from "@tanstack/react-table";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { format } from "@formkit/tempo";
-import { STATUS_COLOR, StatusBadge } from "@/features/books/components/status-badge";
-import { BookRowValues } from "@/features/books/schemas/book-schema";
+import { StatusBadge } from "@/features/books/components/status-badge";
+import type { BookRowValues } from "@/features/books/schemas/book-schema";
 
 const col = createColumnHelper<BookRowValues>();
+
+/** ソート方向の表示。getIsSorted() は false | 'asc' | 'desc' を返す。 */
+const SORT_MARK = { asc: " ▲", desc: " ▼" } as const;
+
+function sortMark(sorted: false | "asc" | "desc") {
+  return sorted === false ? "" : SORT_MARK[sorted];
+}
 
 const columns = [
   col.accessor("coverUrl", {
     header: "表紙",
     size: 56,
     enableSorting: false,
-    cell: (c) =>
-      c.getValue() ? (
-        <Image src={c.getValue()!} alt="" w={40} h={56} fit="contain" />
-      ) : (
+    cell: (c) => {
+      const coverUrl = c.getValue();
+
+      return coverUrl === null ? (
         <Text c="dimmed" size="xs">
           —
         </Text>
-      ),
+      ) : (
+        <Image src={coverUrl} alt="" w={40} h={56} fit="contain" />
+      );
+    },
   }),
   col.accessor("title", {
     header: "タイトル",
     size: 360,
     cell: (c) => (
-      <Link
-        to="/books/$bookId"
-        params={{ bookId: c.row.original.id }}
+      <Anchor
+        display="block"
+        renderRoot={(props) => (
+          <Link params={{ bookId: c.row.original.id }} to="/books/$bookId" {...props} />
+        )}
         title={c.getValue()}
-        style={{
-          display: "block",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          color: "var(--mantine-color-anchor)",
-        }}
+        truncate="end"
       >
         {c.getValue()}
-      </Link>
+      </Anchor>
     ),
   }),
   col.accessor("authors", {
@@ -63,25 +69,28 @@ const columns = [
   col.accessor("status", {
     header: "ステータス",
     size: 120,
-    cell: (c) => <StatusBadge status={c.getValue() as keyof typeof STATUS_COLOR} />,
+    cell: (c) => <StatusBadge status={c.getValue()} />,
   }),
   col.accessor("amazonUrl", {
     header: "Amazon",
     size: 220,
     enableSorting: false,
-    cell: (c) =>
-      c.getValue() ? (
+    cell: (c) => {
+      const amazonUrl = c.getValue();
+
+      return amazonUrl === null ? null : (
         <Anchor
-          href={c.getValue()!}
+          href={amazonUrl}
           target="_blank"
           rel="noreferrer"
           truncate="end"
-          title={c.getValue()!}
+          title={amazonUrl}
           display="block"
         >
-          {c.getValue()}
+          {amazonUrl}
         </Anchor>
-      ) : null,
+      );
+    },
   }),
   col.accessor("pageUrl", {
     header: "Notion",
@@ -97,7 +106,11 @@ const columns = [
   col.accessor("lastUpdated", {
     header: "最終更新",
     size: 116,
-    cell: (c) => (c.getValue() ? format(c.getValue()!, "YYYY/MM/DD") : "—"),
+    cell: (c) => {
+      const lastUpdated = c.getValue();
+
+      return lastUpdated === null ? "—" : format(lastUpdated, "YYYY/MM/DD");
+    },
   }),
 ];
 
@@ -122,7 +135,8 @@ export function BooksTable({ data }: Record<"data", BookRowValues[]>) {
   });
 
   return (
-    <div ref={parentRef} style={{ height: "70vh", overflow: "auto" }}>
+    // 高さは親（レイアウトの残り領域）が決める。ここでスクロールを閉じる
+    <div ref={parentRef} className="h-full overflow-auto">
       <Table stickyHeader highlightOnHover layout="fixed">
         <Table.Thead>
           {table.getHeaderGroups().map((hg) => (
@@ -130,43 +144,41 @@ export function BooksTable({ data }: Record<"data", BookRowValues[]>) {
               {hg.headers.map((h) => (
                 <Table.Th
                   key={h.id}
+                  bg="blue.0"
+                  c="blue.9"
                   onClick={h.column.getCanSort() ? h.column.getToggleSortingHandler() : undefined}
-                  style={{
-                    cursor: h.column.getCanSort() ? "pointer" : undefined,
-                    width: h.getSize(),
-                    backgroundColor: "var(--mantine-color-blue-0)",
-                    color: "var(--mantine-color-blue-9)",
-                  }}
+                  w={h.getSize()}
+                  className={h.column.getCanSort() ? "cursor-pointer" : undefined}
                 >
                   {flexRender(h.column.columnDef.header, h.getContext())}
-                  {({ asc: " ▲", desc: " ▼" } as Record<string, string>)[
-                    h.column.getIsSorted() as string
-                  ] ?? ""}
+                  {sortMark(h.column.getIsSorted())}
                 </Table.Th>
               ))}
             </Table.Tr>
           ))}
         </Table.Thead>
-        <Table.Tbody style={{ height: virtualizer.getTotalSize(), position: "relative" }}>
+        <Table.Tbody className="relative" h={virtualizer.getTotalSize()}>
           {virtualizer.getVirtualItems().map((vi) => {
-            const row = rows[vi.index]!;
+            const row = rows[vi.index];
+
+            if (!row) {
+              return null;
+            }
+
             const zebra = vi.index % 2 === 1;
+
             return (
               <Table.Tr
                 key={row.id}
+                bg={zebra ? "gray.0" : undefined}
                 data-index={vi.index}
                 ref={virtualizer.measureElement}
-                style={{
-                  position: "absolute",
-                  transform: `translateY(${vi.start}px)`,
-                  width: "100%",
-                  display: "table",
-                  tableLayout: "fixed",
-                  backgroundColor: zebra ? "var(--mantine-color-gray-0)" : undefined,
-                }}
+                // 仮想化のため各行を絶対配置し、table-fixed で列幅を親と揃える
+                className="absolute table w-full table-fixed"
+                style={{ transform: `translateY(${vi.start}px)` }}
               >
                 {row.getVisibleCells().map((cell) => (
-                  <Table.Td key={cell.id} style={{ width: cell.column.getSize() }}>
+                  <Table.Td key={cell.id} w={cell.column.getSize()}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Table.Td>
                 ))}

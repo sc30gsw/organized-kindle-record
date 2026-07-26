@@ -1,12 +1,12 @@
-import { HighlightPanel } from "@/features/books/components/highlight-panel";
 import { Box, Button, Group, Modal, Stack, Text } from "@mantine/core";
 import type { UseDisclosureReturnValue } from "@mantine/hooks";
-import { getBookHighlights } from "~/get-book-highlights";
+import type { MentalMapItemValues } from "@/features/books/schemas/book-detail-schema";
 
 type MentalMapModalProps = {
-  items: Awaited<ReturnType<typeof getBookHighlights>>["mentalMap"];
+  items: MentalMapItemValues[];
   onClose: UseDisclosureReturnValue[1]["close"];
-  onQuoteToNode: Parameters<typeof HighlightPanel>[0]["onQuoteToNode"];
+  // HighlightPanel から型を借りると相互 import で循環するため、ここで平坦に宣言する
+  onQuoteToNode: (label: string) => void;
   opened: UseDisclosureReturnValue[0];
 };
 
@@ -15,8 +15,12 @@ export function MentalMapModal({ items, onClose, onQuoteToNode, opened }: Mental
   return (
     <Modal onClose={onClose} opened={opened} size="lg" title="メンタルマップ">
       <Stack gap="lg">
-        {items.map((item, i) => (
-          <Box key={i} style={{ borderLeft: "3px solid var(--mantine-color-teal-4)" }} pl="sm">
+        {items.map((item) => (
+          <Box
+            key={item.id}
+            style={{ borderLeft: "3px solid var(--mantine-color-teal-4)" }}
+            pl="sm"
+          >
             <Group align="flex-start" gap="xs" justify="space-between" wrap="nowrap">
               <Text fw={600} size="sm">
                 {item.question}
@@ -30,10 +34,20 @@ export function MentalMapModal({ items, onClose, onQuoteToNode, opened }: Mental
               </Button>
             </Group>
             <Stack gap={4} mt="xs">
-              {item.answers.map((answer, j) => (
-                <Group key={j} align="flex-start" gap="xs" justify="space-between" wrap="nowrap">
-                  <Text size="sm">・{answer}</Text>
-                  <Button onClick={() => onQuoteToNode(answer)} size="compact-xs" variant="subtle">
+              {item.answers.map((answer) => (
+                <Group
+                  key={answer.id}
+                  align="flex-start"
+                  gap="xs"
+                  justify="space-between"
+                  wrap="nowrap"
+                >
+                  <Text size="sm">・{answer.text}</Text>
+                  <Button
+                    onClick={() => onQuoteToNode(answer.text)}
+                    size="compact-xs"
+                    variant="subtle"
+                  >
                     ノード化
                   </Button>
                 </Group>

@@ -1,6 +1,6 @@
 ---
-description: Mantine 9 + Tailwind v4 coexistence — default to Mantine, cn() for layout, theme tokens
-globs: ["src/**/*.tsx", "src/lib/theme.ts"]
+description: Mantine 9 + Tailwind v4 coexistence — default to Mantine, Tailwind for layout shells, theme tokens
+globs: ["app/src/**/*.tsx"]
 alwaysApply: true
 ---
 
@@ -22,33 +22,55 @@ Use Mantine components and props before reaching for Tailwind utilities.
 </Button>
 ```
 
-## `cn()` boundary
+## Where Tailwind belongs
 
-Use `cn()` (from `~/lib/utils`) to compose Tailwind classes on **wrapper / layout elements** around Mantine components. Do NOT use Tailwind to override Mantine component internals via arbitrary selectors.
+Tailwind is for **layout on plain wrapper elements** — the `div`s that Mantine does not own.
+Do NOT use Tailwind to override Mantine component internals via arbitrary selectors.
 
 ```tsx
-import { cn } from "~/lib/utils";
-
-// CORRECT: Tailwind for layout on a container, Mantine for the component itself
-export function FormSection({ children, className }: { children: ReactNode; className?: string }) {
-  return <section className={cn("flex flex-col gap-4", className)}>{children}</section>;
-}
+// CORRECT: Tailwind for the layout shell, Mantine for the components inside
+// app/src/routes/_authenticated.tsx
+<div className="flex h-dvh flex-col">
+  <AppHeader email={user.email} />
+  <div className="min-h-0 flex-1">
+    <Outlet />
+  </div>
+</div>;
 
 // WRONG: fighting Mantine internals with Tailwind
 <Button className="[&_.mantine-Button-label]:text-red-500">...</Button>;
 ```
 
-## Theme tokens
-
-Prefer Mantine theme tokens over hardcoded values. `tailwind-preset-mantine` syncs Mantine's color scale into Tailwind:
+A Mantine component may still take a `className` when the utility expresses something Mantine has
+no prop for — `cursor-pointer`, `absolute`, `table-fixed`, `overflow-auto`. Anything Mantine *does*
+have a prop for (`bg`, `c`, `w`, `h`, `p`, `m`, `display`, `truncate`) goes through the prop.
 
 ```tsx
-// CORRECT: consistent with design system
-<div className="bg-primary-6 text-white">   // Tailwind class from Mantine's primary palette
-<Box bg="blue.6" c="white">                 // Mantine prop equivalent
+// CORRECT: 色/幅は Mantine prop、prop の無いものだけ Tailwind
+<Table.Th bg="blue.0" c="blue.9" w={header.getSize()} className="cursor-pointer">
+```
 
-// WRONG: hardcoded values that bypass the design system
-<div style={{ backgroundColor: '#228BE6' }}>
+## No `cn()` helper in this repo
+
+There is no `cn()` / `clsx` / `tailwind-merge` utility installed, and no `tailwind-preset-mantine`.
+Compose classes with a plain template string, or add one of those deliberately (and update this
+rule) before relying on it. Do not import `~/lib/utils` — it does not exist, and `~/` here resolves
+to the root CLI `src/`, not to app code (see `typescript/project-structure.md`).
+
+## Theme tokens
+
+Prefer Mantine theme tokens over hardcoded values.
+
+```tsx
+// CORRECT: Mantine のスケールを参照する
+<Box bg="blue.6" c="white">
+<Table.Tr bg="gray.0">
+
+// 許容: Mantine prop の無い箇所で CSS 変数を使う
+<Box style={{ borderLeft: "3px solid var(--mantine-color-blue-4)" }}>
+
+// WRONG: デザインシステムを迂回するハードコード
+<div style={{ backgroundColor: "#228BE6" }}>
 ```
 
 Access theme values in code via `useMantineTheme()` or `rem()`:
@@ -60,6 +82,12 @@ const theme = useMantineTheme();
 const primaryColor = theme.colors[theme.primaryColor][6];
 const spacing = rem(16);
 ```
+
+## Heights
+
+Do not hardcode viewport heights (`70vh`, `calc(100vh - 16px)`). The authenticated layout is a
+`h-dvh` flex column, so pages use `h-full` + `min-h-0 flex-1` and only the intended scroll region
+scrolls.
 
 ## Related skills
 

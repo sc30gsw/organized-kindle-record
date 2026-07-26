@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { Result } from "better-result";
 import * as v from "valibot";
-import { ensureSession } from "@/lib/auth-functions";
+import { authMiddleware } from "@/lib/auth-middleware";
 import { BookSyncError } from "@/features/books/errors";
 import { findOrCreateDatabase } from "~/create-database";
 import { parseMdContent } from "~/parse-md";
@@ -27,9 +27,9 @@ export type ImportFileResult =
  * Notion レート制限を尊重して 1 冊ずつ逐次処理する。
  */
 export const importBooksFn = createServerFn({ method: "POST" })
+  .middleware([authMiddleware])
   .inputValidator(importInput)
   .handler(async ({ data }) => {
-    await ensureSession();
     const databaseId = await findOrCreateDatabase();
     const dataSourceId = await getPrimaryDataSourceId(databaseId);
     const asinPageMap = await getAsinPageMap(databaseId);

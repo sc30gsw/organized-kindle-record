@@ -4,9 +4,9 @@ import {
   ActionIcon,
   ColorPicker,
   Group,
-  MantineColor,
   Popover,
   useMantineTheme,
+  type MantineColor,
 } from "@mantine/core";
 import {
   IconChevronDown,

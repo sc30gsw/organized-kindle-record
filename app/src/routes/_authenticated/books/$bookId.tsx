@@ -3,10 +3,11 @@ import { ClientOnly, createFileRoute, Link, stripSearchParams } from "@tanstack/
 import { valibotValidator } from "@tanstack/valibot-adapter";
 import { eq } from "@tanstack/db";
 import { useLiveSuspenseQuery } from "@tanstack/react-db";
-import { Alert, Button, Center, Container, Group, Loader } from "@mantine/core";
+import { Alert, Button, Group } from "@mantine/core";
 import { IconArrowLeft } from "@tabler/icons-react";
+import { PageLoader } from "@/components/page-loader";
+import { RouteError } from "@/components/route-error";
 import { booksCollection } from "@/features/books/collections";
-import { bookHighlightsQueryOptions } from "@/features/books/api/book-highlights-query";
 import { HighlightPanel } from "@/features/books/components/highlight-panel";
 import { mindMapCollection } from "@/features/mind-map/collections";
 import { MindMapCanvas } from "@/features/mind-map/components/mind-map-canvas";
@@ -16,44 +17,21 @@ import {
   defaultBookDetailSearchParams,
 } from "@/features/mind-map/schemas/wheel-mode-schema";
 import { SplitView } from "@/components/split-view";
-import { queryClient } from "@/lib/query-client";
-import type { MindMapGraph } from "@/lib/db/schema";
 
+// 一覧ページと同じく CSR 明示。loader での先読みは ClientOnly 配下の取得と二重になる。
 export const Route = createFileRoute("/_authenticated/books/$bookId")({
   validateSearch: valibotValidator(bookDetailSearchSchema),
   search: {
     middlewares: [stripSearchParams(defaultBookDetailSearchParams)],
   },
-  loader: async ({ params }) => {
-    await booksCollection.preload();
-    await mindMapCollection.preload();
-    await queryClient.ensureQueryData(bookHighlightsQueryOptions(params.bookId));
-  },
   component: BookDetailPage,
-  errorComponent: BookDetailError,
+  errorComponent: RouteError,
 });
-
-function PageLoader() {
-  return (
-    <Center h="100%">
-      <Loader />
-    </Center>
-  );
-}
-
-function BookDetailError({ error }: Record<"error", Error>) {
-  return (
-    <Container size="xl" py="md">
-      <Alert color="red" title="読み込みエラー">
-        {error.message}
-      </Alert>
-    </Container>
-  );
-}
 
 function BookDetailPage() {
   return (
-    <div className="flex h-[calc(100vh-16px)] flex-col p-2">
+    // 高さはレイアウト（ヘッダーを除いた残り）から決まる
+    <div className="flex h-full flex-col p-2">
       <Group mb="xs">
         <Button
           leftSection={<IconArrowLeft size={16} />}
@@ -90,8 +68,11 @@ function BookDetail() {
   );
 
   const book = books[0];
-  const initialGraph = (maps[0]?.graph ?? null) as MindMapGraph | null;
-  const mm = useMindMap({ bookId, bookTitle: book?.title ?? "", initialGraph });
+  const mm = useMindMap({
+    bookId,
+    bookTitle: book?.title ?? "",
+    initialGraph: maps[0]?.graph ?? null,
+  });
 
   if (!book) {
     return (

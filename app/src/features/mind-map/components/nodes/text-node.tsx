@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import { useReactFlow, type NodeProps } from "@xyflow/react";
 import { Box, Text, Textarea } from "@mantine/core";
 import { CollapseBadge } from "@/features/mind-map/components/nodes/collapse-badge";
-import { NodeActions, nodeColorStyle } from "@/features/mind-map/components/nodes/node-actions";
+import { NodeActions } from "@/features/mind-map/components/nodes/node-actions";
+import { nodeColorStyle } from "@/features/mind-map/lib/node-color-style";
 import { NodeHandles } from "@/features/mind-map/components/nodes/node-handles";
 
 export function TextNode({ id, data }: NodeProps) {

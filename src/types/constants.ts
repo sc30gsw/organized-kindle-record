@@ -10,3 +10,6 @@ export const READING_STATUS_OPTIONS = [
 ] as const satisfies readonly Record<string, string>[];
 
 export const READING_STATUS_DONE = '読了';
+
+/** 読了ステータス名のユニオン。選択肢を増やせば importBook の引数型に自動で伝播する。 */
+export type ReadingStatusName = (typeof READING_STATUS_OPTIONS)[number]['name'];

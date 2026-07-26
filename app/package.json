@@ -22,7 +22,6 @@
     "@better-auth/infra": "^0.3.2",
     "@formkit/tempo": "^1.1.0",
     "@libsql/client": "^0.17.3",
-    "@libsql/kysely-libsql": "^0.4.1",
     "@mantine/core": "9.2.2",
     "@mantine/dropzone": "9.2.2",
     "@mantine/hooks": "9.2.2",
@@ -47,7 +46,6 @@
     "drizzle-orm": "^0.45.2",
     "modern-screenshot": "^4.7.0",
     "nitro": "^3.0.260522-beta",
-    "p-limit": "^7.3.0",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-resizable-panels": "^4.11.2",
@@ -56,7 +54,6 @@
   },
   "devDependencies": {
     "@rolldown/plugin-babel": "^0.2.3",
-    "@tanstack/react-router-devtools": "^1.166.13",
     "@types/node": "^25.9.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

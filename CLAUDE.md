@@ -77,6 +77,28 @@ These are baked into `src/notion-client.ts` and `src/import-book.ts`. Don't undo
 
 `src/parse-md.ts` assumes the exact Glasp export shape: `# {title}`, `- Author: {authors}`, `### Highlights & Notes`, `> {quote}` blocks each optionally followed by `- {note}` bullets, with an ASIN-bearing Kindle link. New input formats need parser changes, not workarounds in the importer.
 
+## Two intakes, two parsers
+
+Glasp (the original producer) is gone — the maintainer moved to
+[Web Highlights](https://web-highlights.com/), whose export is pasted into the web app instead of
+dropped as a file. Both parsers return the same `Book`, so everything downstream is shared:
+
+| | `src/parse-md.ts` | `src/parse-web-highlights.ts` |
+| --- | --- | --- |
+| Input | Glasp `.md` file | pasted **Copy Markdown** or **HTML export** (auto-detected: leading `<` ⇒ HTML) |
+| Notes attach via | `- {note}` bullets | fenced ```` ``` ```` block (MD) / `div.notes` (HTML) |
+| **ASIN** | present | **absent** |
+| Notion sync | `syncBook()` — resolves the page by ASIN | `syncBookToPage()` — target passed in explicitly |
+
+**No ASIN means no automatic identity.** The paste flow is therefore two-step (paste → preview →
+confirm): the user picks 新規作成 vs an existing page and fills in title / authors / ASIN / tags /
+date that the export drops. `findBookCandidates()`
+(`app/src/features/books/lib/match-existing-book.ts`) pre-selects a target only when exactly one
+normalized-title match exists — it is what stands between a re-paste and a duplicate page.
+Append dedupes on normalized quote text, so re-pasting after reading further adds only the new
+highlights. `syncBookToPage`'s create path is the one place a page may be created without an ASIN;
+`syncBook` keeps the requirement for the file path.
+
 ## Code style
 
 - File names are `kebab-case.ts` (existing examples: `import-all.ts`, `notion-client.ts`).
@@ -98,9 +120,10 @@ test placed next to root CLI code (e.g. `src/parse-md.test.ts`) is picked up too
 utilities from `vite-plus/test`, never from `vitest` directly. Root `tsconfig.json` excludes
 `src/**/*.test.ts` (the root package has no vite-plus); `app/tsconfig.json` type-checks them instead.
 
-Covered today: `computeCollapseState`, the mind-map graph schema boundary, `selectedTextWithin`, and
-`parseMdContent`. Component/route tests are deliberately absent — see the "今回やらないこと" note in
-the refactor plan.
+Covered today: `computeCollapseState`, the mind-map graph schema boundary, `selectedTextWithin`,
+`parseMdContent`, `parseWebHighlights` / `detectPastedFormat` (both export formats), and
+`normalizeBookTitle` / `findBookCandidates`. Component/route tests are deliberately absent — see the
+"今回やらないこと" note in the refactor plan.
 
 ## Outputs to know about
 
@@ -136,6 +159,35 @@ Other things worth knowing:
   imports must say `import type` — this is what keeps the Notion CLI stack out of the client bundle.
 - DB migrations: `cd app && pnpm exec drizzle-kit generate` (schema in `app/src/lib/db/`).
   Back up `mind_map` before running `migrate` against the live Turso database.
+
+## react-doctor
+
+`cd app && aube run doctor` (or `./node_modules/.bin/react-doctor . --verbose --yes`). A clean tree
+reports **no findings**. The numeric score needs `www.react.doctor/api/score`, so in a sandbox
+without outbound access the only checkable signal is the finding count.
+
+Config lives in **`app/react-doctor.config.json`**. v0.9.1 warns that the file should be renamed to
+`doctor.config.json`, but its loader still only reads the old name — verified by testing both, so
+don't rename until react-doctor is upgraded.
+
+The config turns off exactly one rule:
+
+- **`deslop/unused-dependency`** — react-doctor's dead-code pass does not follow the `~/` alias into
+  the root `src/`, so it reports `@notionhq/client` (used by 3 root modules the app bundles) as
+  unused. There is no per-package allowlist, so the whole rule is off. `deslop/unused-dev-dependency`
+  is still on. **When adding a dependency to `app/`, check by hand that it is actually used** —
+  nothing else will tell you.
+
+Everything else that fires is suppressed inline with a reason, never rule-wide. The recurring ones:
+
+| Rule | Where | Why it stays |
+| --- | --- | --- |
+| `only-export-components` | `src/routes/**` (5) | `createFileRoute` requires exporting `Route`, a non-component. See the Routes exception in `project-structure.md`. |
+| `no-prevent-default` | the two `<form>`s | `e.preventDefault()` + `form.handleSubmit()` is the TanStack Form v1 contract (`valibot-validation.md`); this UI is auth-gated CSR, so no-JS submit is out of scope. |
+| `async-await-in-loop` | `import-books-fn`, `mind-map/collections` | Notion's per-integration rate limit (see **Notion API gotchas**); the mind-map loop stays ordered so the last write wins deterministically. |
+| `no-loading-flag-reset-outside-finally` | `routes/login.tsx` | `finally` would clear the flag on success too, re-enabling the button while the OAuth redirect is in flight. Rejection is covered by `Result.tryPromise`. |
+| `incompatible-library` | `books-table.tsx` | `useReactTable` returns unmemoisable functions; React Compiler skips the component by design. No table values are passed to memoised children. |
+| `no-side-tab-border` | highlight / mental-map panels | Existing visual design; changing it is a design decision, not a cleanup. |
 
 ## `.claude/`
 

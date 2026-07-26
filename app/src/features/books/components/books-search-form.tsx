@@ -31,6 +31,9 @@ export function BooksSearchForm() {
   });
 
   return (
+    // TanStack Form v1 の submit 規約（valibot-validation.md）。
+    // 認証必須で CSR 前提の管理 UI なので、JS 無しの progressive enhancement は要件外
+    // react-doctor-disable-next-line react-doctor/no-prevent-default
     <form
       onSubmit={(e) => {
         e.preventDefault();

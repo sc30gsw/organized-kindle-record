@@ -3,6 +3,7 @@ import { Result } from "better-result";
 import * as v from "valibot";
 import { authMiddleware } from "@/lib/auth-middleware";
 import { BookSyncError } from "@/features/books/errors";
+import type { ImportFileResult } from "@/features/books/types/import-result";
 import { findOrCreateDatabase } from "~/create-database";
 import { parseMdContent } from "~/parse-md";
 import { getPrimaryDataSourceId } from "~/lib/notion-data-source";
@@ -11,16 +12,6 @@ import { getAsinPageMap, syncBook } from "~/lib/notion-sync";
 const importInput = v.object({
   files: v.array(v.object({ name: v.string(), content: v.string() })),
 });
-
-type ImportInput = v.InferInput<typeof importInput>;
-
-/** アップロード 1 ファイルぶんの結果（例外は投げず判別共用体で返す）。 */
-export type ImportFileResult =
-  | { file: ImportInput["files"][number]["name"]; kind: "created"; added: number }
-  | { file: ImportInput["files"][number]["name"]; kind: "updated"; added: number }
-  | { file: ImportInput["files"][number]["name"]; kind: "unchanged" }
-  | { file: ImportInput["files"][number]["name"]; kind: "skipped"; reason: string }
-  | { file: ImportInput["files"][number]["name"]; kind: "failed"; error: string };
 
 /**
  * md ファイル群を parse して Notion に create-or-append（サーバー専用）。
@@ -31,12 +22,23 @@ export const importBooksFn = createServerFn({ method: "POST" })
   .inputValidator(importInput)
   .handler(async ({ data }) => {
     const databaseId = await findOrCreateDatabase();
-    const dataSourceId = await getPrimaryDataSourceId(databaseId);
-    const asinPageMap = await getAsinPageMap(databaseId);
+    // 互いに独立。getAsinPageMap も内部で getPrimaryDataSourceId を呼ぶが、
+    // あちらは promise をメモ化しているので往復は増えない
+    const [dataSourceId, asinPageMap] = await Promise.all([
+      getPrimaryDataSourceId(databaseId),
+      getAsinPageMap(databaseId),
+    ]);
 
     const results: ImportFileResult[] = [];
-    for (const f of data.files) {
-      // 投げる Notion SDK / parse を境界で Result に包む
+    for (const [index, f] of data.files.entries()) {
+      // 同名ファイルでも List のキーが衝突しないよう、並び順を id に混ぜる
+      const identity = { id: `${index}:${f.name}`, file: f.name };
+
+      // 投げる Notion SDK / parse を境界で Result に包む。
+      // Promise.all で並列化しない: Notion の integration 単位のレート制限は同時実行を
+      // 強く罰するため、CLI 側（p-limit(3)）と同じ方針で直列に回す。
+      // root CLAUDE.md の "Notion API gotchas" 参照
+      // react-doctor-disable-next-line react-doctor/async-await-in-loop
       const synced = await Result.tryPromise({
         try: () => {
           const book = parseMdContent(f.content, f.name);
@@ -52,7 +54,7 @@ export const importBooksFn = createServerFn({ method: "POST" })
 
       // Result はシリアライズ境界を越えないよう plain object に変換
       if (Result.isError(synced)) {
-        results.push({ file: f.name, kind: "failed", error: synced.error.message });
+        results.push({ ...identity, kind: "failed", error: synced.error.message });
         continue;
       }
 
@@ -61,11 +63,16 @@ export const importBooksFn = createServerFn({ method: "POST" })
       switch (r.kind) {
         case "created":
         case "updated":
-          results.push({ file: f.name, kind: r.kind, added: r.added });
+          results.push({ ...identity, kind: r.kind, added: r.added });
           break;
 
         case "unchanged":
-          results.push({ file: f.name, kind: "unchanged" });
+          results.push({ ...identity, kind: "unchanged" });
+          break;
+
+        // ASIN の無い md は syncBook が同期せず返す。結果に出さないと処理件数が合わなくなる
+        case "skipped":
+          results.push({ ...identity, kind: "skipped", reason: r.reason });
           break;
       }
     }

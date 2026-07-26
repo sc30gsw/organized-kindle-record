@@ -28,6 +28,9 @@ export const Route = createFileRoute("/_authenticated/books/$bookId")({
   errorComponent: RouteError,
 });
 
+// route ファイルは createFileRoute の Route（非 component）を export する規約のため構造上満たせない
+// （project-structure.md の Routes exception）
+// react-doctor-disable-next-line react-doctor/only-export-components
 function BookDetailPage() {
   return (
     // 高さはレイアウト（ヘッダーを除いた残り）から決まる
@@ -53,6 +56,9 @@ function BookDetailPage() {
   );
 }
 
+// route ファイルは createFileRoute の Route（非 component）を export する規約のため構造上満たせない
+// （project-structure.md の Routes exception）
+// react-doctor-disable-next-line react-doctor/only-export-components
 function BookDetail() {
   const { bookId } = Route.useParams();
   const { wheel } = Route.useSearch();

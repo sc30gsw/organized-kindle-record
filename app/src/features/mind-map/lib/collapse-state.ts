@@ -36,7 +36,21 @@ export function computeCollapseState(
     neighborsOf.set(edge.target, [...(neighborsOf.get(edge.target) ?? []), edge.source]);
   }
 
-  const collapsedIds = new Set(nodes.filter((n) => n.data.collapsed === true).map((n) => n.id));
+  const collapsedIds = new Set<string>();
+  // アンカー（タイトルノード）を先に並べた探索順。走査は 1 回で両方を作る
+  const anchorIds: string[] = [];
+  const otherIds: string[] = [];
+  for (const node of nodes) {
+    if (node.data.collapsed === true) {
+      collapsedIds.add(node.id);
+    }
+
+    if (node.type === ANCHOR_NODE_TYPE) {
+      anchorIds.push(node.id);
+    } else {
+      otherIds.push(node.id);
+    }
+  }
 
   function bfs(startIds: string[], stopAtCollapsed: boolean, limitTo?: Set<string>): Set<string> {
     const seen = new Set<string>();
@@ -56,10 +70,7 @@ export function computeCollapseState(
   }
 
   // タイトルノードを最優先アンカーに、未処理の連結成分ごとに可視集合を作る
-  const orderedIds = [
-    ...nodes.filter((n) => n.type === ANCHOR_NODE_TYPE).map((n) => n.id),
-    ...nodes.filter((n) => n.type !== ANCHOR_NODE_TYPE).map((n) => n.id),
-  ];
+  const orderedIds = [...anchorIds, ...otherIds];
   const assigned = new Set<string>();
   const visible = new Set<string>();
   for (const anchorId of orderedIds) {
@@ -74,7 +85,12 @@ export function computeCollapseState(
     }
   }
 
-  const hiddenNodeIds = new Set(nodes.map((n) => n.id).filter((id) => !visible.has(id)));
+  const hiddenNodeIds = new Set<string>();
+  for (const node of nodes) {
+    if (!visible.has(node.id)) {
+      hiddenNodeIds.add(node.id);
+    }
+  }
 
   // 各折りたたみノードの隠れ領域: 隣接する隠れノードから隠れ領域内だけを辿った id 集合。
   // ネストした折りたたみも stopAtCollapsed=false で全て含む。ドラッグ追従と +N チップの両方がこれを使う。

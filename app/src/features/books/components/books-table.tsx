@@ -33,7 +33,7 @@ const columns = [
 
       return coverUrl === null ? (
         <Text c="dimmed" size="xs">
-          —
+          なし
         </Text>
       ) : (
         <Image src={coverUrl} alt="" w={40} h={56} fit="contain" />
@@ -116,6 +116,10 @@ const columns = [
 
 export function BooksTable({ data }: Record<"data", BookRowValues[]>) {
   const [sorting, setSorting] = useState<SortingState>([{ id: "lastUpdated", desc: true }]);
+  // useReactTable が返す関数は memo 化できないため React Compiler がこの component の
+  // 最適化を諦める（ライブラリの仕様。@tanstack/react-table を置き換える以外に回避手段が無い）。
+  // table 由来の値を memo 化された子へ渡していないので、stale UI の実害は無い
+  // react-doctor-disable-next-line react-hooks-js/incompatible-library
   const table = useReactTable({
     data,
     columns,
